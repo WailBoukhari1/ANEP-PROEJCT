@@ -13,14 +13,8 @@ RUN npm install
 # Copy the rest of the application code
 COPY . .
 
-# Build the app for production
-RUN npm run build
-
-# Install a lightweight web server to serve the app
-RUN npm install -g serve
-
-# Expose the port serve runs on
-EXPOSE 5173
+# Expose the port the app runs on
+EXPOSE 5000
 
 # Start the application
-CMD ["serve", "-s", "dist"]
+CMD ["npm", "start"]

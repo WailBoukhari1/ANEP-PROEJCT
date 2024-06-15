@@ -1,17 +1,19 @@
 require('dotenv').config();
 const express = require('express');
 const http = require('http');
-const connectDB = require('./db');
+const connectDB = require('./config/db');
 const userRoutes = require('./routes/users');
 const courseRoutes = require('./routes/courses');
 const fileRoutes = require('./routes/fileRoutes');
-const setupSocket = require('./realtime/socketManager');
+const setupSocket = require('./utils/socketManager');
+const cors = require('cors');
 
 const app = express();
 const server = http.createServer(app);
 const io = setupSocket(server);
 
 app.use(express.json());
+app.use(cors());
 
 // Connect to MongoDB
 connectDB();
@@ -25,7 +27,7 @@ app.get('/', (req, res) => {
     res.send('Hello World!');
 });
 
-const port = process.env.PORT || 3000;
+const port = process.env.PORT;
 server.listen(port, () => {
     console.log(`Server running on port ${port}`);
 });

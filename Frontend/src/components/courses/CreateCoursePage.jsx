@@ -22,6 +22,7 @@ import RemoveCircleOutlineIcon from "@mui/icons-material/RemoveCircleOutline";
 import FileCopyIcon from "@mui/icons-material/FileCopy";
 import ReactQuill from "react-quill";
 import "react-quill/dist/quill.snow.css";
+import axios from 'axios';
 
 const instructors = [
   { label: "John Doe", id: 1 },
@@ -93,9 +94,14 @@ function CreateCoursePage() {
     }));
   };
 
-  const handleSubmit = (event) => {
+  const handleSubmit = async (event) => {
     event.preventDefault();
-    console.log("Updated course data:", course);
+    try {
+      const response = await axios.post('/api/courses', course);
+      console.log('Course created:', response.data);
+    } catch (error) {
+      console.error('Failed to create course:', error);
+    }
   };
   return (
     <AdminLayout>
