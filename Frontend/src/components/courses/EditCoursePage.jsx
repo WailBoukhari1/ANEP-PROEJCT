@@ -1,4 +1,5 @@
 import { useState, useCallback, useEffect } from "react";
+import { useParams } from "react-router-dom";
 import PropTypes from "prop-types";
 import AdminLayout from "../../layout/admin/AdminLayout";
 import {
@@ -13,8 +14,6 @@ import {
   IconButton,
   Paper,
   Grid,
-  Card,
-  CardContent,
   Typography,
   Tooltip,
   Autocomplete,
@@ -25,63 +24,120 @@ import RemoveCircleOutlineIcon from "@mui/icons-material/RemoveCircleOutline";
 import FileCopyIcon from "@mui/icons-material/FileCopy";
 import ReactQuill from "react-quill";
 import "react-quill/dist/quill.snow.css";
+import axios from "axios";
 
-const instructors = [
-  { label: "John Doe", id: 1 },
-  { label: "Jane Smith", id: 2 },
-  { label: "Alice Johnson", id: 3 },
-  { label: "Bob Brown", id: 4 },
-];
-
-const filterOptions = {
-  name: ["User 1", "User 2", "User 3"],
-  service: ["Service 1", "Service 2", "Service 3"],
-  department: ["Department A", "Department B", "Department C"],
-  grade: ["Grade X", "Grade Y", "Grade Z"],
-};
-
-function EditCoursePage({ courseId }) {
+function EditCoursePage() {
+  const { id } = useParams();
   const [course, setCourse] = useState({
-    title: "Advanced React",
+    title: "",
     imageUrl: "",
-    offline: "online",
-    description: "Learn advanced patterns in React",
-    notifyUsers: true,
-    hidden: "visible",
-    budget: "500",
+    offline: "",
+    description: "",
+    notifyUsers: false,
+    hidden: "",
+    budget: "",
     notification: [],
-    sessions: [
+    times: [
       {
-        startTime: "2023-10-01T09:00",
-        endTime: "2023-10-01T11:00",
-        instructorType: "internal",
-        instructorName: "John Doe",
+        startTime: "",
+        endTime: "",
+        instructorType: "",
+        instructor: "",
       },
     ],
     image: null,
   });
 
+  const [users, setUsers] = useState([]);
+  const [assignedUsers, setAssignedUsers] = useState([]);
+  const [interestedUsers, setInterestedUsers] = useState([]);
+
+  const [internalInstructors, setInternalInstructors] = useState([]);
+  const [externalInstructors, setExternalInstructors] = useState([]);
+
   useEffect(() => {
-    setCourse({
-      title: "Advanced React",
-      imageUrl: "",
-      offline: "online",
-      description: "Learn advanced patterns in React",
-      notifyUsers: true,
-      hidden: "visible",
-      budget: "500",
-      notification: [],
-      sessions: [
-        {
-          startTime: "2023-10-01T09:00",
-          endTime: "2023-10-01T11:00",
-          instructorType: "internal",
-          instructorName: "John Doe",
-        },
-      ],
-      image: null,
-    });
-  }, [courseId]);
+    const fetchData = async () => {
+      try {
+        const usersResponse = await axios.get("http://localhost:5000/users");
+        const coursesResponse = await axios.get(
+          "http://localhost:5000/courses/"
+        );
+        const courseBeingEdited = await axios.get(
+          `http://localhost:5000/courses/${id}`
+        );
+
+        const usersWithDetails = usersResponse.data.map((user) => {
+          const conflicts = coursesResponse.data.filter(
+            (course) =>
+              course.participants?.includes(user._id) &&
+              course.time === courseBeingEdited.data.time
+          );
+          return {
+            ...user,
+            conflicts: conflicts.map((conflict) => conflict.title),
+          };
+        });
+        setUsers(usersWithDetails);
+      } catch (error) {
+        console.error("Failed to fetch data", error);
+      }
+    };
+
+    fetchData();
+  }, [id]);
+
+  useEffect(() => {
+    if (!id) {
+      console.error("Course ID is undefined");
+      return;
+    }
+
+    const fetchCourse = async () => {
+      try {
+        const response = await axios.get(`http://localhost:5000/courses/${id}`);
+        const courseData = response.data;
+
+        setCourse((prev) => ({
+          ...prev,
+          title: courseData.title,
+          imageUrl: courseData.imageUrl,
+          offline: courseData.offline,
+          description: courseData.description,
+          notifyUsers: courseData.notifyUsers,
+          hidden: courseData.hidden,
+          budget: courseData.budget,
+          times: courseData.times || [],
+        }));
+      } catch (error) {
+        console.error("Failed to fetch course data", error);
+      }
+    };
+
+    fetchCourse();
+  }, [id]);
+
+  useEffect(() => {
+    fetchInternalInstructors();
+    fetchExternalInstructors();
+  }, []);
+
+  const fetchInternalInstructors = async () => {
+    try {
+      const response = await axios.get('http://localhost:5000/users');
+      setInternalInstructors(response.data);
+    } catch (error) {
+      console.error('Failed to fetch internal instructors', error);
+    }
+  };
+
+  const fetchExternalInstructors = async () => {
+    try {
+      const response = await axios.get('http://localhost:5000/external-instructors');
+      setExternalInstructors(response.data);
+    } catch (error) {
+      console.error('Failed to fetch external instructors', error);
+    }
+  };
 
   const onDrop = useCallback((acceptedFiles) => {
     const file = acceptedFiles[0];
@@ -99,105 +155,64 @@ function EditCoursePage({ courseId }) {
 
   const handleChange = (event, index) => {
     const { name, value } = event.target;
-    const updatedSessions = [...course.sessions];
-    updatedSessions[index][name] = value;
+    const updatedTimes = [...course.times];
+    if (name === "instructorType") {
+      // Reset instructor when type changes
+      updatedTimes[index] = { ...updatedTimes[index], instructorType: value, instructor: "" };
+    } else {
+      updatedTimes[index][name] = value;
+    }
     setCourse((prev) => ({
       ...prev,
-      sessions: updatedSessions,
+      times: updatedTimes,
+    }));
+  };
+
+  const handleInstructorChange = (event, newValue, index) => {
+    const updatedTimes = [...course.times];
+    updatedTimes[index].instructor = newValue ? newValue.id : "";
+    setCourse((prev) => ({
+      ...prev,
+      times: updatedTimes,
     }));
   };
 
   const handleAddSession = () => {
     setCourse((prev) => ({
       ...prev,
-      sessions: [
-        ...prev.sessions,
-        { startTime: "", endTime: "", instructorType: "", instructorName: "" },
+      times: [
+        ...prev.times,
+        { startTime: "", endTime: "", instructorType: "", instructor: "" },
       ],
     }));
   };
 
   const handleDuplicateSession = () => {
-    const lastSession = course.sessions[course.sessions.length - 1];
+    const lastSession = course.times[course.times.length - 1];
     setCourse((prev) => ({
       ...prev,
-      sessions: [...prev.sessions, { ...lastSession }],
+      times: [...prev.times, { ...lastSession }],
     }));
   };
 
   const handleRemoveSession = (index) => {
     setCourse((prev) => ({
       ...prev,
-      sessions: prev.sessions.filter((_, i) => i !== index),
+      times: prev.times.filter((_, i) => i !== index),
     }));
   };
 
-  const handleSubmit = (event) => {
+  const handleSubmit = async (event) => {
     event.preventDefault();
-    console.log("Updated course data:", course);
-  };
-
-  const users = Array.from({ length: 20 }, (_, index) => ({
-    id: index + 1,
-    name: `User ${index + 1}`,
-    service: `Service ${index % 5}`,
-    localite: `Localite ${index % 4}`,
-    fonction: `Fonction ${index % 3}`,
-    departementDivision: `Department ${index % 4}`,
-    affectation: `Affectation ${index % 5}`,
-    gradeAssimile: `Grade ${index % 3}`,
-    gradeFonction: `GradeF ${index % 2}`,
-    codPos: `CP${index % 5}`,
-    sitFAg: `Situation ${index % 2}`,
-  }));
-
-  const [filters, setFilters] = useState({
-    service: "",
-    localite: "",
-    fonction: "",
-    departementDivision: "",
-    affectation: "",
-    gradeAssimile: "",
-    gradeFonction: "",
-    codPos: "",
-  });
-
-  const filteredUsers = users.filter((user) =>
-    Object.entries(filters).every(
-      ([key, value]) => !value || user[key].includes(value)
-    )
-  );
-
-  const [assignedUsers, setAssignedUsers] = useState([]);
-
-  const handleAssignUser = (user) => {
-    // Add user to assignedUsers
-    setAssignedUsers((prevAssignedUsers) => [...prevAssignedUsers, user]);
-    // Update users array to remove the assigned user
-    setUsers((prevUsers) => prevUsers.filter((u) => u.id !== user.id));
-  };
-
-  const handleRemoveUser = (userId) => {
-    setAssignedUsers((prev) => prev.filter((user) => user.id !== userId)); // Remove from assigned users
-    const userToAddBack = users.find((user) => user.id === userId); // Find the user in the original list
-    if (userToAddBack) {
-      setFilteredUsers((prev) => [...prev, userToAddBack]); // Add back to filtered users
+    try {
+      await axios.put(`http://localhost:5000/courses/${id}`, course);
+      console.log("Course updated successfully");
+    } catch (error) {
+      console.error("Failed to update course", error);
     }
   };
 
-  const [interestedUsers, setInterestedUsers] = useState([
-    { id: 101, name: "User 101" },
-    { id: 102, name: "User 102" },
-  ]);
-
-  const handleAssignUserFromInterested = (user) => {
-    setAssignedUsers((prev) => [...prev, user]);
-    setInterestedUsers((prev) => prev.filter((u) => u.id !== user.id));
-  };
-
-  const handleRejectUser = (userId) => {
-    setInterestedUsers((prev) => prev.filter((user) => user.id !== userId));
-  };
+  const combinedUsers = [...assignedUsers, ...interestedUsers];
 
   return (
     <AdminLayout>
@@ -244,6 +259,13 @@ function EditCoursePage({ courseId }) {
               </p>
             )}
           </Paper>
+          {course.imageUrl && (
+            <img
+              src={course.imageUrl}
+              alt="Course"
+              style={{ width: "100%", height: "auto" }}
+            />
+          )}
           {course.image && (
             <img
               src={course.image.preview}
@@ -331,8 +353,8 @@ function EditCoursePage({ courseId }) {
           style={{ marginBottom: "16px" }}
         />
         <div style={{ marginBottom: "16px" }}>
-          <Typography variant="h6">Sessions</Typography>
-          {course.sessions.map((session, index) => (
+          <Typography variant="h6">times</Typography>
+          {course.times?.map((session, index) => (
             <Paper
               key={index}
               elevation={1}
@@ -368,31 +390,30 @@ function EditCoursePage({ courseId }) {
                       onChange={(e) => handleChange(e, index)}
                       fullWidth
                     >
-                      <MenuItem value="internal">Internal</MenuItem>
-                      <MenuItem value="external">External</MenuItem>
+                      <MenuItem value="intern">Internal</MenuItem>
+                      <MenuItem value="extern">External</MenuItem>
                     </Select>
                   </FormControl>
                 </Grid>
-                <Grid item xs={12} sm={6}>
+                <Grid item xs={6}>
                   <Autocomplete
-                    options={instructors}
-                    getOptionLabel={(option) => option.label}
+                    options={
+                      session.instructorType === "intern"
+                        ? internalInstructors
+                        : externalInstructors
+                    }
+                    getOptionLabel={(option) => option.name}
                     value={
-                      instructors.find(
-                        (instructor) =>
-                          instructor.label === session.instructorName
+                      (session.instructorType === "intern"
+                        ? internalInstructors
+                        : externalInstructors
+                      ).find(
+                        (instructor) => instructor._id === session.instructor
                       ) || null
                     }
-                    onChange={(event, newValue) => {
-                      const updatedSessions = [...course.sessions];
-                      updatedSessions[index].instructorName = newValue
-                        ? newValue.label
-                        : "";
-                      setCourse((prev) => ({
-                        ...prev,
-                        sessions: updatedSessions,
-                      }));
-                    }}
+                    onChange={(event, newValue) =>
+                      handleInstructorChange(event, newValue, index)
+                    }
                     renderInput={(params) => (
                       <TextField {...params} label="Instructor Name" />
                     )}
@@ -400,172 +421,119 @@ function EditCoursePage({ courseId }) {
                   />
                 </Grid>
               </Grid>
-              <div style={{ marginTop: "16px", textAlign: "right" }}>
-                <Tooltip title="Duplicate Session">
-                  <IconButton onClick={handleDuplicateSession}>
-                    <FileCopyIcon />
-                  </IconButton>
-                </Tooltip>
+              <div
+                style={{
+                  marginTop: "16px",
+                  display: "flex",
+                  justifyContent: "space-between",
+                }}
+              >
                 <Tooltip title="Remove Session">
                   <IconButton onClick={() => handleRemoveSession(index)}>
-                    <RemoveCircleOutlineIcon />
+                    <RemoveCircleOutlineIcon color="error" />
+                  </IconButton>
+                </Tooltip>
+                <Tooltip title="Duplicate Session">
+                  <IconButton onClick={handleDuplicateSession}>
+                    <FileCopyIcon color="primary" />
                   </IconButton>
                 </Tooltip>
               </div>
             </Paper>
           ))}
           <Button
-            variant="outlined"
-            onClick={handleAddSession}
+            variant="contained"
+            color="primary"
             startIcon={<AddCircleOutlineIcon />}
-            style={{ marginTop: "16px" }}
+            onClick={handleAddSession}
           >
             Add Session
           </Button>
         </div>
-      </form>
-      <div>
-        <Typography
-          variant="h6"
-          style={{ marginTop: "24px", marginBottom: "16px" }}
-        >
-          Filter Users
-        </Typography>
-        <Grid container spacing={2} style={{ marginBottom: "16px" }}>
-          {Object.entries(filterOptions).map(([filterName, filterValues]) => (
-            <Grid item xs={12} sm={6} md={3} key={filterName}>
-              <FormControl fullWidth>
-                <InputLabel>
-                  {filterName.charAt(0).toUpperCase() + filterName.slice(1)}
-                </InputLabel>
-                <Select
-                  name={filterName}
-                  value={filters[filterName]}
-                  onChange={(e) =>
-                    setFilters((prev) => ({
-                      ...prev,
-                      [filterName]: e.target.value,
-                    }))
-                  }
-                >
-                  <MenuItem value="">
-                    <em>None</em>
-                  </MenuItem>
-                  {filterValues.map((value, index) => (
-                    <MenuItem key={index} value={value}>
-                      {value}
-                    </MenuItem>
-                  ))}
-                </Select>
-              </FormControl>
-            </Grid>
-          ))}
-        </Grid>
-
-        <Grid container spacing={2}>
-          <Grid item xs={6}>
-            <Typography
-              variant="h6"
-              style={{ marginTop: "24px", marginBottom: "16px" }}
-            >
-              Filtered Users
-            </Typography>
-            <Grid container spacing={2}>
-              {filteredUsers.map((user) => (
-                <Grid item xs={12} key={user.id}>
-                  <Card>
-                    <CardContent>
-                      <Typography variant="h6">{user.name}</Typography>
-                      <Button
-                        variant="contained"
-                        color="primary"
-                        onClick={() => handleAssignUser(user)}
-                        style={{ marginRight: "8px" }}
-                      >
-                        Assign
-                      </Button>
-                    </CardContent>
-                  </Card>
-                </Grid>
-              ))}
-            </Grid>
-          </Grid>
-          <Grid item xs={6}>
-            <Typography
-              variant="h6"
-              style={{ marginTop: "24px", marginBottom: "16px" }}
-            >
-              Assigned Users
-            </Typography>
-            <Grid container spacing={2}>
-              {assignedUsers.map((user) => (
-                <Grid item xs={12} key={user.id}>
-                  <Card>
-                    <CardContent>
-                      <Typography variant="h6">{user.name}</Typography>
-                      <Button
-                        variant="contained"
-                        color="secondary"
-                        onClick={() => handleRemoveUser(user.id)}
-                      >
-                        Remove
-                      </Button>
-                    </CardContent>
-                  </Card>
-                </Grid>
-              ))}
-            </Grid>
-          </Grid>
-        </Grid>
-
-        <Typography
-          variant="h6"
-          style={{ marginTop: "24px", marginBottom: "16px" }}
-        >
-          Interested Users
-        </Typography>
-        <Grid container spacing={2}>
-          {interestedUsers.map((user) => (
-            <Grid item xs={12} sm={6} md={4} key={user.id}>
-              <Card>
-                <CardContent>
-                  <Typography variant="h6">{user.name}</Typography>
-                  <Button
-                    variant="contained"
-                    color="primary"
-                    onClick={() => handleAssignUserFromInterested(user)}
-                    style={{ marginRight: "8px" }}
+        <div style={{ marginBottom: "16px" }}>
+          <Typography variant="h6">Assign Users</Typography>
+          <FormControl fullWidth style={{ marginBottom: "16px" }}>
+            <Autocomplete
+              multiple
+              options={users.filter((user) => !combinedUsers.includes(user))}
+              getOptionLabel={(option) =>
+                option && option.label ? option.label : ""
+              }
+              value={assignedUsers}
+              onChange={(event, newValue) => {
+                setAssignedUsers(newValue);
+                setInterestedUsers(
+                  interestedUsers.filter((user) => !newValue.includes(user))
+                );
+              }}
+              renderOption={(props, option) => (
+                <Tooltip title={option.conflicts.join(", ") || "No conflicts"}>
+                  <li
+                    {...props}
+                    style={{
+                      color: option.conflicts.length ? "red" : "inherit",
+                    }}
                   >
-                    Assign
-                  </Button>
-                  <Button
-                    variant="contained"
-                    color="secondary"
-                    onClick={() => handleRejectUser(user.id)}
+                    {option.label}
+                  </li>
+                </Tooltip>
+              )}
+              renderInput={(params) => (
+                <TextField {...params} label="Assign Users" />
+              )}
+            />
+          </FormControl>
+        </div>
+        <div style={{ marginBottom: "16px" }}>
+          <Typography variant="h6">Interested Users</Typography>
+          <FormControl fullWidth style={{ marginBottom: "16px" }}>
+            <Autocomplete
+              multiple
+              options={users.filter((user) => !combinedUsers.includes(user))}
+              getOptionLabel={(option) =>
+                option && option.label ? option.label : ""
+              }
+              value={interestedUsers}
+              onChange={(event, newValue) => {
+                setInterestedUsers(newValue);
+                setAssignedUsers(
+                  assignedUsers.filter((user) => !newValue.includes(user))
+                );
+              }}
+              renderOption={(props, option) => (
+                <Tooltip title={option.conflicts.join(", ") || "No conflicts"}>
+                  <li
+                    {...props}
+                    style={{
+                      color: option.conflicts.length ? "red" : "inherit",
+                    }}
                   >
-                    Reject
-                  </Button>
-                </CardContent>
-              </Card>
-            </Grid>
-          ))}
-        </Grid>
+                    {option.label}
+                  </li>
+                </Tooltip>
+              )}
+              renderInput={(params) => (
+                <TextField {...params} label="Interested Users" />
+              )}
+            />
+          </FormControl>
+        </div>
         <Button
           type="submit"
           variant="contained"
           color="primary"
           fullWidth
-          style={{ padding: "12px", marginTop: "28px" }}
+          style={{ marginTop: "16px" }}
         >
-          Edit Course
+          Save Course
         </Button>
-      </div>
+      </form>
     </AdminLayout>
   );
 }
 
 EditCoursePage.propTypes = {
-  courseId: PropTypes.string.isRequired,
+  id: PropTypes.string,
 };
 
 export default EditCoursePage;

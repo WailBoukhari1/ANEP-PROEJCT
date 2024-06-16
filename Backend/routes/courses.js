@@ -1,34 +1,38 @@
 const express = require('express');
 const router = express.Router();
+const courseController = require('../controllers/courseController');
+const multer = require('multer');
+const path = require('path');
 
-// GET all courses
-router.get('/', (req, res) => {
-    // Logic to fetch all courses
-    res.send('All courses');
+// Setup multer as shown in courseController.js
+const storage = multer.diskStorage({
+    destination: function (req, file, cb) {
+        cb(null, 'uploads/')
+    },
+    filename: function (req, file, cb) {
+        const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+        cb(null, file.fieldname + '-' + uniqueSuffix + path.extname(file.originalname))
+    }
 });
 
-// GET a single course by ID
-router.get('/:id', (req, res) => {
-    // Logic to fetch a course by id
-    res.send(`Course with ID ${req.params.id}`);
-});
+const upload = multer({ storage: storage });
 
-// POST a new course
-router.post('/', (req, res) => {
-    // Logic to add a new course
-    res.send('Course added');
-});
+// Get all courses
+router.get('/', courseController.getAllCourses);
 
-// PUT to update a course by ID
-router.put('/:id', (req, res) => {
-    // Logic to update a course by id
-    res.send(`Course with ID ${req.params.id} updated`);
-});
+// Get a single course by ID
+router.get('/:id', courseController.getCourseById);
 
-// DELETE a course by ID
-router.delete('/:id', (req, res) => {
-    // Logic to delete a course by id
-    res.send(`Course with ID ${req.params.id} deleted`);
-});
+// Create a new course
+router.post('/', courseController.createCourse);
+
+// Update an existing course
+router.put('/:id', courseController.updateCourse);
+
+// Delete a course
+router.delete('/:id', courseController.deleteCourse);
+
+// Upload an image
+router.post('/uploadImage', upload.single('image'), courseController.uploadImage);
 
 module.exports = router;

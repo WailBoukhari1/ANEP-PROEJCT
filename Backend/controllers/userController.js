@@ -1,17 +1,19 @@
 const User = require('../models/User');
 
 // Get all users
-exports.getAllUsers = async (req, res) => {
+const getAllUsers = async (req, res) => {
     try {
         const users = await User.find();
+        console.log("Fetched users:", users);
         res.send(users);
     } catch (error) {
+        console.error("Error fetching users:", error);
         res.status(500).send(error.message);
     }
 };
 
 // Get a single user by ID
-exports.getUser = async (req, res) => {
+const getUser = async (req, res) => {
     try {
         const user = await User.findById(req.params.id);
         if (!user) {
@@ -24,7 +26,7 @@ exports.getUser = async (req, res) => {
 };
 
 // Create a new user
-exports.createUser = async (req, res) => {
+const createUser = async (req, res) => {
     try {
         const user = new User(req.body);
         await user.save();
@@ -35,7 +37,7 @@ exports.createUser = async (req, res) => {
 };
 
 // Update a user
-exports.updateUser = async (req, res) => {
+const updateUser = async (req, res) => {
     try {
         const user = await User.findByIdAndUpdate(req.params.id, req.body, { new: true });
         if (!user) {
@@ -48,7 +50,7 @@ exports.updateUser = async (req, res) => {
 };
 
 // Delete a user
-exports.deleteUser = async (req, res) => {
+const deleteUser = async (req, res) => {
     try {
         const user = await User.findByIdAndDelete(req.params.id);
         if (!user) {
@@ -58,4 +60,11 @@ exports.deleteUser = async (req, res) => {
     } catch (error) {
         res.status(500).send(error.message);
     }
+};
+module.exports = {
+    getAllUsers,
+    getUser,
+    createUser,
+    updateUser,
+    deleteUser,
 };

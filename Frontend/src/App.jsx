@@ -34,16 +34,19 @@ function App() {
           <Routes>
             <Route path="/" element={<HomePage />} />
             <Route path="/Courses" element={<Course />} />
-            <Route path="/CoursesDetails" element={<CoursesDetails />} />
+            <Route path="/CoursesDetails/:id" element={<CoursesDetails />} />
             <Route path="/Auth" element={<Auth />} />
             <Route path="/UserCourses" element={<UserCourses />} />
             <Route path="/Dashboard" element={<Dashboard />} />
-            <Route path="/CoursesManagment" element={<CourseManagmentPage />} />
+            <Route
+              path="/CoursesManagement"
+              element={<CourseManagmentPage />}
+            />
             <Route path="/CreateCourse" element={<CreateCourse />} />
-            <Route path="/EditCourse" element={<EditCourse />} />
+            <Route path="/EditCourse/:id" element={<EditCourse />} />
             <Route path="/UsersManagment" element={<UserManagmentPage />} />
             <Route path="/CreateUser" element={<CreateUser />} />
-            <Route path="/EditUser" element={<EditUser />} />
+            <Route path="/EditUser/:id" element={<EditUser />} />
           </Routes>
         </Suspense>
       </Router>

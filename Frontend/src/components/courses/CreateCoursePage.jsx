@@ -1,4 +1,5 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import AdminLayout from "../../layout/admin/AdminLayout";
 import {
   TextField,
@@ -22,15 +23,10 @@ import RemoveCircleOutlineIcon from "@mui/icons-material/RemoveCircleOutline";
 import FileCopyIcon from "@mui/icons-material/FileCopy";
 import ReactQuill from "react-quill";
 import "react-quill/dist/quill.snow.css";
-import axios from 'axios';
+import axios from "axios";
 
-const instructors = [
-  { label: "John Doe", id: 1 },
-  { label: "Jane Smith", id: 2 },
-  { label: "Alice Johnson", id: 3 },
-  { label: "Bob Brown", id: 4 },
-];
 function CreateCoursePage() {
+  const navigate = useNavigate();
   const [course, setCourse] = useState({
     title: "",
     offline: "",
@@ -38,12 +34,33 @@ function CreateCoursePage() {
     notifyUsers: false,
     hidden: "",
     budget: "",
-    notification: [],
-    sessions: [
-      { startTime: "", endTime: "", instructorType: "", instructorName: "" },
+    times: [
+      { startTime: "", endTime: "", instructorType: "", instructor: "", instructorName: "" },
     ],
     image: null,
   });
+
+  const [internalInstructors, setInternalInstructors] = useState([]);
+  const [externalInstructors, setExternalInstructors] = useState([]);
+
+  useEffect(() => {
+    const fetchInstructors = async () => {
+      try {
+        const internalResponse = await axios.get("http://localhost:5000/users");
+        setInternalInstructors(
+          internalResponse.data.map((instructor) => ({ label: instructor.name, id: instructor._id }))
+        );
+        const externalResponse = await axios.get("http://localhost:5000/external-instructors");
+        setExternalInstructors(
+          externalResponse.data.map((instructor) => ({ label: instructor.name, id: instructor._id }))
+        );
+      } catch (error) {
+        console.error("Failed to fetch instructors:", error);
+      }
+    };
+
+    fetchInstructors();
+  }, []);
 
   const onDrop = useCallback((acceptedFiles) => {
     const file = acceptedFiles[0];
@@ -59,50 +76,114 @@ function CreateCoursePage() {
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({ onDrop });
 
-  const handleChange = (event, index) => {
-    const { name, value } = event.target;
-    const updatedSessions = [...course.sessions];
-    updatedSessions[index][name] = value;
+  const handleInputChange = (event) => {
+    const { name, value, type, checked } = event.target;
     setCourse((prev) => ({
       ...prev,
-      sessions: updatedSessions,
+      [name]: type === "checkbox" ? checked : value,
+    }));
+  };
+
+  const handleSessionChange = (event, index, newValue = null) => {
+    const { name } = event.target;
+    const updatedTimes = [...course.times];
+    if (name === "instructor") {
+      updatedTimes[index][name] = newValue ? newValue.id : ""; // Store the ID
+      updatedTimes[index].instructorName = newValue ? newValue.label : ""; // Store the name for display
+    } else {
+      updatedTimes[index][name] = event.target.value;
+    }
+    setCourse((prev) => ({
+      ...prev,
+      times: updatedTimes,
     }));
   };
 
   const handleAddSession = () => {
     setCourse((prev) => ({
       ...prev,
-      sessions: [
-        ...prev.sessions,
-        { startTime: "", endTime: "", instructorType: "", instructorName: "" },
+      times: [
+        ...prev.times,
+        { startTime: "", endTime: "", instructorType: "", instructor: "", instructorName: "" },
       ],
     }));
   };
 
-  const handleDuplicateSession = () => {
-    const lastSession = course.sessions[course.sessions.length - 1];
+  const handleDuplicateSession = (index) => {
+    const lastSession = course.times[index];
     setCourse((prev) => ({
       ...prev,
-      sessions: [...prev.sessions, { ...lastSession }],
+      times: [...prev.times, { ...lastSession }],
     }));
   };
 
   const handleRemoveSession = (index) => {
     setCourse((prev) => ({
       ...prev,
-      sessions: prev.sessions.filter((_, i) => i !== index),
+      times: prev.times.filter((_, i) => i !== index),
     }));
   };
 
   const handleSubmit = async (event) => {
     event.preventDefault();
+
+    // Validate required fields
+    if (!course.image) {
+      alert("Please upload an image.");
+      return;
+    }
+
+    if (!course.title || !course.offline || !course.hidden || course.budget === "" || !course.times.length) {
+      alert("Please fill in all required fields.");
+      return;
+    }
+
+    for (const time of course.times) {
+      if (!time.startTime || !time.endTime || !time.instructor) {
+        alert("Please fill in all time slots with start time, end time, and instructor.");
+        return;
+      }
+    }
+
+    const formData = new FormData();
+    formData.append("image", course.image);
+
     try {
-      const response = await axios.post('/api/courses', course);
-      console.log('Course created:', response.data);
+      const imageUploadResponse = await axios.post(
+        "http://localhost:5000/courses/uploadImage",
+        formData,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        }
+      );
+
+      if (imageUploadResponse.status === 200) {
+        const imageUrl = imageUploadResponse.data.imageUrl;
+
+        const finalCourseData = {
+          ...course,
+          imageUrl,
+        };
+
+        const response = await axios.post("http://localhost:5000/courses", finalCourseData);
+
+        if (response.status === 201) {
+          console.log("Course created successfully!");
+          navigate("/CoursesManagement");
+        } else {
+          alert(`Failed to create course: ${response.status} ${response.data}`);
+        }
+      } else {
+        alert(`Image upload failed: ${imageUploadResponse.status} ${imageUploadResponse.data}`);
+      }
     } catch (error) {
-      console.error('Failed to create course:', error);
+      console.error("Error creating course:", error);
+      alert("Error creating course: " + error.message);
     }
   };
+
   return (
     <AdminLayout>
       <form
@@ -118,13 +199,7 @@ function CreateCoursePage() {
           label="Title"
           name="title"
           value={course.title}
-          onChange={(e) =>
-            setCourse((prev) => ({
-              ...prev,
-              title: e.target.value,
-            }))
-          }
-          required
+          onChange={handleInputChange}
           fullWidth
           style={{ marginBottom: "16px" }}
         />
@@ -162,13 +237,7 @@ function CreateCoursePage() {
             name="offline"
             value={course.offline}
             label="Offline/Online"
-            onChange={(e) =>
-              setCourse((prev) => ({
-                ...prev,
-                offline: e.target.value,
-              }))
-            }
-            required
+            onChange={handleInputChange}
           >
             <MenuItem value="online">Online</MenuItem>
             <MenuItem value="offline">Offline</MenuItem>
@@ -196,6 +265,7 @@ function CreateCoursePage() {
                   notifyUsers: e.target.checked,
                 }))
               }
+              name="notifyUsers"
             />
           }
           label="Notify Users"
@@ -207,13 +277,7 @@ function CreateCoursePage() {
             name="hidden"
             value={course.hidden}
             label="Visibility"
-            onChange={(e) =>
-              setCourse((prev) => ({
-                ...prev,
-                hidden: e.target.value,
-              }))
-            }
-            required
+            onChange={handleInputChange}
           >
             <MenuItem value="hidden">Hidden</MenuItem>
             <MenuItem value="visible">Visible</MenuItem>
@@ -222,38 +286,16 @@ function CreateCoursePage() {
         <TextField
           label="Budget"
           name="budget"
+          type="number"
           value={course.budget}
-          onChange={(e) =>
-            setCourse((prev) => ({
-              ...prev,
-              budget: e.target.value,
-            }))
-          }
+          onChange={handleInputChange}
           fullWidth
           style={{ marginBottom: "16px" }}
         />
-        <FormControl fullWidth style={{ marginBottom: "16px" }}>
-          <Autocomplete
-            multiple
-            options={instructors}
-            getOptionLabel={(option) => option.label}
-            value={course.notification}
-            onChange={(event, newValue) =>
-              setCourse((prev) => ({
-                ...prev,
-                notification: newValue,
-              }))
-            }
-            renderInput={(params) => (
-              <TextField {...params} label="Notify Specific Instructors" />
-            )}
-          />
-        </FormControl>
-
         <Typography variant="h6" gutterBottom>
           Sessions
         </Typography>
-        {course.sessions.map((session, index) => (
+        {course.times.map((session, index) => (
           <Paper
             key={index}
             elevation={1}
@@ -270,9 +312,8 @@ function CreateCoursePage() {
                   name="startTime"
                   type="datetime-local"
                   value={session.startTime}
-                  onChange={(e) => handleChange(e, index)}
+                  onChange={(e) => handleSessionChange(e, index)}
                   fullWidth
-                  required
                   InputLabelProps={{ shrink: true }}
                 />
               </Grid>
@@ -282,72 +323,76 @@ function CreateCoursePage() {
                   name="endTime"
                   type="datetime-local"
                   value={session.endTime}
-                  onChange={(e) => handleChange(e, index)}
+                  onChange={(e) => handleSessionChange(e, index)}
                   fullWidth
-                  required
                   InputLabelProps={{ shrink: true }}
                 />
               </Grid>
               <Grid item xs={6}>
-                <FormControl fullWidth required>
+                <FormControl fullWidth>
                   <InputLabel>Instructor Type</InputLabel>
                   <Select
                     name="instructorType"
                     value={session.instructorType}
-                    onChange={(e) => handleChange(e, index)}
+                    onChange={(e) => handleSessionChange(e, index)}
                   >
-                    <MenuItem value="internal">Internal</MenuItem>
-                    <MenuItem value="external">External</MenuItem>
+                    <MenuItem value="intern">Internal</MenuItem>
+                    <MenuItem value="extern">External</MenuItem>
                   </Select>
                 </FormControl>
               </Grid>
               <Grid item xs={6}>
                 <Autocomplete
-                  options={instructors}
+                  options={
+                    session.instructorType === "intern"
+                      ? internalInstructors
+                      : externalInstructors
+                  }
                   getOptionLabel={(option) => option.label}
                   value={
-                    instructors.find(
-                      (instructor) =>
-                        instructor.label === session.instructorName
+                    (session.instructorType === "intern"
+                      ? internalInstructors
+                      : externalInstructors
+                    ).find(
+                      (instructor) => instructor.id === session.instructor
                     ) || null
                   }
                   onChange={(event, newValue) =>
-                    handleChange(
+                    handleSessionChange(
                       {
                         target: {
-                          name: "instructorName",
-                          value: newValue ? newValue.label : "",
+                          name: "instructor",
                         },
                       },
-                      index
+                      index,
+                      newValue
                     )
                   }
                   renderInput={(params) => (
                     <TextField {...params} label="Instructor Name" />
                   )}
                   fullWidth
-                  required
                 />
               </Grid>
-              <Grid item xs={12} style={{ textAlign: "right" }}>
-                <Tooltip title="Duplicate Session">
-                  <IconButton
-                    onClick={() => handleDuplicateSession(index)}
-                    size="large"
-                  >
-                    <FileCopyIcon />
-                  </IconButton>
-                </Tooltip>
-                <Tooltip title="Remove Session">
-                  <IconButton
-                    onClick={() => handleRemoveSession(index)}
-                    size="large"
-                  >
-                    <RemoveCircleOutlineIcon />
-                  </IconButton>
-                </Tooltip>
-              </Grid>
             </Grid>
+            <div
+              style={{
+                marginTop: "16px",
+                display: "flex",
+                justifyContent: "space-between",
+              }}
+            >
+              <Tooltip title="Remove Session">
+                <IconButton onClick={() => handleRemoveSession(index)}>
+                  <RemoveCircleOutlineIcon color="error" />
+                </IconButton>
+              </Tooltip>
+              <Tooltip title="Duplicate Session">
+                <IconButton onClick={handleDuplicateSession}>
+                  <FileCopyIcon color="primary" />
+                </IconButton>
+              </Tooltip>
+            </div>
           </Paper>
         ))}
         <Button
@@ -367,9 +412,5 @@ function CreateCoursePage() {
     </AdminLayout>
   );
 }
-
-CreateCoursePage.propTypes = {
-  // Define any prop types if needed
-};
 
 export default CreateCoursePage;
