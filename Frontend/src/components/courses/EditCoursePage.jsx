@@ -21,10 +21,9 @@ import { useDropzone } from "react-dropzone";
 import AddCircleOutlineIcon from "@mui/icons-material/AddCircleOutline";
 import RemoveCircleOutlineIcon from "@mui/icons-material/RemoveCircleOutline";
 import FileCopyIcon from "@mui/icons-material/FileCopy";
-import ReactQuill from "react-quill";
-import "react-quill/dist/quill.snow.css";
 import axios from "axios";
-import debounce from 'lodash/debounce';
+import debounce from "lodash/debounce";
+import Editor from "react-simple-wysiwyg";
 
 function EditCoursePage() {
   const { id } = useParams();
@@ -54,17 +53,17 @@ function EditCoursePage() {
   const [internalInstructors, setInternalInstructors] = useState([]);
   const [externalInstructors, setExternalInstructors] = useState([]);
   const [filter, setFilter] = useState({
-    fonction: '',
-    localite: '',
-    service: '',
-    departementDivision: '',
-    affectation: '',
-    gradeAssimile: '',
-    gradeFonction: ''
+    fonction: "",
+    localite: "",
+    service: "",
+    departementDivision: "",
+    affectation: "",
+    gradeAssimile: "",
+    gradeFonction: "",
   });
 
   useEffect(() => {
-    let isMounted = true; // Flag to check if component is still mounted
+    let isMounted = true;
 
     const fetchData = async () => {
       try {
@@ -83,7 +82,7 @@ function EditCoursePage() {
       isMounted = false; // Set flag to false when component unmounts
     };
   }, []);
-  
+
   useEffect(() => {
     if (!id) {
       console.error("Course ID is undefined");
@@ -230,15 +229,30 @@ function EditCoursePage() {
   };
 
   const checkUserConflicts = async (userId, startTime, endTime) => {
-    const response = await axios.post('http://localhost:5000/courses/checkConflicts', { userId, startTime, endTime });
+    const response = await axios.post(
+      "http://localhost:5000/courses/checkConflicts",
+      { userId, startTime, endTime }
+    );
     return response.data.conflicts;
   };
 
   useEffect(() => {
     const checkAllUsers = async () => {
-        const conflicts = await Promise.all(users.map(user => 
-            checkUserConflicts(user._id, course.times[0].startTime, course.times[0].endTime)));
-        setUsers(users.map((user, index) => ({ ...user, conflict: conflicts[index].length > 0 })));
+      const conflicts = await Promise.all(
+        users.map((user) =>
+          checkUserConflicts(
+            user._id,
+            course.times[0].startTime,
+            course.times[0].endTime
+          )
+        )
+      );
+      setUsers(
+        users.map((user, index) => ({
+          ...user,
+          conflict: conflicts[index].length > 0,
+        }))
+      );
     };
     checkAllUsers();
   }, [course.times, users]);
@@ -264,7 +278,7 @@ function EditCoursePage() {
         user.GRADE_ASSIMILE === filter.gradeAssimile?.label) &&
       (!filter.gradeFonction ||
         user.GRADE_fonction === filter.gradeFonction?.label) &&
-      !assignedUsers.some(assignedUser => assignedUser._id === user._id) // Exclude already assigned users
+      !assignedUsers.some((assignedUser) => assignedUser._id === user._id) // Exclude already assigned users
   );
 
   return (
@@ -346,15 +360,15 @@ function EditCoursePage() {
           </Select>
         </FormControl>
         <FormControl fullWidth style={{ marginBottom: "16px" }}>
-          <ReactQuill
-            theme="snow"
+          <Editor
             value={course.description}
-            onChange={(value) =>
+            onChange={(content) =>
               setCourse((prev) => ({
                 ...prev,
-                description: value,
+                description: content,
               }))
             }
+            options={{ toolbar: true }}
           />
         </FormControl>
         <FormControlLabel
@@ -467,11 +481,16 @@ function EditCoursePage() {
                     onChange={(event, newValue) =>
                       handleInstructorChange(event, newValue, index)
                     }
-                    isOptionEqualToValue={(option, value) => option._id === value._id}
+                    isOptionEqualToValue={(option, value) =>
+                      option._id === value._id
+                    }
                     renderInput={(params) => (
-                      <TextField {...params} label="Instructor Name" />
+                      <TextField
+                        {...params}
+                        label="Instructor Name"
+                        fullWidth
+                      />
                     )}
-                    fullWidth
                   />
                 </Grid>
               </Grid>
@@ -514,7 +533,12 @@ function EditCoursePage() {
                 onChange={(event, newValue) =>
                   handleFilterChange(event, newValue, "fonction")
                 }
-                renderInput={(params) => <TextField {...params} label="Function" fullWidth />}
+                renderInput={(params) => (
+                  <TextField {...params} label="Function" fullWidth />
+                )}
+                isOptionEqualToValue={(option, value) =>
+                  option._id === value._id
+                }
               />
             </Grid>
             <Grid item xs={6} sm={2}>
@@ -524,7 +548,12 @@ function EditCoursePage() {
                 onChange={(event, newValue) =>
                   handleFilterChange(event, newValue, "localite")
                 }
-                renderInput={(params) => <TextField {...params} label="Localite" fullWidth />}
+                renderInput={(params) => (
+                  <TextField {...params} label="Localite" fullWidth />
+                )}
+                isOptionEqualToValue={(option, value) =>
+                  option._id === value._id
+                }
               />
             </Grid>
             <Grid item xs={6} sm={2}>
@@ -534,7 +563,12 @@ function EditCoursePage() {
                 onChange={(event, newValue) =>
                   handleFilterChange(event, newValue, "service")
                 }
-                renderInput={(params) => <TextField {...params} label="Service" fullWidth />}
+                renderInput={(params) => (
+                  <TextField {...params} label="Service" fullWidth />
+                )}
+                isOptionEqualToValue={(option, value) =>
+                  option._id === value._id
+                }
               />
             </Grid>
             <Grid item xs={6} sm={2}>
@@ -544,7 +578,16 @@ function EditCoursePage() {
                 onChange={(event, newValue) =>
                   handleFilterChange(event, newValue, "departementDivision")
                 }
-                renderInput={(params) => <TextField {...params} label="Department/Division" fullWidth />}
+                renderInput={(params) => (
+                  <TextField
+                    {...params}
+                    label="Department/Division"
+                    fullWidth
+                  />
+                )}
+                isOptionEqualToValue={(option, value) =>
+                  option._id === value._id
+                }
               />
             </Grid>
             <Grid item xs={6} sm={2}>
@@ -554,7 +597,9 @@ function EditCoursePage() {
                 onChange={(event, newValue) =>
                   handleFilterChange(event, newValue, "affectation")
                 }
-                renderInput={(params) => <TextField {...params} label="Affectation" fullWidth />}
+                renderInput={(params) => (
+                  <TextField {...params} label="Affectation" fullWidth />
+                )}
               />
             </Grid>
             <Grid item xs={6} sm={2}>
@@ -564,7 +609,12 @@ function EditCoursePage() {
                 onChange={(event, newValue) =>
                   handleFilterChange(event, newValue, "gradeAssimile")
                 }
-                renderInput={(params) => <TextField {...params} label="Grade Assimile" fullWidth />}
+                renderInput={(params) => (
+                  <TextField {...params} label="Grade Assimile" fullWidth />
+                )}
+                isOptionEqualToValue={(option, value) =>
+                  option._id === value._id
+                }
               />
             </Grid>
             <Grid item xs={6} sm={2}>
@@ -574,7 +624,12 @@ function EditCoursePage() {
                 onChange={(event, newValue) =>
                   handleFilterChange(event, newValue, "gradeFonction")
                 }
-                renderInput={(params) => <TextField {...params} label="Grade Function" fullWidth />}
+                renderInput={(params) => (
+                  <TextField {...params} label="Grade Function" fullWidth />
+                )}
+                isOptionEqualToValue={(option, value) =>
+                  option._id === value._id
+                }
               />
             </Grid>
           </Grid>
@@ -621,4 +676,4 @@ function EditCoursePage() {
   );
 }
 
-export default EditCoursePage
+export default EditCoursePage;

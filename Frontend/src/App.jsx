@@ -1,4 +1,4 @@
-import { Suspense, lazy } from 'react';
+import { Suspense, lazy } from "react";
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 import { ThemeProvider } from "@mui/material/styles";
 import theme from "./theme";
@@ -6,15 +6,19 @@ import "./utils/cssLoader.css";
 import { useEffect } from "react";
 import Aos from "aos";
 import "aos/dist/aos";
-import LoadingComponent from './components/LoadingComponent';
+import LoadingComponent from "./components/LoadingComponent";
 
 // Lazy loaded components
 const HomePage = lazy(() => import("./pages/HomePage"));
 const Course = lazy(() => import("./pages/CoursePage"));
 const CoursesDetails = lazy(() => import("./pages/CoursesDetailsPage"));
 const Dashboard = lazy(() => import("./pages/admin/DashboardPage"));
-const CourseManagmentPage = lazy(() => import("./pages/admin/CourseManagmentPage"));
-const CreateCourse = lazy(() => import("./components/courses/CreateCoursePage"));
+const CourseManagmentPage = lazy(() =>
+  import("./pages/admin/CourseManagmentPage")
+);
+const CreateCourse = lazy(() =>
+  import("./components/courses/CreateCoursePage")
+);
 const EditCourse = lazy(() => import("./components/courses/EditCoursePage"));
 const CreateUser = lazy(() => import("./components/users/CreateUserPage"));
 const EditUser = lazy(() => import("./components/users/EditUserPage"));
@@ -44,7 +48,7 @@ function App() {
             />
             <Route path="/CreateCourse" element={<CreateCourse />} />
             <Route path="/EditCourse/:id" element={<EditCourse />} />
-            <Route path="/UsersManagment" element={<UserManagmentPage />} />
+            <Route path="/UsersManagement" element={<UserManagmentPage />} />
             <Route path="/CreateUser" element={<CreateUser />} />
             <Route path="/EditUser/:id" element={<EditUser />} />
           </Routes>

@@ -45,12 +45,12 @@ const Sidebar = ({ open, handleClose, drawerWidth, isMobile }) => {
     {
       text: "Courses Management",
       icon: <LibraryBooksIcon />,
-      path: "/CoursesManagment",
+      path: "/CoursesManagement",
     },
     {
       text: "Users Management",
       icon: <PersonOutlineIcon />,
-      path: "/UsersManagment",
+      path: "/UsersManagement",
     },
     {
       text: "Create Course",
