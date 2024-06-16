@@ -21,7 +21,8 @@ import { useDropzone } from "react-dropzone";
 import AddCircleOutlineIcon from "@mui/icons-material/AddCircleOutline";
 import RemoveCircleOutlineIcon from "@mui/icons-material/RemoveCircleOutline";
 import FileCopyIcon from "@mui/icons-material/FileCopy";
-import Editor from 'react-simple-wysiwyg';
+import ReactQuill from "react-quill";
+import "react-quill/dist/quill.snow.css";
 import axios from "axios";
 
 function CreateCoursePage() {
@@ -80,13 +81,6 @@ function CreateCoursePage() {
     setCourse((prev) => ({
       ...prev,
       [name]: type === "checkbox" ? checked : value,
-    }));
-  };
-
-  const handleDescriptionChange = (content) => {
-    setCourse((prev) => ({
-      ...prev,
-      description: content,
     }));
   };
 
@@ -250,9 +244,15 @@ function CreateCoursePage() {
           </Select>
         </FormControl>
         <FormControl fullWidth style={{ marginBottom: "16px" }}>
-          <Editor
-            value={course.description}
-            onChange={handleDescriptionChange}
+          <ReactQuill
+            theme="snow"
+            value={course.description || ""}
+            onChange={(content) => {
+              setCourse((prev) => ({
+                ...prev,
+                description: content,
+              }));
+            }}
           />
         </FormControl>
         <FormControlLabel

@@ -23,8 +23,8 @@ import RemoveCircleOutlineIcon from "@mui/icons-material/RemoveCircleOutline";
 import FileCopyIcon from "@mui/icons-material/FileCopy";
 import axios from "axios";
 import debounce from "lodash/debounce";
-import Editor from "react-simple-wysiwyg";
-
+import ReactQuill from "react-quill";
+import "react-quill/dist/quill.snow.css"; 
 function EditCoursePage() {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -360,16 +360,18 @@ function EditCoursePage() {
           </Select>
         </FormControl>
         <FormControl fullWidth style={{ marginBottom: "16px" }}>
-          <Editor
-            value={course.description}
-            onChange={(content) =>
-              setCourse((prev) => ({
-                ...prev,
-                description: content,
-              }))
-            }
-            options={{ toolbar: true }}
-          />
+          <FormControl fullWidth style={{ marginBottom: "16px" }}>
+            <ReactQuill
+              theme="snow"
+              value={course.description || ""}
+              onChange={(content) => {
+                setCourse((prev) => ({
+                  ...prev,
+                  description: content,
+                }));
+              }}
+            />
+          </FormControl>
         </FormControl>
         <FormControlLabel
           control={
