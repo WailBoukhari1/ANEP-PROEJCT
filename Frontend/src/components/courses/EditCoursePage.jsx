@@ -24,6 +24,7 @@ import FileCopyIcon from "@mui/icons-material/FileCopy";
 import ReactQuill from "react-quill";
 import "react-quill/dist/quill.snow.css";
 import axios from "axios";
+import debounce from 'lodash/debounce';
 
 function EditCoursePage() {
   const { id } = useParams();
@@ -52,21 +53,37 @@ function EditCoursePage() {
   const [assignedUsers, setAssignedUsers] = useState([]);
   const [internalInstructors, setInternalInstructors] = useState([]);
   const [externalInstructors, setExternalInstructors] = useState([]);
-
+  const [filter, setFilter] = useState({
+    fonction: '',
+    localite: '',
+    service: '',
+    departementDivision: '',
+    affectation: '',
+    gradeAssimile: '',
+    gradeFonction: ''
+  });
 
   useEffect(() => {
+    let isMounted = true; // Flag to check if component is still mounted
+
     const fetchData = async () => {
       try {
-        const usersResponse = await axios.get("http://localhost:5000/users");
-        setUsers(usersResponse.data);
+        const response = await axios.get("http://localhost:5000/users");
+        if (isMounted) {
+          setUsers(response.data);
+        }
       } catch (error) {
-        console.error("Failed to fetch data", error);
+        console.error("Failed to fetch users", error);
       }
     };
 
     fetchData();
-  }, [id]);
 
+    return () => {
+      isMounted = false; // Set flag to false when component unmounts
+    };
+  }, []);
+  
   useEffect(() => {
     if (!id) {
       console.error("Course ID is undefined");
@@ -144,11 +161,10 @@ function EditCoursePage() {
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({ onDrop });
 
-  const handleChange = (event, index) => {
+  const handleChange = debounce((event, index) => {
     const { name, value } = event.target;
     const updatedTimes = [...course.times];
     if (name === "instructorType") {
-      // Reset instructor when type changes
       updatedTimes[index] = {
         ...updatedTimes[index],
         instructorType: value,
@@ -161,7 +177,7 @@ function EditCoursePage() {
       ...prev,
       times: updatedTimes,
     }));
-  };
+  }, 300);
 
   const handleInstructorChange = (event, newValue, index) => {
     const updatedTimes = [...course.times];
@@ -226,6 +242,30 @@ function EditCoursePage() {
     };
     checkAllUsers();
   }, [course.times, users]);
+
+  const handleFilterChange = debounce((event, newValue, field) => {
+    setFilter((prev) => ({ ...prev, [field]: newValue }));
+  }, 300);
+
+  const uniqueOptions = (field) => {
+    const unique = new Set(users.map((user) => user[field]));
+    return Array.from(unique).map((value) => ({ label: value }));
+  };
+
+  const filteredUsers = users.filter(
+    (user) =>
+      (!filter.fonction || user.FONCTION === filter.fonction?.label) &&
+      (!filter.localite || user.Localite === filter.localite?.label) &&
+      (!filter.service || user.SERVICE === filter.service?.label) &&
+      (!filter.departementDivision ||
+        user.DEPARTEMENT_DIVISION === filter.departementDivision?.label) &&
+      (!filter.affectation || user.AFFECTATION === filter.affectation?.label) &&
+      (!filter.gradeAssimile ||
+        user.GRADE_ASSIMILE === filter.gradeAssimile?.label) &&
+      (!filter.gradeFonction ||
+        user.GRADE_fonction === filter.gradeFonction?.label) &&
+      !assignedUsers.some(assignedUser => assignedUser._id === user._id) // Exclude already assigned users
+  );
 
   return (
     <AdminLayout>
@@ -427,6 +467,7 @@ function EditCoursePage() {
                     onChange={(event, newValue) =>
                       handleInstructorChange(event, newValue, index)
                     }
+                    isOptionEqualToValue={(option, value) => option._id === value._id}
                     renderInput={(params) => (
                       <TextField {...params} label="Instructor Name" />
                     )}
@@ -465,10 +506,82 @@ function EditCoursePage() {
         </div>
         <div style={{ marginBottom: "16px" }}>
           <Typography variant="h6">Assign Users</Typography>
+          <Grid container spacing={2} style={{ marginBottom: "16px" }}>
+            <Grid item xs={6} sm={2}>
+              <Autocomplete
+                options={uniqueOptions("FONCTION")}
+                value={filter.fonction}
+                onChange={(event, newValue) =>
+                  handleFilterChange(event, newValue, "fonction")
+                }
+                renderInput={(params) => <TextField {...params} label="Function" fullWidth />}
+              />
+            </Grid>
+            <Grid item xs={6} sm={2}>
+              <Autocomplete
+                options={uniqueOptions("Localite")}
+                value={filter.localite}
+                onChange={(event, newValue) =>
+                  handleFilterChange(event, newValue, "localite")
+                }
+                renderInput={(params) => <TextField {...params} label="Localite" fullWidth />}
+              />
+            </Grid>
+            <Grid item xs={6} sm={2}>
+              <Autocomplete
+                options={uniqueOptions("SERVICE")}
+                value={filter.service}
+                onChange={(event, newValue) =>
+                  handleFilterChange(event, newValue, "service")
+                }
+                renderInput={(params) => <TextField {...params} label="Service" fullWidth />}
+              />
+            </Grid>
+            <Grid item xs={6} sm={2}>
+              <Autocomplete
+                options={uniqueOptions("DEPARTEMENT_DIVISION")}
+                value={filter.departementDivision}
+                onChange={(event, newValue) =>
+                  handleFilterChange(event, newValue, "departementDivision")
+                }
+                renderInput={(params) => <TextField {...params} label="Department/Division" fullWidth />}
+              />
+            </Grid>
+            <Grid item xs={6} sm={2}>
+              <Autocomplete
+                options={uniqueOptions("AFFECTATION")}
+                value={filter.affectation}
+                onChange={(event, newValue) =>
+                  handleFilterChange(event, newValue, "affectation")
+                }
+                renderInput={(params) => <TextField {...params} label="Affectation" fullWidth />}
+              />
+            </Grid>
+            <Grid item xs={6} sm={2}>
+              <Autocomplete
+                options={uniqueOptions("GRADE_ASSIMILE")}
+                value={filter.gradeAssimile}
+                onChange={(event, newValue) =>
+                  handleFilterChange(event, newValue, "gradeAssimile")
+                }
+                renderInput={(params) => <TextField {...params} label="Grade Assimile" fullWidth />}
+              />
+            </Grid>
+            <Grid item xs={6} sm={2}>
+              <Autocomplete
+                options={uniqueOptions("GRADE_fonction")}
+                value={filter.gradeFonction}
+                onChange={(event, newValue) =>
+                  handleFilterChange(event, newValue, "gradeFonction")
+                }
+                renderInput={(params) => <TextField {...params} label="Grade Function" fullWidth />}
+              />
+            </Grid>
+          </Grid>
           <FormControl fullWidth style={{ marginBottom: "16px" }}>
             <Autocomplete
               multiple
-              options={users} // Use the users array directly without filtering
+              options={filteredUsers}
               getOptionLabel={(option) => option.name}
               value={assignedUsers}
               onChange={(event, newValue) => {
