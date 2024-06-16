@@ -54,15 +54,21 @@ const createCourse = async (req, res) => {
 
 // Update an existing course
 const updateCourse = async (req, res) => {
-    try {
-        const course = await Course.findByIdAndUpdate(req.params.id, req.body, { new: true });
-        if (!course) {
-            return res.status(404).json({ message: 'Course not found' });
-        }
-        res.status(200).json(course);
-    } catch (error) {
-        res.status(500).json({ message: error.message });
+    const { assignedUsers } = req.body;
+    // Remove users from other courses where they have conflicts
+    assignedUsers.forEach(async userId => {
+        await Course.updateMany(
+            { assignedUsers: userId, _id: { $ne: req.params.id } },
+            { $pull: { assignedUsers: userId } }
+        );
+    });
+
+    // Update the current course
+    const course = await Course.findByIdAndUpdate(req.params.id, req.body, { new: true });
+    if (!course) {
+        return res.status(404).json({ message: 'Course not found' });
     }
+    res.status(200).json(course);
 };
 
 // Delete a course
@@ -94,11 +100,21 @@ const uploadImage = (req, res) => {
     }
 };
 
+const checkConflicts = async (req, res) => {
+    const { userId, startTime, endTime } = req.body;
+    const conflicts = await Course.find({
+        assignedUsers: userId,
+        times: { $elemMatch: { startTime: { $lt: endTime }, endTime: { $gt: startTime } } }
+    }).select('title times -_id');  // Select only the necessary fields
+    res.json({ conflicts });
+};
+
 module.exports = {
     getAllCourses,
     getCourseById,
     createCourse,
     updateCourse,
     deleteCourse,
-    uploadImage
+    uploadImage,
+    checkConflicts,
 };

@@ -35,4 +35,7 @@ router.delete('/:id', courseController.deleteCourse);
 // Upload an image
 router.post('/uploadImage', upload.single('image'), courseController.uploadImage);
 
+// Check for scheduling conflicts
+router.post('/checkConflicts', courseController.checkConflicts);
+
 module.exports = router;

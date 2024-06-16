@@ -1,6 +1,5 @@
 import { useState, useCallback, useEffect } from "react";
-import { useParams } from "react-router-dom";
-import PropTypes from "prop-types";
+import { useParams, useNavigate } from "react-router-dom";
 import AdminLayout from "../../layout/admin/AdminLayout";
 import {
   TextField,
@@ -28,6 +27,7 @@ import axios from "axios";
 
 function EditCoursePage() {
   const { id } = useParams();
+  const navigate = useNavigate();
   const [course, setCourse] = useState({
     title: "",
     imageUrl: "",
@@ -50,34 +50,15 @@ function EditCoursePage() {
 
   const [users, setUsers] = useState([]);
   const [assignedUsers, setAssignedUsers] = useState([]);
-  const [interestedUsers, setInterestedUsers] = useState([]);
-
   const [internalInstructors, setInternalInstructors] = useState([]);
   const [externalInstructors, setExternalInstructors] = useState([]);
+
 
   useEffect(() => {
     const fetchData = async () => {
       try {
         const usersResponse = await axios.get("http://localhost:5000/users");
-        const coursesResponse = await axios.get(
-          "http://localhost:5000/courses/"
-        );
-        const courseBeingEdited = await axios.get(
-          `http://localhost:5000/courses/${id}`
-        );
-
-        const usersWithDetails = usersResponse.data.map((user) => {
-          const conflicts = coursesResponse.data.filter(
-            (course) =>
-              course.participants?.includes(user._id) &&
-              course.time === courseBeingEdited.data.time
-          );
-          return {
-            ...user,
-            conflicts: conflicts.map((conflict) => conflict.title),
-          };
-        });
-        setUsers(usersWithDetails);
+        setUsers(usersResponse.data);
       } catch (error) {
         console.error("Failed to fetch data", error);
       }
@@ -108,6 +89,16 @@ function EditCoursePage() {
           budget: courseData.budget,
           times: courseData.times || [],
         }));
+
+        // Fetch details for assigned users
+        if (courseData.assignedUsers && courseData.assignedUsers.length > 0) {
+          const usersDetails = await Promise.all(
+            courseData.assignedUsers.map((userId) =>
+              axios.get(`http://localhost:5000/users/${userId}`)
+            )
+          );
+          setAssignedUsers(usersDetails.map((response) => response.data));
+        }
       } catch (error) {
         console.error("Failed to fetch course data", error);
       }
@@ -123,19 +114,19 @@ function EditCoursePage() {
 
   const fetchInternalInstructors = async () => {
     try {
-      const response = await axios.get('http://localhost:5000/users');
+      const response = await axios.get("http://localhost:5000/users");
       setInternalInstructors(response.data);
     } catch (error) {
-      console.error('Failed to fetch internal instructors', error);
+      console.error("Failed to fetch internal instructors", error);
     }
   };
 
   const fetchExternalInstructors = async () => {
     try {
-      const response = await axios.get('http://localhost:5000/external-instructors');
+      const response = await axios.get("http://localhost:5000/users");
       setExternalInstructors(response.data);
     } catch (error) {
-      console.error('Failed to fetch external instructors', error);
+      console.error("Failed to fetch external instructors", error);
     }
   };
 
@@ -158,7 +149,11 @@ function EditCoursePage() {
     const updatedTimes = [...course.times];
     if (name === "instructorType") {
       // Reset instructor when type changes
-      updatedTimes[index] = { ...updatedTimes[index], instructorType: value, instructor: "" };
+      updatedTimes[index] = {
+        ...updatedTimes[index],
+        instructorType: value,
+        instructor: "",
+      };
     } else {
       updatedTimes[index][name] = value;
     }
@@ -204,15 +199,33 @@ function EditCoursePage() {
 
   const handleSubmit = async (event) => {
     event.preventDefault();
+    const courseData = {
+      ...course,
+      assignedUsers: assignedUsers.map((user) => user._id), // Assuming each user object has an _id field
+    };
+
     try {
-      await axios.put(`http://localhost:5000/courses/${id}`, course);
+      await axios.put(`http://localhost:5000/courses/${id}`, courseData);
       console.log("Course updated successfully");
+      navigate("/CoursesManagement");
     } catch (error) {
       console.error("Failed to update course", error);
     }
   };
 
-  const combinedUsers = [...assignedUsers, ...interestedUsers];
+  const checkUserConflicts = async (userId, startTime, endTime) => {
+    const response = await axios.post('http://localhost:5000/courses/checkConflicts', { userId, startTime, endTime });
+    return response.data.conflicts;
+  };
+
+  useEffect(() => {
+    const checkAllUsers = async () => {
+        const conflicts = await Promise.all(users.map(user => 
+            checkUserConflicts(user._id, course.times[0].startTime, course.times[0].endTime)));
+        setUsers(users.map((user, index) => ({ ...user, conflict: conflicts[index].length > 0 })));
+    };
+    checkAllUsers();
+  }, [course.times, users]);
 
   return (
     <AdminLayout>
@@ -455,65 +468,28 @@ function EditCoursePage() {
           <FormControl fullWidth style={{ marginBottom: "16px" }}>
             <Autocomplete
               multiple
-              options={users.filter((user) => !combinedUsers.includes(user))}
-              getOptionLabel={(option) =>
-                option && option.label ? option.label : ""
-              }
+              options={users} // Use the users array directly without filtering
+              getOptionLabel={(option) => option.name}
               value={assignedUsers}
               onChange={(event, newValue) => {
                 setAssignedUsers(newValue);
-                setInterestedUsers(
-                  interestedUsers.filter((user) => !newValue.includes(user))
-                );
               }}
+              isOptionEqualToValue={(option, value) => option._id === value._id}
               renderOption={(props, option) => (
-                <Tooltip title={option.conflicts.join(", ") || "No conflicts"}>
-                  <li
-                    {...props}
-                    style={{
-                      color: option.conflicts.length ? "red" : "inherit",
-                    }}
-                  >
-                    {option.label}
-                  </li>
-                </Tooltip>
+                <li
+                  {...props}
+                  style={{ color: option.conflict ? "red" : "black" }}
+                >
+                  {option.name}
+                </li>
               )}
               renderInput={(params) => (
-                <TextField {...params} label="Assign Users" />
-              )}
-            />
-          </FormControl>
-        </div>
-        <div style={{ marginBottom: "16px" }}>
-          <Typography variant="h6">Interested Users</Typography>
-          <FormControl fullWidth style={{ marginBottom: "16px" }}>
-            <Autocomplete
-              multiple
-              options={users.filter((user) => !combinedUsers.includes(user))}
-              getOptionLabel={(option) =>
-                option && option.label ? option.label : ""
-              }
-              value={interestedUsers}
-              onChange={(event, newValue) => {
-                setInterestedUsers(newValue);
-                setAssignedUsers(
-                  assignedUsers.filter((user) => !newValue.includes(user))
-                );
-              }}
-              renderOption={(props, option) => (
-                <Tooltip title={option.conflicts.join(", ") || "No conflicts"}>
-                  <li
-                    {...props}
-                    style={{
-                      color: option.conflicts.length ? "red" : "inherit",
-                    }}
-                  >
-                    {option.label}
-                  </li>
-                </Tooltip>
-              )}
-              renderInput={(params) => (
-                <TextField {...params} label="Interested Users" />
+                <TextField
+                  {...params}
+                  label="Assign Users"
+                  variant="outlined"
+                  fullWidth
+                />
               )}
             />
           </FormControl>
@@ -532,8 +508,4 @@ function EditCoursePage() {
   );
 }
 
-EditCoursePage.propTypes = {
-  id: PropTypes.string,
-};
-
-export default EditCoursePage;
+export default EditCoursePage
