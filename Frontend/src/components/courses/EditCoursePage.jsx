@@ -52,15 +52,15 @@ function EditCoursePage() {
   const [assignedUsers, setAssignedUsers] = useState([]);
   const [internalInstructors, setInternalInstructors] = useState([]);
   const [externalInstructors, setExternalInstructors] = useState([]);
-  const [filter, setFilter] = useState({
-    fonction: "",
-    localite: "",
-    service: "",
-    departementDivision: "",
-    affectation: "",
-    gradeAssimile: "",
-    gradeFonction: "",
-  });
+const [filter, setFilter] = useState({
+  fonction: null,
+  localite: null,
+  service: null,
+  departementDivision: null,
+  affectation: null,
+  gradeAssimile: null,
+  gradeFonction: null,
+});
 
   useEffect(() => {
     let isMounted = true;
@@ -539,7 +539,7 @@ function EditCoursePage() {
                   <TextField {...params} label="Function" fullWidth />
                 )}
                 isOptionEqualToValue={(option, value) =>
-                  option._id === value._id
+                  option.label === value.label
                 }
               />
             </Grid>
@@ -554,7 +554,7 @@ function EditCoursePage() {
                   <TextField {...params} label="Localite" fullWidth />
                 )}
                 isOptionEqualToValue={(option, value) =>
-                  option._id === value._id
+                  option.label === value.label
                 }
               />
             </Grid>
@@ -569,7 +569,7 @@ function EditCoursePage() {
                   <TextField {...params} label="Service" fullWidth />
                 )}
                 isOptionEqualToValue={(option, value) =>
-                  option._id === value._id
+                  option.label === value.label
                 }
               />
             </Grid>
@@ -588,7 +588,7 @@ function EditCoursePage() {
                   />
                 )}
                 isOptionEqualToValue={(option, value) =>
-                  option._id === value._id
+                  option.label === value.label
                 }
               />
             </Grid>
@@ -615,7 +615,7 @@ function EditCoursePage() {
                   <TextField {...params} label="Grade Assimile" fullWidth />
                 )}
                 isOptionEqualToValue={(option, value) =>
-                  option._id === value._id
+                  option.label === value.label
                 }
               />
             </Grid>
@@ -630,7 +630,7 @@ function EditCoursePage() {
                   <TextField {...params} label="Grade Function" fullWidth />
                 )}
                 isOptionEqualToValue={(option, value) =>
-                  option._id === value._id
+                  option.label === value.label
                 }
               />
             </Grid>
