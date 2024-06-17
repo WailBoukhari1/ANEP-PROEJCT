@@ -1,20 +1,6 @@
 const express = require('express');
 const router = express.Router();
 const courseController = require('../controllers/courseController');
-const multer = require('multer');
-const path = require('path');
-
-// Setup multer as shown in courseController.js
-const storage = multer.diskStorage({
-    destination: function (req, file, cb) {
-        cb(null, 'uploads/')
-    },
-    filename: function (req, file, cb) {
-        const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
-        cb(null, file.fieldname + '-' + uniqueSuffix + path.extname(file.originalname))
-    }
-});
-
 const upload = multer({ storage: storage });
 
 // Get all courses
@@ -35,7 +21,7 @@ router.delete('/:id', courseController.deleteCourse);
 // Upload an image
 router.post('/uploadImage', upload.single('image'), courseController.uploadImage);
 
-// Check for scheduling conflicts
-router.post('/checkConflicts', courseController.checkConflicts);
+// Endpoint to update presence data for a course
+router.post('/:id/presence', courseController.updateCoursePresence);
 
 module.exports = router;

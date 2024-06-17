@@ -376,7 +376,7 @@ const checkConflicts = (userId, startTime, endTime) => {
           style={{ marginBottom: "16px" }}
         />
         <div style={{ marginBottom: "16px" }}>
-          <Typography variant="h6">times</Typography>
+          <Typography variant="h6">Session</Typography>
           {course.times?.map((session, index) => (
             <Paper
               key={index}
@@ -482,7 +482,7 @@ const checkConflicts = (userId, startTime, endTime) => {
         <div style={{ marginBottom: "16px" }}>
           <Typography variant="h6">Assign Users</Typography>
           <Grid container spacing={2} style={{ marginBottom: "16px" }}>
-            <Grid item xs={6} sm={2}>
+            <Grid item xs={6} sm={1.5}>
               <Autocomplete
                 options={uniqueOptions("FONCTION")}
                 value={filter.fonction}
@@ -497,7 +497,7 @@ const checkConflicts = (userId, startTime, endTime) => {
                 }
               />
             </Grid>
-            <Grid item xs={6} sm={2}>
+            <Grid item xs={6} sm={1.5}>
               <Autocomplete
                 options={uniqueOptions("Localite")}
                 value={filter.localite}
@@ -512,7 +512,7 @@ const checkConflicts = (userId, startTime, endTime) => {
                 }
               />
             </Grid>
-            <Grid item xs={6} sm={2}>
+            <Grid item xs={6} sm={1.5}>
               <Autocomplete
                 options={uniqueOptions("SERVICE")}
                 value={filter.service}
@@ -527,7 +527,7 @@ const checkConflicts = (userId, startTime, endTime) => {
                 }
               />
             </Grid>
-            <Grid item xs={6} sm={2}>
+            <Grid item xs={6} sm={1.5}>
               <Autocomplete
                 options={uniqueOptions("DEPARTEMENT_DIVISION")}
                 value={filter.departementDivision}
@@ -546,7 +546,7 @@ const checkConflicts = (userId, startTime, endTime) => {
                 }
               />
             </Grid>
-            <Grid item xs={6} sm={2}>
+            <Grid item xs={6} sm={1.5}>
               <Autocomplete
                 options={uniqueOptions("AFFECTATION")}
                 value={filter.affectation}
@@ -558,7 +558,7 @@ const checkConflicts = (userId, startTime, endTime) => {
                 )}
               />
             </Grid>
-            <Grid item xs={6} sm={2}>
+            <Grid item xs={6} sm={1.5}>
               <Autocomplete
                 options={uniqueOptions("GRADE_ASSIMILE")}
                 value={filter.gradeAssimile}
@@ -573,7 +573,7 @@ const checkConflicts = (userId, startTime, endTime) => {
                 }
               />
             </Grid>
-            <Grid item xs={6} sm={2}>
+            <Grid item xs={6} sm={1.5}>
               <Autocomplete
                 options={uniqueOptions("GRADE_fonction")}
                 value={filter.gradeFonction}

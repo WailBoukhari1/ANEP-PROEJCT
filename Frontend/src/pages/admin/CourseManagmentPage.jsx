@@ -108,11 +108,23 @@ function CourseManagement() {
     fetchCourses();
   }, []);
 
-  const handleMenuOpen = (event, course) => {
-    setAnchorEl(event.currentTarget);
-    setSelectedCourse(course);
-    setUserPresence({ 1: "absent", 2: "absent", 3: "absent" });
-  };
+const handleMenuOpen = async (event, course) => {
+  setAnchorEl(event.currentTarget);
+  setSelectedCourse(course);
+  try {
+    const response = await axios.get(
+      `http://localhost:5000/courses/${course._id}`
+    );
+    const users = response.data;
+    const userPresenceState = users.reduce((acc, user) => {
+      acc[user._id] = "absent";
+      return acc;
+    }, {});
+    setUserPresence(userPresenceState);
+  } catch (error) {
+    console.error("Failed to fetch users for course:", error);
+  }
+};
 
   const handleMenuClose = () => {
     setAnchorEl(null);

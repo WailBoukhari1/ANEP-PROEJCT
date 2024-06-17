@@ -2,17 +2,6 @@
 const Course = require('../models/Course');
 const multer = require('multer');
 const path = require('path');
-
-// Storage configuration for multer
-const storage = multer.diskStorage({
-    destination: function (req, file, cb) {
-        cb(null, 'uploads/')  // Ensure this directory exists
-    },
-    filename: function (req, file, cb) {
-        const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
-        cb(null, file.fieldname + '-' + uniqueSuffix + path.extname(file.originalname))
-    }
-});
 // Get all courses
 const getAllCourses = async (req, res) => {
     try {
@@ -83,6 +72,16 @@ const deleteCourse = async (req, res) => {
         res.status(500).json({ message: error.message });
     }
 };
+// Setup multer as shown in courseController.js
+const storage = multer.diskStorage({
+    destination: function (req, file, cb) {
+        cb(null, 'uploads/')
+    },
+    filename: function (req, file, cb) {
+        const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+        cb(null, file.fieldname + '-' + uniqueSuffix + path.extname(file.originalname))
+    }
+});
 
 // Controller method for uploading an image
 const uploadImage = (req, res) => {
@@ -109,6 +108,29 @@ const checkConflicts = async (req, res) => {
     res.json({ conflicts });
 };
 
+const updateCoursePresence = async (req, res) => {
+    const { courseId } = req.params;
+    const { userPresence } = req.body; // Expecting an array of { userId, status }
+
+    try {
+        const course = await Course.findById(courseId);
+        if (!course) {
+            return res.status(404).send('Course not found');
+        }
+
+        // Replace the existing presence array with the new one
+        course.presence = userPresence.map(presence => ({
+            userId: presence.userId,
+            status: presence.status
+        }));
+
+        await course.save();
+        res.status(200).send('Presence updated successfully');
+    } catch (error) {
+        res.status(500).send('Error updating presence: ' + error.message);
+    }
+};
+
 module.exports = {
     getAllCourses,
     getCourseById,
@@ -117,4 +139,5 @@ module.exports = {
     deleteCourse,
     uploadImage,
     checkConflicts,
+    updateCoursePresence
 };
