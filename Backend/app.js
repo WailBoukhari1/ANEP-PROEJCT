@@ -22,7 +22,7 @@ connectDB();
 app.use('/users', userRoutes);
 app.use('/courses', courseRoutes);
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
-
+app.use('/static', express.static(path.join(__dirname, 'uploads')));
 app.get('/', (req, res) => {
     res.send('Hello World!');
 });

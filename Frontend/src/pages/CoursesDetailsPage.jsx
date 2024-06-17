@@ -2,6 +2,7 @@ import MainLayout from "../layout/MainLayout";
 import { useEffect, useState } from "react";
 import { useDropzone } from "react-dropzone";
 import { useParams } from "react-router-dom";
+import axios from "axios";
 
 function CoursesDetails() {
   const { id } = useParams();
@@ -42,23 +43,27 @@ function CoursesDetails() {
     setShowModal(!showModal);
   };
 
- const { getRootProps, getInputProps } = useDropzone({
-   onDrop: (acceptedFiles) => {
-     const formData = new FormData();
-     formData.append("file", acceptedFiles[0]); // Assuming single file upload
+const { getRootProps, getInputProps } = useDropzone({
+  onDrop: (acceptedFiles) => {
+    const formData = new FormData();
+    formData.append("file", acceptedFiles[0]); // Assuming single file upload
 
-     fetch(`http://localhost:5000/courses/${id}/resources`, {
-       method: "POST",
-       body: formData,
-     })
-       .then((response) => response.json())
-       .then((data) => {
-         setFiles(data); // Assuming the backend returns the updated list of files
-       })
-       .catch((error) => console.error("Error uploading file:", error));
-   },
- });
-
+    axios
+      .post(`http://localhost:5000/courses/${id}/resources`, formData)
+      .then((response) => {
+        setFiles(response.data); // Assuming the backend returns the updated list of files
+      })
+      .catch((error) => console.error("Error uploading file:", error));
+  },
+});
+useEffect(() => {
+  axios
+    .get(`http://localhost:5000/courses/${id}/resources`)
+    .then((response) => {
+      setFiles(response.data);
+    })
+    .catch((error) => console.error("Failed to load files:", error));
+}, [id]); 
   const handleCommentSubmit = (event) => {
     event.preventDefault();
     if (newComment.trim()) {
@@ -303,11 +308,16 @@ function CoursesDetails() {
                                     key={index}
                                     className="flex justify-between items-center bg-white p-2 rounded-md shadow mb-2"
                                   >
-                                    <span className="text-gray-800 text-sm">
-                                      {file.title}
-                                    </span>
+                                    <div className="flex items-center">
+                                      <span
+                                        className={`file-icon ${file.type}-icon`}
+                                      ></span>{" "}
+                                      <span className="text-gray-800 text-sm ml-2">
+                                        {file.title}
+                                      </span>
+                                    </div>
                                     <a
-                                      href={`http://localhost:5000/${file.link}`}
+                                      href={`http://localhost:5000/static/${file.link}`}
                                       target="_blank"
                                       rel="noopener noreferrer"
                                       className="download-button bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"

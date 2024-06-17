@@ -217,6 +217,21 @@ const filesUpload = async (req, res) => {
         res.status(500).send(error.message);
     }
 };
+const fetchFiles = async (req, res) => {
+    const { id } = req.params;
+
+    try {
+        const course = await Course.findById(id);
+        if (!course) {
+            return res.status(404).send('Course not found.');
+        }
+
+        res.status(200).json(course.resources);
+    } catch (error) {
+        res.status(500).send(error.message);
+    }
+};
+
 module.exports = {
     getAllCourses,
     getCourseById,
@@ -228,5 +243,6 @@ module.exports = {
     updateCoursePresence,
     getLastestComments,
     handleComments,
-    filesUpload
+    filesUpload,
+    fetchFiles
 };

@@ -43,8 +43,15 @@ router.post('/:id/updatePresence', courseController.updateCoursePresence);
 
 // Get the latest 6 courses
 router.get('/latest-courses', courseController.getLastestComments);
+
 // Upload a file
 router.post('/:id/resources', upload.single('file'), courseController.filesUpload);
+
+// 
+
+router.get('/:id/resources', courseController.fetchFiles);
+
 // Add a comment
 router.post('/:id/comments', courseController.handleComments);
+
 module.exports = router;
