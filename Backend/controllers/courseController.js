@@ -2,6 +2,17 @@
 const Course = require('../models/Course');
 const multer = require('multer');
 const path = require('path');
+
+// Storage configuration for multer
+const storage = multer.diskStorage({
+    destination: function (req, file, cb) {
+        cb(null, 'uploads/')  // Ensure this directory exists
+    },
+    filename: function (req, file, cb) {
+        const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+        cb(null, file.fieldname + '-' + uniqueSuffix + path.extname(file.originalname))
+    }
+});
 // Get all courses
 const getAllCourses = async (req, res) => {
     try {
@@ -72,16 +83,6 @@ const deleteCourse = async (req, res) => {
         res.status(500).json({ message: error.message });
     }
 };
-// Setup multer as shown in courseController.js
-const storage = multer.diskStorage({
-    destination: function (req, file, cb) {
-        cb(null, 'uploads/')
-    },
-    filename: function (req, file, cb) {
-        const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
-        cb(null, file.fieldname + '-' + uniqueSuffix + path.extname(file.originalname))
-    }
-});
 
 // Controller method for uploading an image
 const uploadImage = (req, res) => {
@@ -99,38 +100,54 @@ const uploadImage = (req, res) => {
     }
 };
 
-const checkConflicts = async (req, res) => {
-    const { userId, startTime, endTime } = req.body;
-    const conflicts = await Course.find({
-        assignedUsers: userId,
-        times: { $elemMatch: { startTime: { $lt: endTime }, endTime: { $gt: startTime } } }
-    }).select('title times -_id');  // Select only the necessary fields
-    res.json({ conflicts });
-};
-
-const updateCoursePresence = async (req, res) => {
-    const { courseId } = req.params;
-    const { userPresence } = req.body; // Expecting an array of { userId, status }
+const getAssignedUsers = async (req, res) => {
+    const { id } = req.params; // course ID
 
     try {
-        const course = await Course.findById(courseId);
+        const course = await Course.findById(id).populate('assignedUsers');
         if (!course) {
             return res.status(404).send('Course not found');
         }
 
-        // Replace the existing presence array with the new one
-        course.presence = userPresence.map(presence => ({
-            userId: presence.userId,
-            status: presence.status
-        }));
+        // Initialize an empty array if presence data is missing
+        const presenceData = course.presence || [];
 
-        await course.save();
-        res.status(200).send('Presence updated successfully');
+        const usersWithPresence = course.assignedUsers.map(user => {
+            // Find the presence entry for the user, if it exists
+            const presence = presenceData.find(p => p.userId && user._id && p.userId.toString() === user._id.toString());
+            return {
+                _id: user._id,
+                name: user.name,
+                status: presence ? presence.status : 'absent'  // Default to 'absent' if no presence data found
+            };
+        });
+
+        res.status(200).json(usersWithPresence);
     } catch (error) {
-        res.status(500).send('Error updating presence: ' + error.message);
+        console.error('Error fetching assigned users:', error);
+        res.status(500).send('Failed to fetch assigned users: ' + error.message);
     }
 };
 
+const updateCoursePresence = async (req, res) => {
+    const { id } = req.params;
+    const { presence } = req.body;
+
+    try {
+        const course = await Course.findById(id);
+        if (!course) {
+            return res.status(404).send('Course not found');
+        }
+
+        course.presence = presence; // Assuming the presence array is directly replaceable
+        await course.save();
+
+        res.status(200).send('Presence updated successfully');
+    } catch (error) {
+        console.error('Failed to update course presence:', error);
+        res.status(500).send('Internal Server Error');
+    }
+};
 module.exports = {
     getAllCourses,
     getCourseById,
@@ -138,6 +155,6 @@ module.exports = {
     updateCourse,
     deleteCourse,
     uploadImage,
-    checkConflicts,
+    getAssignedUsers,
     updateCoursePresence
 };

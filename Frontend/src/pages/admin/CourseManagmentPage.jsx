@@ -1,34 +1,21 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect } from 'react';
 import {
-  Box,
-  Button,
-  Typography,
-  Paper,
-  IconButton,
-  Tooltip,
-  Menu,
-  MenuItem,
-  Checkbox,
-  FormControlLabel,
-  useTheme,
-} from "@mui/material";
-import { DataGrid } from "@mui/x-data-grid";
-import { Link } from "react-router-dom";
-import axios from "axios";
-import PropTypes from "prop-types";
-import AddIcon from "@mui/icons-material/Add";
-import EditIcon from "@mui/icons-material/Edit";
-import DeleteIcon from "@mui/icons-material/Delete";
-import Notifications from "@mui/icons-material/Notifications";
-import People from "@mui/icons-material/People";
-import AdminLayout from "../../layout/admin/AdminLayout";
+  Box, Button, Typography, Paper, IconButton, Tooltip, Menu, MenuItem,
+  Checkbox, FormControlLabel, useTheme
+} from '@mui/material';
+import { DataGrid } from '@mui/x-data-grid';
+import { Link } from 'react-router-dom';
+import axios from 'axios';
+import PropTypes from 'prop-types';
+import AddIcon from '@mui/icons-material/Add';
+import EditIcon from '@mui/icons-material/Edit';
+import DeleteIcon from '@mui/icons-material/Delete';
+import Notifications from '@mui/icons-material/Notifications';
+import People from '@mui/icons-material/People';
+import AdminLayout from '../../layout/admin/AdminLayout';
 
 const PresenceMenu = ({
-  anchorEl,
-  userPresence,
-  handleMenuClose,
-  handlePresenceChange,
-  handleSavePresence,
+  anchorEl, userPresence, handleMenuClose, handlePresenceChange, handleSavePresence
 }) => {
   const theme = useTheme();
   return (
@@ -38,24 +25,24 @@ const PresenceMenu = ({
       onClose={handleMenuClose}
       PaperProps={{
         style: {
-          padding: "10px",
+          padding: '10px',
           backgroundColor: theme.palette.background.paper,
           color: theme.palette.text.primary,
           boxShadow: theme.shadows[3],
         },
       }}
     >
-      {Object.keys(userPresence).map((userId) => (
-        <MenuItem key={userId} style={{ justifyContent: "space-between" }}>
+      {userPresence.map((user) => (
+        <MenuItem key={user._id} style={{ justifyContent: 'space-between' }}>
           <Typography variant="body1" color="textSecondary">
-            User {userId}
+            {user.name}
           </Typography>
           <Box>
             <FormControlLabel
               control={
                 <Checkbox
-                  checked={userPresence[userId] === "present"}
-                  onChange={() => handlePresenceChange(userId, "present")}
+                  checked={user.status === 'present'}
+                  onChange={() => handlePresenceChange(user._id, 'present')}
                 />
               }
               label="Present"
@@ -65,8 +52,8 @@ const PresenceMenu = ({
             <FormControlLabel
               control={
                 <Checkbox
-                  checked={userPresence[userId] === "absent"}
-                  onChange={() => handlePresenceChange(userId, "absent")}
+                  checked={user.status === 'absent'}
+                  onChange={() => handlePresenceChange(user._id, 'absent')}
                 />
               }
               label="Absent"
@@ -91,8 +78,8 @@ const PresenceMenu = ({
 };
 
 PresenceMenu.propTypes = {
-  anchorEl: PropTypes.any, // You can specify more specific type based on your usage
-  userPresence: PropTypes.object.isRequired,
+  anchorEl: PropTypes.any,
+  userPresence: PropTypes.array.isRequired,
   handleMenuClose: PropTypes.func.isRequired,
   handlePresenceChange: PropTypes.func.isRequired,
   handleSavePresence: PropTypes.func.isRequired,
@@ -102,27 +89,41 @@ function CourseManagement() {
   const [courses, setCourses] = useState([]);
   const [anchorEl, setAnchorEl] = useState(null);
   const [selectedCourse, setSelectedCourse] = useState(null);
-  const [userPresence, setUserPresence] = useState({});
+  const [userPresence, setUserPresence] = useState([]);
 
   useEffect(() => {
     fetchCourses();
   }, []);
 
-const handleMenuOpen = async (event, course) => {
-  setAnchorEl(event.currentTarget);
-  setSelectedCourse(course);
+  const handleMenuOpen = async (event, course) => {
+    setAnchorEl(event.currentTarget);
+    setSelectedCourse(course);
+    try {
+      const response = await axios.get(
+        `http://localhost:5000/courses/${course._id}/assignedUsers`
+      );
+      setUserPresence(response.data);
+    } catch (error) {
+      console.error("Failed to fetch assigned users:", error);
+    }
+  };
+
+const handleSavePresence = async () => {
+  const presenceData = userPresence.map((user) => ({
+    userId: user._id,
+    status: user.status,
+  }));
+
   try {
-    const response = await axios.get(
-      `http://localhost:5000/courses/${course._id}`
+    await axios.post(
+      `http://localhost:5000/courses/${selectedCourse._id}/updatePresence`,
+      {
+        presence: presenceData,
+      }
     );
-    const users = response.data;
-    const userPresenceState = users.reduce((acc, user) => {
-      acc[user._id] = "absent";
-      return acc;
-    }, {});
-    setUserPresence(userPresenceState);
+    console.log("Presence updated successfully");
   } catch (error) {
-    console.error("Failed to fetch users for course:", error);
+    console.error("Failed to update presence:", error);
   }
 };
 
@@ -132,16 +133,11 @@ const handleMenuOpen = async (event, course) => {
   };
 
   const handlePresenceChange = (userId, status) => {
-    setUserPresence((prev) => ({ ...prev, [userId]: status }));
-  };
-
-  const handleSavePresence = () => {
-    console.log(
-      "Saving presence for course:",
-      selectedCourse.title,
-      userPresence
+    setUserPresence(
+      userPresence.map((user) =>
+        user._id === userId ? { ...user, status } : user
+      )
     );
-    handleMenuClose();
   };
 
   const fetchCourses = async () => {
@@ -184,7 +180,6 @@ const handleMenuOpen = async (event, course) => {
               component={Link}
               to={`/EditCourse/${params.row._id}`}
               color="primary"
-              // target="_blank"
             >
               <EditIcon />
             </IconButton>
@@ -230,28 +225,29 @@ const handleMenuOpen = async (event, course) => {
             Create Course
           </Button>
         </Box>
-        <div style={{ height: 400, width: "100%" }}>
-          <DataGrid
-            rows={courses}
-            columns={columns}
-            pageSize={5}
-            rowsPerPageOptions={[5]}
-            checkboxSelection
-            getRowId={(row) => row._id} // This line tells DataGrid to use `_id` as the unique row identifier
-          />
-        </div>
-      </Paper>
-      {selectedCourse && (
-        <PresenceMenu
-          anchorEl={anchorEl}
-          userPresence={userPresence}
-          handleMenuClose={handleMenuClose}
-          handlePresenceChange={handlePresenceChange}
-          handleSavePresence={handleSavePresence}
+        <DataGrid
+          rows={courses}
+          columns={columns}
+          pageSize={5}
+          rowsPerPageOptions={[5]}
+          checkboxSelection
+          disableSelectionOnClick
+          autoHeight
+          getRowId={(row) => row._id}  // This line tells DataGrid to use `_id` as the unique row identifier
         />
-      )}
+        {selectedCourse && (
+          <PresenceMenu
+            anchorEl={anchorEl}
+            userPresence={userPresence}
+            handleMenuClose={handleMenuClose}
+            handlePresenceChange={handlePresenceChange}
+            handleSavePresence={handleSavePresence}
+          />
+        )}
+      </Paper>
     </AdminLayout>
   );
 }
 
 export default CourseManagement;
+            

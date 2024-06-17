@@ -10,15 +10,6 @@ const resourceSchema = new mongoose.Schema({
     link: { type: String, required: true },
 });
 
-const presenceSchema = new mongoose.Schema({
-    userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
-    status: {
-        type: String,
-        required: true,
-        enum: ['present', 'absent']
-    }
-});
-
 const commentSchema = new mongoose.Schema({
     userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
     userName: { type: String, required: true },
@@ -61,7 +52,17 @@ const courseSchema = new mongoose.Schema({
         type: Array,
         default: [],
     },
-    presence: [presenceSchema]
+    presence: [{
+        userId: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: 'User',
+            required: true
+        },
+        status: {
+            type: String,
+            required: true
+        }
+    }]
 }, { timestamps: true });
 
 const Course = mongoose.model('Course', courseSchema);

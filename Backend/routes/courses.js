@@ -1,6 +1,20 @@
 const express = require('express');
 const router = express.Router();
 const courseController = require('../controllers/courseController');
+const multer = require('multer');
+const path = require('path');
+
+// Setup multer as shown in courseController.js
+const storage = multer.diskStorage({
+    destination: function (req, file, cb) {
+        cb(null, 'uploads/')
+    },
+    filename: function (req, file, cb) {
+        const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+        cb(null, file.fieldname + '-' + uniqueSuffix + path.extname(file.originalname))
+    }
+});
+
 const upload = multer({ storage: storage });
 
 // Get all courses
@@ -21,7 +35,27 @@ router.delete('/:id', courseController.deleteCourse);
 // Upload an image
 router.post('/uploadImage', upload.single('image'), courseController.uploadImage);
 
+
+// Get presence data for a course
+router.get('/:id/assignedUsers', courseController.getAssignedUsers);
 // Endpoint to update presence data for a course
-router.post('/:id/presence', courseController.updateCoursePresence);
+router.post('/:id/updatePresence', courseController.updateCoursePresence);
+
+router.post('/:id/check-conflicts', async (req, res) => {
+    const { userId, startTime, endTime, courseId } = req.body;
+    const conflicts = await Course.find({
+        _id: { $ne: courseId },
+        'times.instructor': userId,
+        $or: [
+            {
+                'times.startTime': { $lt: endTime, $gt: startTime },
+            },
+            {
+                'times.endTime': { $lt: endTime, $gt: startTime },
+            },
+        ],
+    });
+    res.json(conflicts);
+});
 
 module.exports = router;

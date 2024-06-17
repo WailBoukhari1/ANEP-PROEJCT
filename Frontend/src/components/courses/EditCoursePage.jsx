@@ -73,7 +73,7 @@ function EditCoursePage() {
         );
         const allCoursesResponse = await axios.get(
           "http://localhost:5000/courses"
-        ); 
+        );
 
         setUsers(usersResponse.data);
         setInternalInstructors(usersResponse.data);
@@ -115,20 +115,20 @@ function EditCoursePage() {
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({ onDrop });
 
-  const handleChange = debounce((event, index) => {
-    const { name, value } = event.target;
-    const updatedTimes = [...course.times];
-    if (name === "instructorType") {
-      updatedTimes[index] = {
-        ...updatedTimes[index],
-        instructorType: value,
-        instructor: "",
-      };
-    } else {
-      updatedTimes[index][name] = value;
-    }
-    setCourse((prev) => ({ ...prev, times: updatedTimes }));
-  }, 300);
+ const handleChange = (event, index) => {
+   const { name, value } = event.target;
+   const updatedTimes = [...course.times];
+   if (name === "instructorType") {
+     updatedTimes[index] = {
+       ...updatedTimes[index],
+       instructorType: value,
+       instructor: "",
+     };
+   } else {
+     updatedTimes[index][name] = value;
+   }
+   setCourse((prev) => ({ ...prev, times: updatedTimes }));
+ };
 
   const handleInstructorChange = (event, newValue, index) => {
     const updatedTimes = [...course.times];
@@ -161,37 +161,39 @@ function EditCoursePage() {
     }));
   };
 
-const handleSubmit = async (event) => {
-  event.preventDefault();
-  const courseData = {
-    ...course,
-    assignedUsers: assignedUsers.map((user) => user._id),
-  };
+  const handleSubmit = async (event) => {
+    event.preventDefault();
+    const courseData = {
+      ...course,
+      assignedUsers: assignedUsers.map((user) => user._id),
+    };
 
-  try {
-    for (const user of assignedUsers) {
-      const conflictCourse = checkConflicts(
-        user._id,
-        course.times[0].startTime,
-        course.times[0].endTime
-      );
-      if (conflictCourse) {
-        await axios.put(`http://localhost:5000/courses/${conflictCourse._id}`, {
-          ...conflictCourse,
-          assignedUsers: conflictCourse.assignedUsers.filter(
-            (u) => u._id !== user._id
-          ),
-        });
+    try {
+      for (const user of assignedUsers) {
+        const conflictCourse = checkConflicts(
+          user._id,
+          course.times[0].startTime,
+          course.times[0].endTime
+        );
+        if (conflictCourse) {
+          await axios.put(
+            `http://localhost:5000/courses/${conflictCourse._id}`,
+            {
+              ...conflictCourse,
+              assignedUsers: conflictCourse.assignedUsers.filter(
+                (u) => u._id !== user._id
+              ),
+            }
+          );
+        }
       }
+      await axios.put(`http://localhost:5000/courses/${id}`, courseData);
+      console.log("Course updated successfully");
+      navigate("/CoursesManagement");
+    } catch (error) {
+      console.error("Failed to update course", error);
     }
-    await axios.put(`http://localhost:5000/courses/${id}`, courseData);
-    console.log("Course updated successfully");
-    navigate("/CoursesManagement");
-  } catch (error) {
-    console.error("Failed to update course", error);
-  }
-};
-
+  };
 
   const handleFilterChange = debounce((event, newValue, field) => {
     setFilter((prev) => ({ ...prev, [field]: newValue }));
@@ -220,20 +222,23 @@ const handleSubmit = async (event) => {
   // Function to check for conflicts
 const checkConflicts = (userId, startTime, endTime) => {
   for (const course of allCourses) {
-    for (const time of course.times) {
-      if (
-        time.instructor === userId &&
-        ((new Date(startTime) >= new Date(time.startTime) &&
-          new Date(startTime) <= new Date(time.endTime)) ||
+    if (course._id !== id && course.assignedUsers.includes(userId)) {
+      // Check at the course level
+      for (const time of course.times) {
+        if (
+          (new Date(startTime) >= new Date(time.startTime) &&
+            new Date(startTime) <= new Date(time.endTime)) ||
           (new Date(endTime) >= new Date(time.startTime) &&
-            new Date(endTime) <= new Date(time.endTime)))
-      ) {
-        return course;
+            new Date(endTime) <= new Date(time.endTime))
+        ) {
+          return course;
+        }
       }
     }
   }
   return null;
 };
+
 
   return (
     <AdminLayout>
