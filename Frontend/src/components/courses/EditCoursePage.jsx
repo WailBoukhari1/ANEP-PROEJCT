@@ -24,7 +24,8 @@ import FileCopyIcon from "@mui/icons-material/FileCopy";
 import axios from "axios";
 import debounce from "lodash/debounce";
 import ReactQuill from "react-quill";
-import "react-quill/dist/quill.snow.css"; 
+import "react-quill/dist/quill.snow.css";
+
 function EditCoursePage() {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -52,108 +53,62 @@ function EditCoursePage() {
   const [assignedUsers, setAssignedUsers] = useState([]);
   const [internalInstructors, setInternalInstructors] = useState([]);
   const [externalInstructors, setExternalInstructors] = useState([]);
-const [filter, setFilter] = useState({
-  fonction: null,
-  localite: null,
-  service: null,
-  departementDivision: null,
-  affectation: null,
-  gradeAssimile: null,
-  gradeFonction: null,
-});
+  const [filter, setFilter] = useState({
+    fonction: null,
+    localite: null,
+    service: null,
+    departementDivision: null,
+    affectation: null,
+    gradeAssimile: null,
+    gradeFonction: null,
+  });
+  const [allCourses, setAllCourses] = useState([]); // State to store all courses
 
   useEffect(() => {
-    let isMounted = true;
-
-    const fetchData = async () => {
+    const fetchUsersAndCourse = async () => {
       try {
-        const response = await axios.get("http://localhost:5000/users");
-        if (isMounted) {
-          setUsers(response.data);
-        }
-      } catch (error) {
-        console.error("Failed to fetch users", error);
-      }
-    };
+        const usersResponse = await axios.get("http://localhost:5000/users");
+        const courseResponse = await axios.get(
+          `http://localhost:5000/courses/${id}`
+        );
+        const allCoursesResponse = await axios.get(
+          "http://localhost:5000/courses"
+        ); 
 
-    fetchData();
+        setUsers(usersResponse.data);
+        setInternalInstructors(usersResponse.data);
+        setExternalInstructors(usersResponse.data);
+        setAllCourses(allCoursesResponse.data); // Store all courses
 
-    return () => {
-      isMounted = false; // Set flag to false when component unmounts
-    };
-  }, []);
-
-  useEffect(() => {
-    if (!id) {
-      console.error("Course ID is undefined");
-      return;
-    }
-
-    const fetchCourse = async () => {
-      try {
-        const response = await axios.get(`http://localhost:5000/courses/${id}`);
-        const courseData = response.data;
-
-        setCourse((prev) => ({
-          ...prev,
-          title: courseData.title,
-          imageUrl: courseData.imageUrl,
-          offline: courseData.offline,
-          description: courseData.description,
-          notifyUsers: courseData.notifyUsers,
-          hidden: courseData.hidden,
-          budget: courseData.budget,
+        const courseData = courseResponse.data;
+        setCourse({
+          ...courseData,
           times: courseData.times || [],
-        }));
+          image: courseData.image ? { preview: courseData.imageUrl } : null,
+        });
 
-        // Fetch details for assigned users
-        if (courseData.assignedUsers && courseData.assignedUsers.length > 0) {
-          const usersDetails = await Promise.all(
+        if (courseData.assignedUsers) {
+          const assignedUsersDetails = await Promise.all(
             courseData.assignedUsers.map((userId) =>
               axios.get(`http://localhost:5000/users/${userId}`)
             )
           );
-          setAssignedUsers(usersDetails.map((response) => response.data));
+          setAssignedUsers(assignedUsersDetails.map((res) => res.data));
         }
       } catch (error) {
-        console.error("Failed to fetch course data", error);
+        console.error("Failed to fetch data", error);
       }
     };
 
-    fetchCourse();
+    fetchUsersAndCourse();
   }, [id]);
-
-  useEffect(() => {
-    fetchInternalInstructors();
-    fetchExternalInstructors();
-  }, []);
-
-  const fetchInternalInstructors = async () => {
-    try {
-      const response = await axios.get("http://localhost:5000/users");
-      setInternalInstructors(response.data);
-    } catch (error) {
-      console.error("Failed to fetch internal instructors", error);
-    }
-  };
-
-  const fetchExternalInstructors = async () => {
-    try {
-      const response = await axios.get("http://localhost:5000/users");
-      setExternalInstructors(response.data);
-    } catch (error) {
-      console.error("Failed to fetch external instructors", error);
-    }
-  };
 
   const onDrop = useCallback((acceptedFiles) => {
     const file = acceptedFiles[0];
     if (file) {
       setCourse((prev) => ({
         ...prev,
-        image: Object.assign(file, {
-          preview: URL.createObjectURL(file),
-        }),
+        image: Object.assign(file, { preview: URL.createObjectURL(file) }),
       }));
     }
   }, []);
@@ -172,19 +127,13 @@ const [filter, setFilter] = useState({
     } else {
       updatedTimes[index][name] = value;
     }
-    setCourse((prev) => ({
-      ...prev,
-      times: updatedTimes,
-    }));
+    setCourse((prev) => ({ ...prev, times: updatedTimes }));
   }, 300);
 
   const handleInstructorChange = (event, newValue, index) => {
     const updatedTimes = [...course.times];
-    updatedTimes[index].instructor = newValue ? newValue.id : "";
-    setCourse((prev) => ({
-      ...prev,
-      times: updatedTimes,
-    }));
+    updatedTimes[index].instructor = newValue ? newValue._id : "";
+    setCourse((prev) => ({ ...prev, times: updatedTimes }));
   };
 
   const handleAddSession = () => {
@@ -212,50 +161,37 @@ const [filter, setFilter] = useState({
     }));
   };
 
-  const handleSubmit = async (event) => {
-    event.preventDefault();
-    const courseData = {
-      ...course,
-      assignedUsers: assignedUsers.map((user) => user._id), // Assuming each user object has an _id field
-    };
+const handleSubmit = async (event) => {
+  event.preventDefault();
+  const courseData = {
+    ...course,
+    assignedUsers: assignedUsers.map((user) => user._id),
+  };
 
-    try {
-      await axios.put(`http://localhost:5000/courses/${id}`, courseData);
-      console.log("Course updated successfully");
-      navigate("/CoursesManagement");
-    } catch (error) {
-      console.error("Failed to update course", error);
+  try {
+    for (const user of assignedUsers) {
+      const conflictCourse = checkConflicts(
+        user._id,
+        course.times[0].startTime,
+        course.times[0].endTime
+      );
+      if (conflictCourse) {
+        await axios.put(`http://localhost:5000/courses/${conflictCourse._id}`, {
+          ...conflictCourse,
+          assignedUsers: conflictCourse.assignedUsers.filter(
+            (u) => u._id !== user._id
+          ),
+        });
+      }
     }
-  };
+    await axios.put(`http://localhost:5000/courses/${id}`, courseData);
+    console.log("Course updated successfully");
+    navigate("/CoursesManagement");
+  } catch (error) {
+    console.error("Failed to update course", error);
+  }
+};
 
-  const checkUserConflicts = async (userId, startTime, endTime) => {
-    const response = await axios.post(
-      "http://localhost:5000/courses/checkConflicts",
-      { userId, startTime, endTime }
-    );
-    return response.data.conflicts;
-  };
-
-  useEffect(() => {
-    const checkAllUsers = async () => {
-      const conflicts = await Promise.all(
-        users.map((user) =>
-          checkUserConflicts(
-            user._id,
-            course.times[0].startTime,
-            course.times[0].endTime
-          )
-        )
-      );
-      setUsers(
-        users.map((user, index) => ({
-          ...user,
-          conflict: conflicts[index].length > 0,
-        }))
-      );
-    };
-    checkAllUsers();
-  }, [course.times, users]);
 
   const handleFilterChange = debounce((event, newValue, field) => {
     setFilter((prev) => ({ ...prev, [field]: newValue }));
@@ -278,8 +214,26 @@ const [filter, setFilter] = useState({
         user.GRADE_ASSIMILE === filter.gradeAssimile?.label) &&
       (!filter.gradeFonction ||
         user.GRADE_fonction === filter.gradeFonction?.label) &&
-      !assignedUsers.some((assignedUser) => assignedUser._id === user._id) // Exclude already assigned users
+      !assignedUsers.some((assignedUser) => assignedUser._id === user._id)
   );
+
+  // Function to check for conflicts
+const checkConflicts = (userId, startTime, endTime) => {
+  for (const course of allCourses) {
+    for (const time of course.times) {
+      if (
+        time.instructor === userId &&
+        ((new Date(startTime) >= new Date(time.startTime) &&
+          new Date(startTime) <= new Date(time.endTime)) ||
+          (new Date(endTime) >= new Date(time.startTime) &&
+            new Date(endTime) <= new Date(time.endTime)))
+      ) {
+        return course;
+      }
+    }
+  }
+  return null;
+};
 
   return (
     <AdminLayout>
@@ -639,20 +593,30 @@ const [filter, setFilter] = useState({
             <Autocomplete
               multiple
               options={filteredUsers}
-              getOptionLabel={(option) => option.name}
+              getOptionLabel={(user) => `${user.name}`}
               value={assignedUsers}
-              onChange={(event, newValue) => {
-                setAssignedUsers(newValue);
-              }}
+              onChange={(event, newValue) => setAssignedUsers(newValue)}
               isOptionEqualToValue={(option, value) => option._id === value._id}
-              renderOption={(props, option) => (
-                <li
-                  {...props}
-                  style={{ color: option.conflict ? "red" : "black" }}
-                >
-                  {option.name}
-                </li>
-              )}
+              renderOption={(props, option) => {
+                const conflictCourse = checkConflicts(
+                  option._id,
+                  course.times[0].startTime,
+                  course.times[0].endTime
+                );
+                return (
+                  <li
+                    {...props}
+                    style={{ color: conflictCourse ? "red" : "inherit" }}
+                  >
+                    {option.name}
+                    {conflictCourse && (
+                      <span style={{ marginLeft: "10px", color: "red" }}>
+                        (Conflict with: {conflictCourse.title})
+                      </span>
+                    )}
+                  </li>
+                );
+              }}
               renderInput={(params) => (
                 <TextField
                   {...params}

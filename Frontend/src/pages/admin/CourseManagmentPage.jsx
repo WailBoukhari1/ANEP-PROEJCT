@@ -172,7 +172,7 @@ function CourseManagement() {
               component={Link}
               to={`/EditCourse/${params.row._id}`}
               color="primary"
-              target="_blank"
+              // target="_blank"
             >
               <EditIcon />
             </IconButton>
