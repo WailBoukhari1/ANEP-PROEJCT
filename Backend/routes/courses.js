@@ -41,21 +41,4 @@ router.get('/:id/assignedUsers', courseController.getAssignedUsers);
 // Endpoint to update presence data for a course
 router.post('/:id/updatePresence', courseController.updateCoursePresence);
 
-router.post('/:id/check-conflicts', async (req, res) => {
-    const { userId, startTime, endTime, courseId } = req.body;
-    const conflicts = await Course.find({
-        _id: { $ne: courseId },
-        'times.instructor': userId,
-        $or: [
-            {
-                'times.startTime': { $lt: endTime, $gt: startTime },
-            },
-            {
-                'times.endTime': { $lt: endTime, $gt: startTime },
-            },
-        ],
-    });
-    res.json(conflicts);
-});
-
 module.exports = router;
