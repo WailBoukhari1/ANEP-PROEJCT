@@ -1,6 +1,6 @@
 import MainLayout from "../layout/MainLayout";
 import { useState, useEffect, useCallback } from "react";
-
+import { Link } from 'react-router-dom';
 function Course() {
   const [courses, setCourses] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
@@ -201,25 +201,19 @@ function Course() {
                           <div className="p-15px bg-whiteColor shadow-brand dark:bg-darkdeep3-dark dark:shadow-brand-dark">
                             {/* card image */}
                             <div className="relative mb-4">
-                              <a
-                                href="course-details.html"
-                                className="w-full overflow-hidden rounded"
-                              >
+                              <Link to={`/CoursesDetails/${course._id}`}>
                                 <img
                                   src={`${baseURL}${course.imageUrl}`}
                                   alt={course.title}
                                   className="w-full transition-all duration-300 group-hover:scale-110"
                                 />
-                              </a>
+                              </Link>
                             </div>
                             {/* card content */}
                             <div>
-                              <a
-                                href="course-details.html"
-                                className="text-lg font-semibold text-blackColor mb-10px font-hind dark:text-blackColor-dark hover:text-primaryColor dark:hover:text-primaryColor"
-                              >
+                              <Link to={`/CoursesDetails/${course._id}`}>
                                 {course.title}
-                              </a>
+                              </Link>
                               <div className="text-sm font-inter mb-4 description-clamp ">
                                 {course.description}
                               </div>

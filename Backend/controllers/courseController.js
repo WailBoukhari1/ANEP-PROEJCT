@@ -160,6 +160,63 @@ const getLastestComments = async (req, res) => {
         res.status(500).send(error);
     }
 };
+
+const handleComments = async (req, res) => {
+    const { id } = req.params;
+    const { userName, text } = req.body; // Assuming you're sending userName and text from the frontend
+
+    if (!text.trim()) {
+        return res.status(400).json({ message: "Comment text must not be empty" });
+    }
+
+    try {
+        const course = await Course.findById(id);
+        if (!course) {
+            return res.status(404).json({ message: "Course not found" });
+        }
+
+        const newComment = {
+            userName,
+            text,
+            createdAt: new Date() // This is optional since default is already set in schema
+        };
+
+        course.comments.push(newComment);
+        await course.save();
+
+        res.status(201).json(course.comments);
+    } catch (error) {
+        res.status(500).json({ message: "Server error", error: error.message });
+    }
+};
+const filesUpload = async (req, res) => {
+    const { id } = req.params;
+    const file = req.file;
+
+    if (!file) {
+        return res.status(400).send('No file uploaded.');
+    }
+
+    try {
+        const course = await Course.findById(id);
+        if (!course) {
+            return res.status(404).send('Course not found.');
+        }
+
+        const newResource = {
+            type: file.mimetype.includes('image') ? 'image' : 'file', // Simplified type check
+            title: file.originalname,
+            link: file.path
+        };
+
+        course.resources.push(newResource);
+        await course.save();
+
+        res.status(201).json(course.resources);
+    } catch (error) {
+        res.status(500).send(error.message);
+    }
+};
 module.exports = {
     getAllCourses,
     getCourseById,
@@ -169,5 +226,7 @@ module.exports = {
     uploadImage,
     getAssignedUsers,
     updateCoursePresence,
-    getLastestComments
+    getLastestComments,
+    handleComments,
+    filesUpload
 };

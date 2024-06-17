@@ -1,15 +1,39 @@
 import MainLayout from "../layout/MainLayout";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useDropzone } from "react-dropzone";
+import { useParams } from "react-router-dom";
 
 function CoursesDetails() {
+  const { id } = useParams();
+  const [course, setCourse] = useState(null);
   const [activeTab, setActiveTab] = useState("description");
   const [files, setFiles] = useState([]);
   const [showModal, setShowModal] = useState(false);
-  const [comments, setComments] = useState([]); // State to hold comments
-  const [newComment, setNewComment] = useState(""); // State to hold new comment input
-  const [feedbackMessage, setFeedbackMessage] = useState(""); // State for feedback message after submitting a comment
-
+  const [comments, setComments] = useState([]);
+  const [newComment, setNewComment] = useState("");
+  const [feedbackMessage, setFeedbackMessage] = useState("");
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const baseURL = "http://localhost:5000";
+  useEffect(() => {
+    fetch(`http://localhost:5000/courses/${id}`)
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error("Failed to fetch course details.");
+        }
+        return response.json();
+      })
+      .then((data) => {
+        setCourse(data);
+        setComments(data.comments || []); // Assuming comments are part of the course data
+        setLoading(false);
+      })
+      .catch((error) => {
+        console.error("Error fetching course details:", error);
+        setError(error.message);
+        setLoading(false);
+      });
+  }, [id]);
   const handleTabClick = (tab) => {
     setActiveTab(tab);
   };
@@ -18,34 +42,55 @@ function CoursesDetails() {
     setShowModal(!showModal);
   };
 
-  const { getRootProps, getInputProps } = useDropzone({
-    onDrop: (acceptedFiles) => {
-      setFiles((currentFiles) => [...currentFiles, ...acceptedFiles]);
-    },
-  });
+ const { getRootProps, getInputProps } = useDropzone({
+   onDrop: (acceptedFiles) => {
+     const formData = new FormData();
+     formData.append("file", acceptedFiles[0]); // Assuming single file upload
 
-  const downloadFile = (file) => {
-    const link = document.createElement("a");
-    link.href = file.preview;
-    link.download = file.name;
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-  };
+     fetch(`http://localhost:5000/courses/${id}/resources`, {
+       method: "POST",
+       body: formData,
+     })
+       .then((response) => response.json())
+       .then((data) => {
+         setFiles(data); // Assuming the backend returns the updated list of files
+       })
+       .catch((error) => console.error("Error uploading file:", error));
+   },
+ });
 
   const handleCommentSubmit = (event) => {
-    event.preventDefault(); // Prevent the default form submission behavior
-    if (newComment.trim()) { // Check if the comment is not just empty spaces
-      setComments([...comments, newComment]);
-      setNewComment(""); // Clear the input after submission
-      setFeedbackMessage("Comment added successfully!"); // Set feedback message
-      setTimeout(() => setFeedbackMessage(""), 3000); // Clear feedback message after 3 seconds
+    event.preventDefault();
+    if (newComment.trim()) {
+      fetch(`http://localhost:5000/courses/${id}/comments`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          userName: "Placeholder User",
+          text: newComment,
+        }),
+      })
+        .then((response) => response.json())
+        .then((data) => {
+          setComments(data); // Assuming the backend returns the updated list of comments
+          setNewComment("");
+          setFeedbackMessage("Comment added successfully!");
+          setTimeout(() => setFeedbackMessage(""), 3000);
+        })
+        .catch((error) => {
+          console.error("Failed to submit comment:", error);
+          setFeedbackMessage("Failed to submit comment.");
+          setTimeout(() => setFeedbackMessage(""), 3000);
+        });
     } else {
-      setFeedbackMessage("Please enter a valid comment."); // Set error message for empty input
-      setTimeout(() => setFeedbackMessage(""), 3000); // Clear feedback message after 3 seconds
+      setFeedbackMessage("Please enter a valid comment.");
+      setTimeout(() => setFeedbackMessage(""), 3000);
     }
   };
-
+  if (loading) return <MainLayout>Loading...</MainLayout>;
+  if (error) return <MainLayout>Error: {error}</MainLayout>;
   return (
     <MainLayout>
       <>
@@ -87,7 +132,7 @@ function CoursesDetails() {
                   {/* course thumbnail */}
                   <div className="overflow-hidden relative mb-5">
                     <img
-                      src="/assets/images/grid/grid_1.png"
+                      src={`${baseURL}${course.imageUrl}`}
                       alt=""
                       className="w-full"
                     />
@@ -102,7 +147,7 @@ function CoursesDetails() {
                         <p className="text-sm text-contentColor dark:text-contentColor-dark font-medium">
                           Last Update:{" "}
                           <span className="text-blackColor dark:text-blackColor-dark">
-                            Sep 29, 2024
+                            {course.updatedAt}
                           </span>
                         </p>
                       </div>
@@ -112,22 +157,8 @@ function CoursesDetails() {
                       className="text-size-32 md:text-4xl font-bold text-blackColor dark:text-blackColor-dark mb-15px leading-43px md:leading-14.5"
                       data-aos="fade-up"
                     >
-                      Making Music with Other People
+                      {course.title}
                     </h4>
-
-                    <p
-                      className="text-sm md:text-lg text-contentColor dark:contentColor-dark mb-25px !leading-30px"
-                      data-aos="fade-up"
-                    >
-                      Lorem ipsum dolor sit amet, consectetur adipiscing elit.
-                      Curabitur vulputate vestibulum rhoncus, dolor eget viverra
-                      pretium, dolor tellus aliquet nunc, vitae ultricies erat
-                      elit eu lacus. Vestibulum non justo consectetur, cursus
-                      ante, tincidunt sapien. Nulla quis diam sit amet turpis
-                      interd enim. Vivamus faucibus ex sed nibh egestas
-                      elementum. Mauris et bibendum dui. Aenean consequat
-                      pulvinar luctus. Suspendisse consectetur tristique
-                    </p>
                     {/* course tab */}
                     <div data-aos="fade-up" className="tab course-details-tab">
                       <div className="tab-links flex flex-wrap md:flex-nowrap mb-30px rounded gap-0.5">
@@ -164,51 +195,7 @@ function CoursesDetails() {
                       </div>
                       <div className="tab-content">
                         {activeTab === "description" && (
-                          <div>
-                            <h4
-                              className="text-size-26 font-bold text-blackColor dark:text-blackColor-dark mb-15px !leading-14"
-                              data-aos="fade-up"
-                            >
-                              Experience is over the world visit
-                            </h4>
-                            <p
-                              className="text-lg text-darkdeep4 mb-5 !leading-30px"
-                              data-aos="fade-up"
-                            >
-                              Lorem ipsum dolor sit amet, consectetur adipiscing
-                              elit. Curabitur vulputate vestibulum Phasellus
-                              rhoncus, dolor eget viverra pretium, dolor tellus
-                              aliquet nunc, vitae ultricies erat elit eu lacus.
-                              Vestibulum non justo consectetur, cursus ante,
-                              tincidunt sapien. Nulla quis diam sit amet turpis
-                              interdum accumsan quis nec enim. Vivamus faucibus
-                              ex sed nibh egestas elementum. Mauris et bibendum
-                              dui. Aenean consequat pulvinar luctus
-                            </p>
-                            <p
-                              className="text-lg text-darkdeep4 mb-5 !leading-30px"
-                              data-aos="fade-up"
-                            >
-                              We have covered many special events such as
-                              fireworks, fairs, parades, races, walks, awards
-                              ceremonies, fashion shows, sporting events, and
-                              even a memorial service.
-                            </p>
-                            <p
-                              className="text-lg text-darkdeep4 mb-5 !leading-30px"
-                              data-aos="fade-up"
-                            >
-                              Lorem ipsum dolor sit amet, consectetur adipiscing
-                              elit. Curabitur vulputate vestibulum Phasellus
-                              rhoncus, dolor eget viverra pretium, dolor tellus
-                              aliquet nunc, vitae ultricies erat elit eu lacus.
-                              Vestibulum non justo consectetur, cursus ante,
-                              tincidunt sapien. Nulla quis diam sit amet turpis
-                              interdum accumsan quis nec enim. Vivamus faucibus
-                              ex sed nibh egestas elementum. Mauris et bibendum
-                              dui. Aenean consequat pulvinar luctus.
-                            </p>
-                          </div>
+                          <div>{course.description}</div>
                         )}
                         {activeTab === "reviews" && (
                           <div>
@@ -219,27 +206,35 @@ function CoursesDetails() {
                               </h4>
                               <ul>
                                 {comments.map((comment, index) => (
-                                  <li key={index} className="flex gap-30px pt-35px border-t border-borderColor2 dark:border-borderColor2-dark">
+                                  <li
+                                    key={index}
+                                    className="flex gap-30px pt-35px border-t border-borderColor2 dark:border-borderColor2-dark"
+                                  >
                                     <div className="flex-grow">
                                       <div className="flex justify-between">
                                         <div>
                                           <h4>
                                             <a
                                               href="#"
-                                              className="text-lg font-semibold text-blackColor hover:text-secondaryColor dark:text-blackColor-dark dark:hover:text-condaryColor leading-1.2"
+                                              className="text-lg font-semibold text-blackColor hover:text-secondaryColor dark:text-blackColor-dark dark:hover:text-secondaryColor leading-1.2"
                                             >
-                                              Adam Smit
+                                              {comment.userName}{" "}
+                                              {/* Display the userName from the comment */}
                                             </a>
                                           </h4>
                                         </div>
                                         <div className="author__icon">
-                                          <p className="text-sm font-bold text-blackColor dark:text-blackColor-dark leading-9 px-25px mb-5px border-2 border-borderColor2 dark:border-borderColo2-dark hover:border-secondaryColor dark:hover:border-secondaryColor rounded-full transition-all duration-300">
-                                            September 2, 2024
+                                          <p className="text-sm font-bold text-blackColor dark:text-blackColor-dark leading-9 px-25px mb-5px border-2 border-borderColor2 dark:border-borderColor2-dark hover:border-secondaryColor dark:hover:border-secondaryColor rounded-full transition-all duration-300">
+                                            {new Date(
+                                              comment.createdAt
+                                            ).toLocaleDateString()}{" "}
+                                            {/* Format the createdAt date */}
                                           </p>
                                         </div>
                                       </div>
                                       <p className="text-sm text-contentColor dark:text-contentColor-dark leading-23px mb-15px">
-                                        {comment}
+                                        {comment.text}{" "}
+                                        {/* Display the text of the comment */}
                                       </p>
                                     </div>
                                   </li>
@@ -265,7 +260,9 @@ function CoursesDetails() {
                                   cols={30}
                                   rows={6}
                                   value={newComment}
-                                  onChange={(e) => setNewComment(e.target.value)}
+                                  onChange={(e) =>
+                                    setNewComment(e.target.value)
+                                  }
                                 />
                                 <div className="mt-30px">
                                   <button
@@ -276,7 +273,9 @@ function CoursesDetails() {
                                   </button>
                                 </div>
                                 {feedbackMessage && (
-                                  <p className="text-sm mt-2">{feedbackMessage}</p>
+                                  <p className="text-sm mt-2">
+                                    {feedbackMessage}
+                                  </p>
                                 )}
                               </form>
                             </div>
@@ -305,14 +304,16 @@ function CoursesDetails() {
                                     className="flex justify-between items-center bg-white p-2 rounded-md shadow mb-2"
                                   >
                                     <span className="text-gray-800 text-sm">
-                                      {file.name}
+                                      {file.title}
                                     </span>
-                                    <button
-                                      onClick={() => downloadFile(file)}
+                                    <a
+                                      href={`http://localhost:5000/${file.link}`}
+                                      target="_blank"
+                                      rel="noopener noreferrer"
                                       className="download-button bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
                                     >
                                       Download
-                                    </button>
+                                    </a>
                                   </li>
                                 ))}
                               </ul>
@@ -347,7 +348,11 @@ function CoursesDetails() {
                           >
                             <span className="animate-buble absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 block w-[180px] h-[180px] border-secondaryColor rounded-full" />
                             <span className="animate-buble2 absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 block w-[180px] h-[180px] border-secondaryColor rounded-full" />
-                            <img loading="lazy" src="assets/images/icon/video.png" alt="" />
+                            <img
+                              loading="lazy"
+                              src="assets/images/icon/video.png"
+                              alt=""
+                            />
                           </button>
                         </div>
                       </div>
