@@ -1,100 +1,43 @@
 import MainLayout from "../layout/MainLayout";
 import { useState, useEffect, useCallback } from "react";
 
-const dummyData = [
-  {
-    title: "Course 1",
-    description:
-      "Lorem ipsum dolor, sit amet consectetur adipisicing elit. Deleniti eaque aut architecto voluptas, rem natus et, facere amet asperiores tenetur debitis aperiam. Consectetur architecto ullam omnis quidem impedit et iste.",
-    image: "https://via.placeholder.com/150",
-    date: "2023-01-01",
-  },
-  {
-    title: "Course 2",
-    description:
-      "Lorem ipsum dolor, sit amet consectetur adipisicing elit. Deleniti eaque aut architecto voluptas, rem natus et, facere amet asperiores tenetur debitis aperiam. Consectetur architecto ullam omnis quidem impedit et iste.",
-    image: "https://via.placeholder.com/150",
-    date: "2023-01-02",
-  },
-  {
-    title: "Course 3",
-    description:
-      "Lorem ipsum dolor, sit amet consectetur adipisicing elit. Deleniti eaque aut architecto voluptas, rem natus et, facere amet asperiores tenetur debitis aperiam. Consectetur architecto ullam omnis quidem impedit et iste.",
-    image: "https://via.placeholder.com/150",
-    date: "2023-01-03",
-  },
-  {
-    title: "Course 4",
-    description:
-      "Lorem ipsum dolor, sit amet consectetur adipisicing elit. Deleniti eaque aut architecto voluptas, rem natus et, facere amet asperiores tenetur debitis aperiam. Consectetur architecto ullam omnis quidem impedit et iste.",
-    image: "https://via.placeholder.com/150",
-    date: "2023-01-04",
-  },
-  {
-    title: "Course 5",
-    description:
-      "Lorem ipsum dolor, sit amet consectetur adipisicing elit. Deleniti eaque aut architecto voluptas, rem natus et, facere amet asperiores tenetur debitis aperiam. Consectetur architecto ullam omnis quidem impedit et iste.",
-    image: "https://via.placeholder.com/150",
-    date: "2023-01-05",
-  },
-  {
-    title: "Course 6",
-    description:
-      "Lorem ipsum dolor, sit amet consectetur adipisicing elit. Deleniti eaque aut architecto voluptas, rem natus et, facere amet asperiores tenetur debitis aperiam. Consectetur architecto ullam omnis quidem impedit et iste.",
-    image: "https://via.placeholder.com/150",
-    date: "2023-01-06",
-  },
-  {
-    title: "Course 7",
-    description:
-      "Lorem ipsum dolor, sit amet consectetur adipisicing elit. Deleniti eaque aut architecto voluptas, rem natus et, facere amet asperiores tenetur debitis aperiam. Consectetur architecto ullam omnis quidem impedit et iste.",
-    image: "https://via.placeholder.com/150",
-    date: "2023-01-07",
-  },
-  {
-    title: "Course 8",
-    description:
-      "Lorem ipsum dolor, sit amet consectetur adipisicing elit. Deleniti eaque aut architecto voluptas, rem natus et, facere amet asperiores tenetur debitis aperiam. Consectetur architecto ullam omnis quidem impedit et iste.",
-    image: "https://via.placeholder.com/150",
-    date: "2023-01-08",
-  },
-  {
-    title: "Course 9",
-    description:
-      "Lorem ipsum dolor, sit amet consectetur adipisicing elit. Deleniti eaque aut architecto voluptas, rem natus et, facere amet asperiores tenetur debitis aperiam. Consectetur architecto ullam omnis quidem impedit et iste.",
-    image: "https://via.placeholder.com/150",
-    date: "2023-01-09",
-  },
-  {
-    title: "Course 10",
-    description:
-      "Lorem ipsum dolor, sit amet consectetur adipisicing elit. Deleniti eaque aut architecto voluptas, rem natus et, facere amet asperiores tenetur debitis aperiam. Consectetur architecto ullam omnis quidem impedit et iste.",
-    image: "https://via.placeholder.com/150",
-    date: "2023-01-10",
-  },
-];
-
 function Course() {
+  const [courses, setCourses] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
-  const [filteredCourses, setFilteredCourses] = useState(dummyData);
+  const [filteredCourses, setFilteredCourses] = useState([]);
   const [sortOrder, setSortOrder] = useState("dateDesc");
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 3;
+  const [selectedCategory, setSelectedCategory] = useState("All");
+
+  const categories = ["All", "online", "offline"];
+
+    const baseURL = "http://localhost:5000";
+
+  useEffect(() => {
+    fetch('http://localhost:5000/courses') // Adjust the URL as needed
+      .then(response => response.json())
+      .then(data => {
+        setCourses(data);
+        setFilteredCourses(data); // Initially, no filter applied
+      })
+      .catch(error => console.error('Error fetching courses:', error));
+  }, []);
 
   const filterCourses = useCallback((searchValue) => {
-    let filtered = dummyData.filter(
+    let filtered = courses.filter(
       (course) =>
-        course.title.toLowerCase().includes(searchValue.toLowerCase()) ||
-        course.description.toLowerCase().includes(searchValue.toLowerCase()) ||
-        course.date.includes(searchValue)
+        (selectedCategory === "All" || course.offline === selectedCategory) &&
+        (course.title.toLowerCase().includes(searchValue.toLowerCase()) ||
+         course.description.toLowerCase().includes(searchValue.toLowerCase()))
     );
 
     switch (sortOrder) {
       case "dateAsc":
-        filtered.sort((a, b) => new Date(a.date) - new Date(b.date));
+        filtered.sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt));
         break;
       case "dateDesc":
-        filtered.sort((a, b) => new Date(b.date) - new Date(a.date));
+        filtered.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
         break;
       case "titleAsc":
         filtered.sort((a, b) => a.title.localeCompare(b.title));
@@ -107,11 +50,11 @@ function Course() {
     }
 
     setFilteredCourses(filtered);
-  }, [sortOrder]);
+  }, [courses, sortOrder, selectedCategory]);
 
   useEffect(() => {
     filterCourses(searchTerm);
-  }, [filterCourses, searchTerm, sortOrder, currentPage]);
+  }, [filterCourses, searchTerm, sortOrder, currentPage, selectedCategory]);
 
   const handleSearchChange = (event) => {
     const { value } = event.target;
@@ -187,6 +130,26 @@ function Course() {
               </div>
               <div className="flex items-center">
                 <div className="pl-50px sm:pl-20 pr-10px">
+                  <div className="basis-full lg:basis-[700px]">
+                    <div className="category-filter">
+                      {categories.map((category) => (
+                        <button
+                          key={category}
+                          className={`category-button ${
+                            selectedCategory === category ? "active" : ""
+                          }`}
+                          onClick={() => {
+                            setSelectedCategory(category);
+                            setCurrentPage(1);
+                          }}
+                        >
+                          {category.charAt(0).toUpperCase() + category.slice(1)}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+                <div className="pl-50px sm:pl-20 pr-10px">
                   <select
                     className="text-blackColor bg-whiteColor py-3px pr-2 pl-3 rounded-md outline-none border-4 border-transparent focus:border-blue-light box-border"
                     value={sortOrder}
@@ -243,7 +206,7 @@ function Course() {
                                 className="w-full overflow-hidden rounded"
                               >
                                 <img
-                                  src={course.image}
+                                  src={`${baseURL}${course.imageUrl}`}
                                   alt={course.title}
                                   className="w-full transition-all duration-300 group-hover:scale-110"
                                 />
@@ -263,7 +226,7 @@ function Course() {
                               <div className="text-xs py-5 text-gray-500">
                                 Created on:{" "}
                                 <span className="font-semibold">
-                                  {course.date}
+                                  {course.createdAt}
                                 </span>
                               </div>
                             </div>

@@ -1,5 +1,6 @@
 import { useState } from "react";
 import PropTypes from "prop-types";
+import { useNavigate } from "react-router-dom";
 import AdminLayout from "../../layout/admin/AdminLayout";
 import {
   TextField,
@@ -17,11 +18,11 @@ import axios from "axios";
 const rolesOptions = ["user", "admin"];
 
 const CreateUser = () => {
+  const navigate = useNavigate();
   const [user, setUser] = useState({
     email: "",
     password: "",
     roles: ["user"], // This is correctly initialized as an array
-    tokenAccess: "",
     name: "",
     PPR: "",
     CIN: "",
@@ -62,8 +63,9 @@ const CreateUser = () => {
   const handleSubmit = async (event) => {
     event.preventDefault();
     try {
-      const response = await axios.post("/api/users", user);
+      const response = await axios.post("http://localhost:5000/users", user);
       console.log("User created:", response.data);
+      navigate("/UsersManagement");
     } catch (error) {
       console.error("Error creating user:", error);
     }
@@ -121,16 +123,6 @@ const CreateUser = () => {
             </Grid>
             <Grid item xs={6}>
               <TextField
-                label="Token Access"
-                name="tokenAccess"
-                value={user.tokenAccess}
-                onChange={handleChange}
-                fullWidth
-                margin="normal"
-              />
-            </Grid>
-            <Grid item xs={6}>
-              <TextField
                 label="Name"
                 name="name"
                 value={user.name}
@@ -142,6 +134,7 @@ const CreateUser = () => {
             <Grid item xs={6}>
               <TextField
                 label="PPR"
+                type="number"
                 name="PPR"
                 value={user.PPR}
                 onChange={handleChange}
@@ -307,6 +300,7 @@ const CreateUser = () => {
               <TextField
                 label="Scale"
                 name="ECHEL"
+                type="number"
                 value={user.ECHEL}
                 onChange={handleChange}
                 fullWidth
@@ -317,6 +311,7 @@ const CreateUser = () => {
               <TextField
                 label="Echelon"
                 name="ECHELON"
+                type="number"
                 value={user.ECHELON}
                 onChange={handleChange}
                 fullWidth
@@ -327,6 +322,7 @@ const CreateUser = () => {
               <TextField
                 label="Index"
                 name="INDICE"
+                type="number"
                 value={user.INDICE}
                 onChange={handleChange}
                 fullWidth

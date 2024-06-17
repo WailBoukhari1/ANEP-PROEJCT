@@ -1,7 +1,8 @@
 import * as XLSX from "xlsx";
 import AdminLayout from "../../layout/admin/AdminLayout";
+import { Link } from "react-router-dom";
 import { DataGrid } from "@mui/x-data-grid";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   Button,
   Box,
@@ -15,202 +16,36 @@ import AddIcon from "@mui/icons-material/Add";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
 import ImportExportIcon from "@mui/icons-material/ImportExport";
-import FileUploadIcon from "@mui/icons-material/FileUpload";
+// import FileUploadIcon from "@mui/icons-material/FileUpload";
+import axios from 'axios';
 
 function UserManagement() {
+
   const theme = useTheme();
-  const [users, setUsers] = useState([
-    {
-      id: 1,
-      email: "user1@example.com",
-      name: "John Doe",
-      roles: ["admin"],
-      PPR: 123456,
-      CIN: "AB123456",
-      DATE_NAISSANCE: new Date(1990, 0, 1),
-      SITUATION: "Single",
-      SEXE: "Male",
-      SIT_F_AG: "Good",
-      DATE_RECRUTEMENT: new Date(2020, 0, 10),
-      GRADE_fonction: "Manager",
-      AFFECTATION: "Headquarters",
-      DEPARTEMENT_DIVISION: "HR",
-      SERVICE: "Management",
-      Localite: "New York",
-      FONCTION: "HR Manager",
-    },
-    {
-      id: 2,
-      email: "user2@example.com",
-      name: "Jane Smith",
-      roles: ["user"],
-      PPR: 123457,
-      CIN: "AB123457",
-      DATE_NAISSANCE: new Date(1992, 1, 15),
-      SITUATION: "Married",
-      SEXE: "Female",
-      SIT_F_AG: "Average",
-      DATE_RECRUTEMENT: new Date(2021, 5, 20),
-      GRADE_fonction: "Developer",
-      AFFECTATION: "Remote",
-      DEPARTEMENT_DIVISION: "IT",
-      SERVICE: "Development",
-      Localite: "California",
-      FONCTION: "Software Developer",
-    },
-    {
-      id: 3,
-      email: "user3@example.com",
-      name: "Alice Johnson",
-      roles: ["user"],
-      PPR: 123458,
-      CIN: "AB123458",
-      DATE_NAISSANCE: new Date(1988, 2, 22),
-      SITUATION: "Divorced",
-      SEXE: "Female",
-      SIT_F_AG: "Poor",
-      DATE_RECRUTEMENT: new Date(2019, 11, 30),
-      GRADE_fonction: "Support",
-      AFFECTATION: "Branch",
-      DEPARTEMENT_DIVISION: "Customer Service",
-      SERVICE: "Support",
-      Localite: "Texas",
-      FONCTION: "Support Specialist",
-    },
-    {
-      id: 4,
-      email: "user4@example.com",
-      name: "Bob Brown",
-      roles: ["user"],
-      PPR: 123459,
-      CIN: "AB123459",
-      DATE_NAISSANCE: new Date(1985, 3, 5),
-      SITUATION: "Widowed",
-      SEXE: "Male",
-      SIT_F_AG: "Excellent",
-      DATE_RECRUTEMENT: new Date(2018, 7, 15),
-      GRADE_fonction: "Technician",
-      AFFECTATION: "Main Office",
-      DEPARTEMENT_DIVISION: "Maintenance",
-      SERVICE: "Technical",
-      Localite: "Florida",
-      FONCTION: "Maintenance Technician",
-    },
-    {
-      id: 5,
-      email: "user5@example.com",
-      name: "Charlie Green",
-      roles: ["user"],
-      PPR: 123460,
-      CIN: "AB123460",
-      DATE_NAISSANCE: new Date(1991, 4, 10),
-      SITUATION: "Single",
-      SEXE: "Male",
-      SIT_F_AG: "Fair",
-      DATE_RECRUTEMENT: new Date(2022, 2, 5),
-      GRADE_fonction: "Clerk",
-      AFFECTATION: "Branch",
-      DEPARTEMENT_DIVISION: "Administration",
-      SERVICE: "Clerical",
-      Localite: "Seattle",
-      FONCTION: "Administrative Clerk",
-    },
-    {
-      id: 6,
-      email: "user6@example.com",
-      name: "Diana Red",
-      roles: ["user"],
-      PPR: 123461,
-      CIN: "AB123461",
-      DATE_NAISSANCE: new Date(1989, 5, 20),
-      SITUATION: "Married",
-      SEXE: "Female",
-      SIT_F_AG: "Good",
-      DATE_RECRUTEMENT: new Date(2017, 8, 25),
-      GRADE_fonction: "Salesperson",
-      AFFECTATION: "Branch",
-      DEPARTEMENT_DIVISION: "Sales",
-      SERVICE: "Sales",
-      Localite: "Chicago",
-      FONCTION: "Sales Representative",
-    },
-    {
-      id: 7,
-      email: "user7@example.com",
-      name: "Evan Blue",
-      roles: ["user"],
-      PPR: 123462,
-      CIN: "AB123462",
-      DATE_NAISSANCE: new Date(1993, 6, 30),
-      SITUATION: "Single",
-      SEXE: "Male",
-      SIT_F_AG: "Excellent",
-      DATE_RECRUTEMENT: new Date(2021, 9, 10),
-      GRADE_fonction: "Engineer",
-      AFFECTATION: "Headquarters",
-      DEPARTEMENT_DIVISION: "Engineering",
-      SERVICE: "Engineering",
-      Localite: "Boston",
-      FONCTION: "Systems Engineer",
-    },
-    {
-      id: 8,
-      email: "user8@example.com",
-      name: "Fiona Yellow",
-      roles: ["user"],
-      PPR: 123463,
-      CIN: "AB123463",
-      DATE_NAISSANCE: new Date(1987, 7, 15),
-      SITUATION: "Divorced",
-      SEXE: "Female",
-      SIT_F_AG: "Poor",
-      DATE_RECRUTEMENT: new Date(2016, 10, 20),
-      GRADE_fonction: "Accountant",
-      AFFECTATION: "Main Office",
-      DEPARTEMENT_DIVISION: "Finance",
-      SERVICE: "Accounting",
-      Localite: "San Francisco",
-      FONCTION: "Financial Accountant",
-    },
-    {
-      id: 9,
-      email: "user9@example.com",
-      name: "George White",
-      roles: ["user"],
-      PPR: 123464,
-      CIN: "AB123464",
-      DATE_NAISSANCE: new Date(1990, 8, 25),
-      SITUATION: "Widowed",
-      SEXE: "Male",
-      SIT_F_AG: "Average",
-      DATE_RECRUTEMENT: new Date(2015, 11, 30),
-      GRADE_fonction: "Manager",
-      AFFECTATION: "Remote",
-      DEPARTEMENT_DIVISION: "Operations",
-      SERVICE: "Operations",
-      Localite: "Miami",
-      FONCTION: "Operations Manager",
-    },
-    {
-      id: 10,
-      email: "user10@example.com",
-      name: "Helen Black",
-      roles: ["user"],
-      PPR: 123465,
-      CIN: "AB123465",
-      DATE_NAISSANCE: new Date(1986, 9, 5),
-      SITUATION: "Single",
-      SEXE: "Female",
-      SIT_F_AG: "Excellent",
-      DATE_RECRUTEMENT: new Date(2014, 0, 15),
-      GRADE_fonction: "Consultant",
-      AFFECTATION: "Headquarters",
-      DEPARTEMENT_DIVISION: "Consulting",
-      SERVICE: "Consulting",
-      Localite: "Denver",
-      FONCTION: "Business Consultant",
-    },
-  ]);
+  const [users, setUsers] = useState([]);
+
+
+useEffect(() => {
+  const fetchData = async () => {
+    try {
+      const response = await axios.get("http://localhost:5000/users");
+      const formattedData = response.data.map((user) => ({
+        ...user,
+        DATE_NAISSANCE: user.DATE_NAISSANCE
+          ? new Date(user.DATE_NAISSANCE)
+          : null,
+        DATE_RECRUTEMENT: user.DATE_RECRUTEMENT
+          ? new Date(user.DATE_RECRUTEMENT)
+          : null,
+      }));
+      setUsers(formattedData);
+    } catch (error) {
+      console.error("Failed to fetch users:", error);
+    }
+  };
+
+  fetchData();
+}, []);
 
   const columns = [
     { field: "email", headerName: "Email", width: 200 },
@@ -229,9 +64,12 @@ function UserManagement() {
     { field: "SIT_F_AG", headerName: "Financial Situation", width: 180 },
     {
       field: "DATE_RECRUTEMENT",
-      headerName: "Recruitment Date",
+      headerName: "Date of Recruitment",
       width: 150,
       type: "date",
+      valueGetter: (params) => {
+        return params.value ? new Date(params.value) : null;
+      },
     },
     { field: "GRADE_fonction", headerName: "Grade/Function", width: 150 },
     { field: "AFFECTATION", headerName: "Assignment", width: 150 },
@@ -250,13 +88,17 @@ function UserManagement() {
       renderCell: (params) => (
         <Box sx={{ display: "flex", justifyContent: "center", gap: 1 }}>
           <Tooltip title="Edit">
-            <IconButton onClick={() => handleEdit(params.row)} color="primary">
+            <IconButton
+              component={Link}
+              to={`/EditUser/${params.row._id}/`}
+              color="primary"
+            >
               <EditIcon />
             </IconButton>
           </Tooltip>
           <Tooltip title="Delete">
             <IconButton
-              onClick={() => handleDelete(params.row.id)}
+              onClick={() => handleDeleteUser(params.row._id)}
               color="secondary"
             >
               <DeleteIcon />
@@ -267,19 +109,13 @@ function UserManagement() {
       width: 180,
     },
   ];
-
-  const handleEdit = (user) => {
-    console.log("Editing", user);
-  };
-
-  const handleDelete = (id) => {
-    setUsers(users.filter((user) => user.id !== id));
-    console.log("Deleted user with id:", id);
-  };
-
-  const handleCreate = () => {
-    // Placeholder for create logic
-    console.log("Create new user logic here");
+  const handleDeleteUser = async (id) => {
+    try {
+      await axios.delete(`http://localhost:5000/users/${id}`);
+      setUsers(users.filter(user => user.id !== id));
+    } catch (error) {
+      console.error("Failed to delete user:", error);
+    }
   };
 
   const handleExport = () => {
@@ -290,19 +126,19 @@ function UserManagement() {
     XLSX.writeFile(wb, exportFileName);
   };
 
-  const handleImport = (event) => {
-    const file = event.target.files[0];
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      const data = e.target.result;
-      const workbook = XLSX.read(data, { type: "binary" });
-      const sheetName = workbook.SheetNames[0];
-      const worksheet = workbook.Sheets[sheetName];
-      const json = XLSX.utils.sheet_to_json(worksheet);
-      setUsers(json);
-    };
-    reader.readAsBinaryString(file);
-  };
+  // const handleImport = (event) => {
+  //   const file = event.target.files[0];
+  //   const reader = new FileReader();
+  //   reader.onload = (e) => {
+  //     const data = e.target.result;
+  //     const workbook = XLSX.read(data, { type: "binary" });
+  //     const sheetName = workbook.SheetNames[0];
+  //     const worksheet = workbook.Sheets[sheetName];
+  //     const json = XLSX.utils.sheet_to_json(worksheet);
+  //     setUsers(json);
+  //   };
+  //   reader.readAsBinaryString(file);
+  // };
 
   return (
     <AdminLayout>
@@ -327,13 +163,14 @@ function UserManagement() {
           <Button
             variant="contained"
             color="primary"
+            component={Link}
             startIcon={<AddIcon />}
-            onClick={handleCreate}
+            to="/CreateUser"
             sx={{ textTransform: "none" }}
           >
             Create New User
           </Button>
-          <Button
+          {/* <Button
             variant="contained"
             component="label"
             color="info"
@@ -347,7 +184,7 @@ function UserManagement() {
               onChange={handleImport}
               accept=".xlsx,.xls"
             />
-          </Button>
+          </Button> */}
           <Button
             variant="contained"
             color="success"
@@ -367,17 +204,13 @@ function UserManagement() {
             pageSize={5}
             rowsPerPageOptions={[5]}
             checkboxSelection
+            getRowId={(row) => row._id} // This line tells DataGrid to use `_id` as the unique row identifier
             sx={{
               "& .MuiDataGrid-cell:hover": {
                 color: theme.palette.primary.main,
               },
               "& .MuiDataGrid-columnHeaders": {
                 backgroundColor: theme.palette.action.hover,
-              },
-              "& .MuiDataGrid-row": {
-                "&:nth-of-type(odd)": {
-                  backgroundColor: theme.palette.action.selected,
-                },
               },
             }}
           />

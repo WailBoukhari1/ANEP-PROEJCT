@@ -35,10 +35,13 @@ router.delete('/:id', courseController.deleteCourse);
 // Upload an image
 router.post('/uploadImage', upload.single('image'), courseController.uploadImage);
 
-
 // Get presence data for a course
 router.get('/:id/assignedUsers', courseController.getAssignedUsers);
+
 // Endpoint to update presence data for a course
 router.post('/:id/updatePresence', courseController.updateCoursePresence);
+
+// Get the latest 6 courses
+router.get('/latest-courses', courseController.getLastestComments);
 
 module.exports = router;

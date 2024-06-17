@@ -34,7 +34,7 @@ const courseSchema = new mongoose.Schema({
     offline: {
         type: String,
         required: true,
-        enum: ['online', 'offline']
+        enum: ['online', 'offline' ,]
     },
     description: { type: String },
     notifyUsers: { type: Boolean, default: false },

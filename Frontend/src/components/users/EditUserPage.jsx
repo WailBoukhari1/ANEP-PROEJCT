@@ -1,5 +1,7 @@
 import { useState, useEffect } from "react";
 import PropTypes from "prop-types";
+import { useParams, useNavigate } from "react-router-dom";
+
 import AdminLayout from "../../layout/admin/AdminLayout";
 import {
   TextField,
@@ -12,49 +14,30 @@ import {
   Paper,
   Button,
 } from "@mui/material";
+import axios from "axios"; // Ensure axios is installed or use fetch API
 
 const rolesOptions = ["user", "admin"];
 
-const EditUser = ({ userId }) => {
-  const [user, setUser] = useState({
-    email: "example@example.com",
-    password: "password123",
-    roles: ["user"],
-    tokenAccess: "access-token",
-    name: "John Doe",
-    PPR: "123456",
-    CIN: "A123456",
-    DATE_NAISSANCE: "1990-01-01",
-    SITUATION: "Single",
-    SEXE: "Male",
-    SIT_F_AG: "Active",
-    DATE_RECRUTEMENT: "2010-01-01",
-    ANC_ADM: "2009-01-01",
-    COD_POS: "10000",
-    DAT_POS: "2010-01-01",
-    GRADE_fonction: "Grade 1",
-    GRADE_ASSIMILE: "Grade A",
-    DAT_EFF_GR: "2011-01-01",
-    ANC_GRADE: "2010-01-01",
-    ECHEL: "Echelon 1",
-    ECHELON: "Echelon A",
-    INDICE: "100",
-    DAT_EFF_ECHLON: "2012-01-01",
-    ANC_ECHLON: "2011-01-01",
-    AFFECTATION: "Department A",
-    DEPARTEMENT_DIVISION: "Division A",
-    SERVICE: "Service A",
-    Localite: "City A",
-    FONCTION: "Function A",
-    LIBELLE_SST: "SST Label A",
-    DAT_S_ST: "2013-01-01",
-  });
+const EditUser = () => {
+  const { id } = useParams(); // Using useParams to get the id from the URL
+  const [user, setUser] = useState(null);
+  const navigate = useNavigate();
 
   useEffect(() => {
-    // Simulate fetching user data
-    console.log(`Fetching data for user ID: ${userId}`);
-    // Fetch and set user data here
-  }, [userId]); // Dependency array includes userId to refetch if it changes
+    const fetchUserData = async () => {
+      try {
+        const response = await axios.get(`http://localhost:5000/users/${id}`);
+        setUser(response.data);
+      } catch (error) {
+        console.error("Failed to fetch user data:", error);
+      }
+    };
+
+    if (id) {
+      // Ensure id is not undefined
+      fetchUserData();
+    }
+  }, [id]);
 
   const handleChange = (event) => {
     const { name, value, type } = event.target;
@@ -64,11 +47,23 @@ const EditUser = ({ userId }) => {
     }));
   };
 
-  const handleSubmit = (event) => {
+  const handleSubmit = async (event) => {
     event.preventDefault();
-    console.log('User updated:', user); // Simulate success
+    try {
+      const response = await axios.put(
+        `http://localhost:5000/users/${id}`,
+        user
+      );
+      console.log("User updated:", response.data); 
+      navigate("/UsersManagement");
+    } catch (error) {
+      console.error("Failed to update user data:", error);
+    }
   };
 
+  if (!user) {
+    return <div>.</div>;
+  }
   return (
     <AdminLayout>
       <Paper
@@ -118,16 +113,6 @@ const EditUser = ({ userId }) => {
                   ))}
                 </Select>
               </FormControl>
-            </Grid>
-            <Grid item xs={6}>
-              <TextField
-                label="Token Access"
-                name="tokenAccess"
-                value={user.tokenAccess}
-                onChange={handleChange}
-                fullWidth
-                margin="normal"
-              />
             </Grid>
             <Grid item xs={6}>
               <TextField
@@ -446,7 +431,7 @@ const EditUser = ({ userId }) => {
 };
 
 EditUser.propTypes = {
-  userId: PropTypes.string.isRequired,
+  id: PropTypes.string.isRequired,
 };
 
 export default EditUser;

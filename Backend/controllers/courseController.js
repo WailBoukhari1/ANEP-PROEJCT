@@ -1,18 +1,6 @@
 // courseController.js
 const Course = require('../models/Course');
-const multer = require('multer');
-const path = require('path');
 
-// Storage configuration for multer
-const storage = multer.diskStorage({
-    destination: function (req, file, cb) {
-        cb(null, 'uploads/')  // Ensure this directory exists
-    },
-    filename: function (req, file, cb) {
-        const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
-        cb(null, file.fieldname + '-' + uniqueSuffix + path.extname(file.originalname))
-    }
-});
 // Get all courses
 const getAllCourses = async (req, res) => {
     try {
@@ -148,6 +136,30 @@ const updateCoursePresence = async (req, res) => {
         res.status(500).send('Internal Server Error');
     }
 };
+const getLastestComments = async (req, res) => {
+    try {
+        const courses = await Course.find()
+            .sort({ 'comments.createdAt': -1 })
+            .limit(6)
+            .select('comments');
+
+        // Flatten the comments from all courses
+        let comments = [];
+        courses.forEach(course => {
+            comments = comments.concat(course.comments);
+        });
+
+        // Sort again in case comments across courses are not in order
+        comments.sort((a, b) => b.createdAt - a.createdAt);
+
+        // Limit to the last 6 comments
+        comments = comments.slice(0, 6);
+
+        res.json(comments);
+    } catch (error) {
+        res.status(500).send(error);
+    }
+};
 module.exports = {
     getAllCourses,
     getCourseById,
@@ -156,5 +168,6 @@ module.exports = {
     deleteCourse,
     uploadImage,
     getAssignedUsers,
-    updateCoursePresence
+    updateCoursePresence,
+    getLastestComments
 };

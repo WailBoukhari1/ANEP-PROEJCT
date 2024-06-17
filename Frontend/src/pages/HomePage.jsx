@@ -3,68 +3,43 @@ import Slider from "react-slick";
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
 import { Link } from "react-router-dom";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 function HomePage() {
-  const [selectedCategory, setSelectedCategory] = useState("See All");
-  const categories = [
-    "See All",
-    "Data Science",
-    "Engineering",
-    "Featured",
-    "Architecture",
-  ];
-  // const [loading, setLoading] = useState(true);
-  // useEffect(() => {
-  //   async function fetchCards() {
-  //     try {
-  //       const response = await fetch("https://your-api-url.com/cards");
-  //       const data = await response.json();
-  //       setCards(data);
-  //       setLoading(false);
-  //     } catch (error) {
-  //       console.error("Failed to fetch cards:", error);
-  //       setLoading(false);
-  //     }
-  //   }
+  const [cards, setCards] = useState([]);
+  const [comments, setComments] = useState([]);
 
-  //   fetchCards();
-  // }, []);
-  const cards = [
-    {
-      id: 1,
-      category: "Data Science",
-      title: "Foundation course to understand about software",
-      image: "/assets/images/grid/grid_1.png",
-      author: "Micle John",
-    },
-    {
-      id: 2,
-      category: "Engineering",
-      title: "Advanced Engineering Concepts",
-      image: "/assets/images/grid/grid_2.png",
-      author: "Jane Doe",
-    },
-    {
-      id: 3,
-      category: "Featured",
-      title: "Featured Course on Modern Architecture",
-      image: "/assets/images/grid/grid_3.png",
-      author: "Archy Bunker",
-    },
-    {
-      id: 4,
-      category: "Architecture",
-      title: "Intro to Architecture",
-      image: "/assets/images/grid/grid_4.png",
-      author: "Sarah Connor",
-    },
-  ];
+  const baseURL = "http://localhost:5000";
 
-  const filteredCards =
-    selectedCategory === "See All"
-      ? cards
-      : cards.filter((card) => card.category === selectedCategory);
+  useEffect(() => {
+    async function fetchCards() {
+      try {
+        const response = await fetch(`${baseURL}/courses`);
+        const data = await response.json();
+        const sortedCourses = data
+          .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+          .slice(0, 6);
 
+        setCards(sortedCourses);
+      } catch (error) {
+        console.error("Failed to fetch cards:", error);
+      }
+    }
+
+    fetchCards();
+  }, []);
+  useEffect(() => {
+    async function fetchComments() {
+      try {
+        const response = await fetch(`${baseURL}/latest-comments`);
+        const data = await response.json();
+        setComments(data);
+      } catch (error) {
+        console.error("Failed to fetch comments:", error);
+      }
+    }
+
+    fetchComments();
+  }, []);
   const settings = {
     dots: true,
     infinite: true,
@@ -76,31 +51,6 @@ function HomePage() {
     cssEase: "linear",
     arrows: true,
   };
-  // if (loading) {
-  //   return <div>Loading...</div>;
-  // }
-  const testimonials = [
-    {
-      quote: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
-      author: "John Doe",
-      position: "Software Engineer"
-    },
-    {
-      quote: "Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.",
-      author: "Jane Smith",
-      position: "Product Manager"
-    },
-    {
-      quote: "Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.",
-      author: "Alice Johnson",
-      position: "UI/UX Designer"
-    },
-    {
-      quote: "Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.",
-      author: "Bob Brown",
-      position: "DevOps Specialist"
-    }
-  ];
   return (
     <MainLayout>
       <>
@@ -165,83 +115,74 @@ function HomePage() {
                       className="text-3xl md:text-[35px] lg:text-size-42 leading-[45px] 2xl:leading-[45px] md:leading-[50px] font-bold text-blackColor text-blackColor-"
                       data-aos="fade-up"
                     >
-                      Perfect Online Course Your Carrer
+                      Lastest Course Added Just For You
                     </h3>
                   </div>
                   {/* courses right */}
-                  <div className="basis-full lg:basis-[700px]">
-                    <div className="category-filter">
-                      {categories.map((category) => (
-                        <button
-                          key={category}
-                          className={`category-button ${
-                            selectedCategory === category ? "active" : ""
-                          }`}
-                          onClick={() => setSelectedCategory(category)}
-                        >
-                          {category}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
                 </div>
                 {/* course cards */}
                 <div
                   className="container p-0 filter-contents flex flex-wrap sm:-mx-15px mt-7 lg:mt-10"
                   data-aos="fade-up"
                 >
-                  {filteredCards.map((card) => (
-                    <div
-                      key={card.id}
-                      className="w-full sm:w-1/2 lg:w-1/3 group grid-item"
-                    >
-                      <div className="tab-content-wrapper sm:px-15px mb-30px">
-                        <div className="p-15px bg-whiteColor shadow-brand">
-                          {/* card image */}
-                          <div className="relative mb-4">
-                            <Link
-                              to="#"
-                              className="w-full overflow-hidden rounded"
-                            >
-                              <img
-                                src={card.image}
-                                alt=""
-                                className="w-full transition-all duration-300 group-hover:scale-110"
-                              />
-                            </Link>
-                            <div className="absolute left-0 top-1 flex justify-between w-full items-center px-2">
+                  {cards.length > 0 ? (
+                    cards.map((card) => (
+                      <div
+                        key={card.id}
+                        className="w-full sm:w-1/2 lg:w-1/3 group grid-item"
+                      >
+                        <div className="tab-content-wrapper sm:px-15px mb-30px">
+                          <div className="p-15px bg-whiteColor shadow-brand">
+                            {/* card image */}
+                            <div className="relative mb-4">
                               <Link
-                                className="text-white bg-black bg-opacity-15 rounded hover:bg-primaryColor"
                                 to="#"
+                                className="w-full overflow-hidden rounded"
                               >
-                                <i className="icofont-heart-alt text-base py-1 px-2" />
+                                <img
+                                  src={`${baseURL}${card.imageUrl}`}
+                                  alt={card.title || "Course Image"}
+                                  className="w-full transition-all duration-300 group-hover:scale-110"
+                                />
                               </Link>
-                            </div>
-                          </div>
-                          {/* card content */}
-                          <div>
-                            <Link
-                              to="#"
-                              className="text-xl font-semibold text-blackColor mb-10px font-hind text-blackColor- hover:text-primaryColor hover:text-primaryColor"
-                            >
-                              {card.title}
-                            </Link>
-                            {/* author and rating*/}
-                            <div className="grid grid-cols-1 md:grid-cols-2 pt-15px border-t border-borderColor">
-                              <div>
+                              <div className="absolute left-0 top-1 flex justify-between w-full items-center px-2">
                                 <Link
+                                  className="text-white bg-black bg-opacity-15 rounded hover:bg-primaryColor"
                                   to="#"
-                                  className="text-base font-bold font-hind flex items-center hover:text-primaryColor text-blackColor- hover:text-primaryColor"
                                 >
-                                  <span className="flex">{card.author}</span>
+                                  <i className="icofont-heart-alt text-base py-1 px-2" />
                                 </Link>
+                              </div>
+                            </div>
+                            {/* card content */}
+                            <div>
+                              <Link
+                                to="#"
+                                className="text-xl font-semibold text-blackColor mb-10px font-hind text-blackColor- hover:text-primaryColor hover:text-primaryColor"
+                              >
+                                {card.title}
+                              </Link>
+                              {/* author and rating */}
+                              <div className="grid grid-cols-1 md:grid-cols-2 pt-15px border-t border-borderColor">
+                                <div>
+                                  <Link
+                                    to="#"
+                                    className="text-base font-bold font-hind flex items-center hover:text-primaryColor text-blackColor- hover:text-primaryColor"
+                                  >
+                                    <span className="flex">
+                                      <p>{card.description}</p>
+                                    </span>
+                                  </Link>
+                                </div>
                               </div>
                             </div>
                           </div>
                         </div>
                       </div>
-                    </div>
-                  ))}
+                    ))
+                  ) : (
+                    <div>No cards available.</div>
+                  )}
                 </div>
               </div>
             </div>
@@ -260,21 +201,21 @@ function HomePage() {
                       Client Testimonial About Our Lms Agency
                     </h1>
                     <Slider {...settings}>
-                      {testimonials.map((testimonial, index) => (
+                      {comments.map((comment, index) => (
                         <div key={index}>
                           <p className="text-lightGrey text-black">
                             <i className="icofont-quote-left text-primaryColor text-xl" />{" "}
-                            {testimonial.quote}{" "}
+                            {comment.text}{" "}
                             <i className="icofont-quote-right text-primaryColor text-xl" />
                           </p>
                           <div className="flex items-center pt-10">
                             <div>
                               <h4 className="text-size-22 font-semibold text-contentColor hover:text-primaryColor">
-                                {testimonial.author}
+                                {comment.userName}
                               </h4>
-                              <Link to="#" className="text-primaryColor">
-                                {testimonial.position}
-                              </Link>
+                              {/* <Link to="#" className="text-primaryColor">
+                                {comment.position}
+                              </Link> */}
                             </div>
                           </div>
                         </div>

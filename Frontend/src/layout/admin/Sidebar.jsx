@@ -18,7 +18,6 @@ import CloseIcon from "@mui/icons-material/Close";
 import DashboardIcon from "@mui/icons-material/Dashboard";
 import LibraryBooksIcon from "@mui/icons-material/LibraryBooks";
 import PersonOutlineIcon from "@mui/icons-material/PersonOutline";
-import BugReportIcon from "@mui/icons-material/BugReport";
 import { useLocation, Link } from "react-router-dom";
 import { useState } from "react";
 
@@ -51,26 +50,6 @@ const Sidebar = ({ open, handleClose, drawerWidth, isMobile }) => {
       text: "Users Management",
       icon: <PersonOutlineIcon />,
       path: "/UsersManagement",
-    },
-    {
-      text: "Create Course",
-      icon: <BugReportIcon />,
-      path: "/CreateCourse",
-    },
-    {
-      text: "Edit Course",
-      icon: <BugReportIcon />,
-      path: "/EditCourse",
-    },
-    {
-      text: "Create User",
-      icon: <BugReportIcon />,
-      path: "/CreateUser",
-    },
-    {
-      text: "Edit User",
-      icon: <BugReportIcon />,
-      path: "/EditUser",
     },
   ];
 
