@@ -283,11 +283,13 @@ const sendCourseNotification = async (req, res) => {
             return res.status(404).send('Course not found');
         }
         course.assignedUsers.forEach(async (user) => {
-            io.to(user._id.toString()).emit('notification', `You have been assigned to the course ${courseName}`);
+            io.to(user._id.toString()).emit('notification', {
+                message: `You have been assigned to the course ${courseName}`,
+                courseId: course._id
+            });
             try {
                 await User.findByIdAndUpdate(user._id, {
-                    $push: { notifications: { message: `You have been assigned to the course ${courseName}`, date: new Date() } }
-
+                    $push: { notifications: { message: `You have been assigned to the course ${courseName}`, date: new Date(), courseId: course._id } }
                 });
             } catch (err) {
                 console.error("Failed to save notification for user:", user._id, err);

@@ -38,7 +38,7 @@ function Navbar() {
     // Listen for notifications
     socket.current.on("notification", (message) => {
       setNotifications((prevNotifications) => [
-        { message, isNew: true },
+        { message, isNew: true, courseId: message.courseId },
         ...prevNotifications,
       ]);
       setNewNotification(message);
@@ -49,21 +49,21 @@ function Navbar() {
     };
   }, [userId]);
 
-  const fetchNotifications = (page) => {
-    axios
-      .get(`http://localhost:5000/users/notifications?page=${page}&limit=5`)
-      .then((response) => {
-        setNotifications(
-          response.data.notifications.map((notification) => ({
-            ...notification,
-            isNew: false,
-          }))
-        );
-        setTotalPages(response.data.totalPages);
-        setCurrentPage(response.data.currentPage);
-      })
-      .catch((error) => console.error("Error fetching notifications:", error));
-  };
+ const fetchNotifications = (page) => {
+   axios
+     .get(`http://localhost:5000/users/notifications?page=${page}&limit=5`)
+     .then((response) => {
+       setNotifications(
+         response.data.notifications.map((notification) => ({
+           ...notification,
+           isNew: false,
+         }))
+       );
+       setTotalPages(response.data.totalPages);
+       setCurrentPage(response.data.currentPage);
+     })
+     .catch((error) => console.error("Error fetching notifications:", error));
+ };
 
   useEffect(() => {
     fetchNotifications(currentPage);
@@ -93,13 +93,13 @@ function Navbar() {
     }
   };
 
-  const handleNotificationClick = (index) => {
-    setNotifications((prevNotifications) =>
-      prevNotifications.map((notification, i) =>
-        i === index ? { ...notification, isNew: false } : notification
-      )
-    );
-  };
+const handleNotificationClick = (index) => {
+  setNotifications((prevNotifications) =>
+    prevNotifications.map((notification, i) =>
+      i === index ? { ...notification, isNew: false } : notification
+    )
+  );
+};
 
   // Close notification menu when clicking outside
   useEffect(() => {
@@ -118,7 +118,9 @@ function Navbar() {
     };
   }, []);
 
-  const newNotificationsCount = notifications.filter(notification => notification.isNew).length;
+  const newNotificationsCount = notifications.filter(
+    (notification) => notification.isNew
+  ).length;
 
   return (
     <>
@@ -211,9 +213,11 @@ function Navbar() {
                   >
                     <Link className="relative block cursor-pointer">
                       <i className="icofont-notification text-2xl text-blackColor group-hover:text-secondaryColor transition-all duration-300 dark:text-blackColor-dark" />
-                      <span className="absolute -top-1 2xl:-top-[5px] -right-[10px] lg:right-3/4 2xl:-right-[10px] text-[10px] font-medium text-white dark:text-whiteColor-dark bg-secondaryColor px-1 py-[2px] leading-1 rounded-full z-50 block">
-                        {newNotificationsCount}{" "}
-                      </span>
+                      {newNotificationsCount > 0 && (
+                        <span className="absolute -top-1 2xl:-top-[5px] -right-[10px] lg:right-3/4 2xl:-right-[10px] text-[10px] font-medium text-white dark:text-whiteColor-dark bg-secondaryColor px-1 py-[2px] leading-1 rounded-full z-50 block">
+                          {newNotificationsCount}{" "}
+                        </span>
+                      )}
                     </Link>
                     {isNotificationMenuOpen && (
                       <ul
@@ -221,11 +225,20 @@ function Navbar() {
                         className="notification-menu absolute right-0 bg-white text-gray-800 shadow-xl mt-2 rounded-md overflow-hidden z-50 w-60 border border-gray-200"
                       >
                         {notifications.map((notification, index) => (
-                          <li key={index}>
+                          <li key={notification.id || index}>
                             <Link
-                              to="#notifications"
+                              to={
+                                notification.courseId
+                                  ? `/courses/${notification.courseId}`
+                                  : "#"
+                              }
                               className="block px-6 py-3 text-sm hover:bg-gray-50 transition duration-150 ease-in-out"
-                              onClick={() => handleNotificationClick(index)}
+                              onClick={() =>
+                                handleNotificationClick(
+                                  index,
+                                  notification.courseId
+                                )
+                              }
                             >
                               {notification.message}
                               {notification.isNew && (
@@ -239,7 +252,7 @@ function Navbar() {
                         <li>
                           <button
                             onClick={handlePreviousPage}
-                            className="px-6 py-3 text-sm hover:bg-gray-50 transition duration-150 ease-in-out"
+                            className="notification-menu-button"
                           >
                             Previous
                           </button>
@@ -247,7 +260,7 @@ function Navbar() {
                         <li>
                           <button
                             onClick={handleNextPage}
-                            className="px-6 py-3 text-sm hover:bg-gray-50 transition duration-150 ease-in-out"
+                            className="notification-menu-button"
                           >
                             Next
                           </button>

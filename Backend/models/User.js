@@ -48,7 +48,8 @@ const userSchema = new mongoose.Schema({
     DAT_S_ST: { type: Date },
     notifications: [{
         message: String,
-        date: { type: Date, default: Date.now }
+        date: { type: Date, default: Date.now },
+        courseId: { type: mongoose.Schema.Types.ObjectId, ref: 'Course' }
     }]
 });
 
