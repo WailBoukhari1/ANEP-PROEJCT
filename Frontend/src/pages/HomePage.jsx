@@ -4,42 +4,49 @@ import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
 import { Link } from "react-router-dom";
 import { useState, useEffect } from "react";
+import axios from "axios";
 function HomePage() {
   const [cards, setCards] = useState([]);
   const [comments, setComments] = useState([]);
 
   const baseURL = "http://localhost:5000";
 
-  useEffect(() => {
-    async function fetchCards() {
-      try {
-        const response = await fetch(`${baseURL}/courses`);
-        const data = await response.json();
-        const sortedCourses = data
-          .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
-          .slice(0, 6);
 
-        setCards(sortedCourses);
-      } catch (error) {
-        console.error("Failed to fetch cards:", error);
-      }
+
+useEffect(() => {
+  async function fetchCards() {
+    try {
+      const response = await axios.get(`http://localhost:5000/courses`);
+      const data = response.data;
+      const sortedCourses = data
+        .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+        .slice(0, 6);
+
+      setCards(sortedCourses);
+    } catch (error) {
+      console.error("Failed to fetch cards:", error);
     }
+  }
 
-    fetchCards();
-  }, []);
-  useEffect(() => {
-    async function fetchComments() {
-      try {
-        const response = await fetch(`${baseURL}/latest-comments`);
-        const data = await response.json();
-        setComments(data);
-      } catch (error) {
-        console.error("Failed to fetch comments:", error);
-      }
+  fetchCards();
+}, []);
+
+useEffect(() => {
+  async function fetchComments() {
+    try {
+      const response = await axios.get(
+        `http://localhost:5000/courses/latest-comments`
+      );
+      const data = response.data;
+      const lastSixComments = data.slice(-6);
+      setComments(lastSixComments);
+    } catch (error) {
+      console.error("Failed to fetch comments:", error);
     }
+  }
 
-    fetchComments();
-  }, []);
+  fetchComments();
+}, []);
   const settings = {
     dots: true,
     infinite: true,

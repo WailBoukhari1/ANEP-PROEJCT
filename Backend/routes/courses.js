@@ -17,21 +17,15 @@ const storage = multer.diskStorage({
 
 const upload = multer({ storage: storage });
 
+// ---- Specific routes ---- //
+// Add a comment
+router.post('/:id/comments', courseController.handleComments);
+
+// Get the latest 6 comments
+router.get('/latest-comments', courseController.getLastestComments);
+
 // Get all courses
 router.get('/', courseController.getAllCourses);
-
-// Get a single course by ID
-router.get('/:id', courseController.getCourseById);
-
-// Create a new course
-router.post('/', courseController.createCourse);
-
-// Update an existing course
-router.put('/:id', courseController.updateCourse);
-
-// Delete a course
-router.delete('/:id', courseController.deleteCourse);
-
 // Upload an image
 router.post('/uploadImage', upload.single('image'), courseController.uploadImage);
 
@@ -47,11 +41,30 @@ router.get('/latest-courses', courseController.getLastestComments);
 // Upload a file
 router.post('/:id/resources', upload.single('file'), courseController.filesUpload);
 
-// 
-
+// Get all files
 router.get('/:id/resources', courseController.fetchFiles);
 
-// Add a comment
-router.post('/:id/comments', courseController.handleComments);
+// Request to join a course
+router.post('/:id/request-join', courseController.requestJoin);
+
+// Assign a user to a course
+router.post('/:id/assign-interseted-user', courseController.assignIntersetedUser);
+
+// ---- Generic routes ---- //
+// Get a single course by ID
+router.get('/:id', courseController.getCourseById);
+
+// Create a new course
+router.post('/', courseController.createCourse);
+
+// Update an existing course
+router.put('/:id', courseController.updateCourse);
+
+// Delete a course
+router.delete('/:id', courseController.deleteCourse);
+
+
+
+
 
 module.exports = router;

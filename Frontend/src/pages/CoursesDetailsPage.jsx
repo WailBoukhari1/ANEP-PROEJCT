@@ -15,6 +15,7 @@ function CoursesDetails() {
   const [feedbackMessage, setFeedbackMessage] = useState("");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const userId = "66709327df7aa2afdaf4118c";
   const baseURL = "http://localhost:5000";
   useEffect(() => {
     fetch(`http://localhost:5000/courses/${id}`)
@@ -42,28 +43,39 @@ function CoursesDetails() {
   const toggleModal = () => {
     setShowModal(!showModal);
   };
-
-const { getRootProps, getInputProps } = useDropzone({
-  onDrop: (acceptedFiles) => {
-    const formData = new FormData();
-    formData.append("file", acceptedFiles[0]); // Assuming single file upload
-
+  const handleJoinRequest = () => {
     axios
-      .post(`http://localhost:5000/courses/${id}/resources`, formData)
+      .post(`http://localhost:5000/courses/${id}/request-join`, { userId })
       .then((response) => {
-        setFiles(response.data); // Assuming the backend returns the updated list of files
+        alert("Request to join sent successfully!");
+        console.log(response.data);
       })
-      .catch((error) => console.error("Error uploading file:", error));
-  },
-});
-useEffect(() => {
-  axios
-    .get(`http://localhost:5000/courses/${id}/resources`)
-    .then((response) => {
-      setFiles(response.data);
-    })
-    .catch((error) => console.error("Failed to load files:", error));
-}, [id]); 
+      .catch((error) => {
+        console.error("Error sending join request:", error);
+        alert("Failed to send join request.");
+      });
+  };
+  const { getRootProps, getInputProps } = useDropzone({
+    onDrop: (acceptedFiles) => {
+      const formData = new FormData();
+      formData.append("file", acceptedFiles[0]); // Assuming single file upload
+
+      axios
+        .post(`http://localhost:5000/courses/${id}/resources`, formData)
+        .then((response) => {
+          setFiles(response.data); // Assuming the backend returns the updated list of files
+        })
+        .catch((error) => console.error("Error uploading file:", error));
+    },
+  });
+  useEffect(() => {
+    axios
+      .get(`http://localhost:5000/courses/${id}/resources`)
+      .then((response) => {
+        setFiles(response.data);
+      })
+      .catch((error) => console.error("Failed to load files:", error));
+  }, [id]);
   const handleCommentSubmit = (event) => {
     event.preventDefault();
     if (newComment.trim()) {
@@ -374,6 +386,7 @@ useEffect(() => {
                         </p>
                         <button
                           type="submit"
+                          onClick={handleJoinRequest}
                           className="w-full text-size-15 text-whiteColor bg-primaryColor px-25px py-10px border mb-10px leading-1.8 border-primaryColor hover:text-primaryColor hover:bg-whiteColor inline-block  group dark:hover:text-whiteColor dark:hover:bg-whiteColor-dark"
                         >
                           Request to join

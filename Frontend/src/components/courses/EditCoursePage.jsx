@@ -16,6 +16,9 @@ import {
   Typography,
   Tooltip,
   Autocomplete,
+  List,
+  ListItem,
+  ListItemText,
 } from "@mui/material";
 import { useDropzone } from "react-dropzone";
 import AddCircleOutlineIcon from "@mui/icons-material/AddCircleOutline";
@@ -47,10 +50,18 @@ function EditCoursePage() {
       },
     ],
     image: null,
+    assignedUsers: [], // Ensure assignedUsers is initialized
+    interestedUsers: [], // Ensure interestedUsers is initialized
   });
 
   const [users, setUsers] = useState([]);
-  const [assignedUsers, setAssignedUsers] = useState([]);
+  const [assignedUsers, setAssignedUsers] = useState(
+    course.assignedUsers || []
+  );
+  const [interestedUsers, setInterestedUsers] = useState(
+    course.interestedUsers || []
+  );
+
   const [internalInstructors, setInternalInstructors] = useState([]);
   const [externalInstructors, setExternalInstructors] = useState([]);
   const [filter, setFilter] = useState({
@@ -85,6 +96,8 @@ function EditCoursePage() {
           ...courseData,
           times: courseData.times || [],
           image: courseData.image ? { preview: courseData.imageUrl } : null,
+          assignedUsers: courseData.assignedUsers || [], // Ensure assignedUsers is initialized
+          interestedUsers: courseData.interestedUsers || [], // Ensure interestedUsers is initialized
         });
 
         if (courseData.assignedUsers) {
@@ -103,6 +116,13 @@ function EditCoursePage() {
     fetchUsersAndCourse();
   }, [id]);
 
+  useEffect(() => {
+    // Example of setting interested users when component mounts or when `course` changes
+    if (course.interestedUsers) {
+      setInterestedUsers(course.interestedUsers);
+    }
+  }, [course]);
+
   const onDrop = useCallback((acceptedFiles) => {
     const file = acceptedFiles[0];
     if (file) {
@@ -115,20 +135,20 @@ function EditCoursePage() {
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({ onDrop });
 
- const handleChange = (event, index) => {
-   const { name, value } = event.target;
-   const updatedTimes = [...course.times];
-   if (name === "instructorType") {
-     updatedTimes[index] = {
-       ...updatedTimes[index],
-       instructorType: value,
-       instructor: "",
-     };
-   } else {
-     updatedTimes[index][name] = value;
-   }
-   setCourse((prev) => ({ ...prev, times: updatedTimes }));
- };
+  const handleChange = (event, index) => {
+    const { name, value } = event.target;
+    const updatedTimes = [...course.times];
+    if (name === "instructorType") {
+      updatedTimes[index] = {
+        ...updatedTimes[index],
+        instructorType: value,
+        instructor: "",
+      };
+    } else {
+      updatedTimes[index][name] = value;
+    }
+    setCourse((prev) => ({ ...prev, times: updatedTimes }));
+  };
 
   const handleInstructorChange = (event, newValue, index) => {
     const updatedTimes = [...course.times];
@@ -220,25 +240,69 @@ function EditCoursePage() {
   );
 
   // Function to check for conflicts
-const checkConflicts = (userId, startTime, endTime) => {
-  for (const course of allCourses) {
-    if (course._id !== id && course.assignedUsers.includes(userId)) {
-      // Check at the course level
-      for (const time of course.times) {
-        if (
-          (new Date(startTime) >= new Date(time.startTime) &&
-            new Date(startTime) <= new Date(time.endTime)) ||
-          (new Date(endTime) >= new Date(time.startTime) &&
-            new Date(endTime) <= new Date(time.endTime))
-        ) {
-          return course;
+  const checkConflicts = (userId, startTime, endTime) => {
+    for (const course of allCourses) {
+      if (course._id !== id && course.assignedUsers.includes(userId)) {
+        // Check at the course level
+        for (const time of course.times) {
+          if (
+            (new Date(startTime) >= new Date(time.startTime) &&
+              new Date(startTime) <= new Date(time.endTime)) ||
+            (new Date(endTime) >= new Date(time.startTime) &&
+              new Date(endTime) <= new Date(time.endTime))
+          ) {
+            return course;
+          }
         }
       }
     }
-  }
-  return null;
-};
+    return null;
+  };
 
+  const handleAssignUser = (userId) => {
+    const userToAssign = interestedUsers.find(
+      (user) => user && user._id === userId
+    );
+    if (userToAssign) {
+      setAssignedUsers((prev) => {
+        const updatedUsers = [...prev, userToAssign].filter((user) => user); // Ensure no undefined or null users are added
+        return updatedUsers;
+      });
+    }
+  };
+
+
+  // Filter interested users to exclude those who are already assigned
+  const filteredInterestedUsers = course.interestedUsers.filter(
+    (interestedUser) =>
+      !assignedUsers.some(
+        (assignedUser) => assignedUser._id === interestedUser._id
+      )
+  );
+
+  // Function to merge users and remove duplicates, ensuring all inputs are arrays
+  const mergeUsers = () => {
+    const courseUsers = Array.isArray(course.assignedUsers)
+      ? course.assignedUsers
+      : [];
+    const allUsers = [...assignedUsers, ...courseUsers];
+    const uniqueUsers = Array.from(
+      new Map(allUsers.map((user) => [user._id, user])).values()
+    );
+    return uniqueUsers;
+  };
+
+  // Use effect to update local state when course.assignedUsers changes
+  useEffect(() => {
+    setAssignedUsers(mergeUsers());
+  }, [course.assignedUsers]);
+
+  const handleUserChange = (event, newValue) => {
+    const validUsers = newValue.filter((user) => user);
+    setAssignedUsers(validUsers);
+    // Optionally update course.assignedUsers here or elsewhere depending on your application logic
+    setCourse((prev) => ({ ...prev, assignedUsers: newValue }));
+  };
 
   return (
     <AdminLayout>
@@ -598,10 +662,10 @@ const checkConflicts = (userId, startTime, endTime) => {
             <Autocomplete
               multiple
               options={filteredUsers}
-              getOptionLabel={(user) => `${user.name}`}
-              value={assignedUsers}
-              onChange={(event, newValue) => setAssignedUsers(newValue)}
-              isOptionEqualToValue={(option, value) => option._id === value._id}
+              getOptionLabel={(user) => user.name}
+              value={assignedUsers.filter((user) => user)} // Filter out undefined or invalid users before rendering
+              onChange={handleUserChange}
+              isOptionEqualToValue={(option, value) => option._id === value._id} // Custom equality check
               renderOption={(props, option) => {
                 const conflictCourse = checkConflicts(
                   option._id,
@@ -632,6 +696,21 @@ const checkConflicts = (userId, startTime, endTime) => {
               )}
             />
           </FormControl>
+          <Typography variant="h6">Interested Users</Typography>{" "}
+          <List>
+            {filteredInterestedUsers.map((user) => (
+              <ListItem key={user._id}>
+                <ListItemText primary={user.name} />
+                <Button
+                  variant="contained"
+                  color="primary"
+                  onClick={() => handleAssignUser(user._id)}
+                >
+                  Assign
+                </Button>
+              </ListItem>
+            ))}
+          </List>
         </div>
         <Button
           type="submit"

@@ -34,7 +34,7 @@ const courseSchema = new mongoose.Schema({
     offline: {
         type: String,
         required: true,
-        enum: ['online', 'offline' ,]
+        enum: ['online', 'offline',]
     },
     description: { type: String },
     notifyUsers: { type: Boolean, default: false },
@@ -48,10 +48,10 @@ const courseSchema = new mongoose.Schema({
     assignedUsers: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
     resources: [resourceSchema],
     comments: [commentSchema],
-    interestedUsers: {
-        type: Array,
-        default: [],
-    },
+    interestedUsers: [{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'User'
+    }],
     presence: [{
         userId: {
             type: mongoose.Schema.Types.ObjectId,
