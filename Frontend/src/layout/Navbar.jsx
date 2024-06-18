@@ -79,17 +79,46 @@ function Navbar() {
     }
   }, [newNotification]);
 
-  const handleNextPage = () => {
+  const handleNextPage = (event) => {
+    event.stopPropagation();
     if (currentPage < totalPages) {
       setCurrentPage(currentPage + 1);
     }
   };
 
-  const handlePreviousPage = () => {
+  const handlePreviousPage = (event) => {
+    event.stopPropagation();
     if (currentPage > 1) {
       setCurrentPage(currentPage - 1);
     }
   };
+
+  const handleNotificationClick = (index) => {
+    setNotifications((prevNotifications) =>
+      prevNotifications.map((notification, i) =>
+        i === index ? { ...notification, isNew: false } : notification
+      )
+    );
+  };
+
+  // Close notification menu when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (
+        notificationMenuRef.current &&
+        !notificationMenuRef.current.contains(event.target)
+      ) {
+        setIsNotificationMenuOpen(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
+
+  const newNotificationsCount = notifications.filter(notification => notification.isNew).length;
 
   return (
     <>
@@ -114,6 +143,18 @@ function Navbar() {
                   <li className="nav-item">
                     <NavLink
                       to="/"
+                      className={({ isActive }) =>
+                        isActive
+                          ? "text-primaryColor font-extrabold border-b-4 border-primaryColor px-4 py-3"
+                          : "nav-link text-gray-700 hover:text-blue-700 transition duration-300 px-4 py-3 rounded-lg font-semibold hover:bg-blue-100"
+                      }
+                    >
+                      Home
+                    </NavLink>
+                  </li>
+                  <li className="nav-item">
+                    <NavLink
+                      to="/Courses"
                       className={({ isActive }) =>
                         isActive
                           ? "text-primaryColor font-extrabold border-b-4 border-primaryColor px-4 py-3"
@@ -157,7 +198,7 @@ function Navbar() {
                       }
                     >
                       User Courses
-                    </NavLink>
+                    </NavLink>{" "}
                   </li>
                 </ul>
               </div>
@@ -171,41 +212,42 @@ function Navbar() {
                     <Link className="relative block cursor-pointer">
                       <i className="icofont-notification text-2xl text-blackColor group-hover:text-secondaryColor transition-all duration-300 dark:text-blackColor-dark" />
                       <span className="absolute -top-1 2xl:-top-[5px] -right-[10px] lg:right-3/4 2xl:-right-[10px] text-[10px] font-medium text-white dark:text-whiteColor-dark bg-secondaryColor px-1 py-[2px] leading-1 rounded-full z-50 block">
-                        {notifications.length}{" "}
+                        {newNotificationsCount}{" "}
                       </span>
                     </Link>
                     {isNotificationMenuOpen && (
                       <ul
                         ref={notificationMenuRef}
-                        className="absolute right-0 bg-white text-gray-800 shadow-xl mt-2 rounded-md overflow-hidden z-50 w-60 border border-gray-200"
+                        className="notification-menu absolute right-0 bg-white text-gray-800 shadow-xl mt-2 rounded-md overflow-hidden z-50 w-60 border border-gray-200"
                       >
                         {notifications.map((notification, index) => (
                           <li key={index}>
                             <Link
                               to="#notifications"
                               className="block px-6 py-3 text-sm hover:bg-gray-50 transition duration-150 ease-in-out"
+                              onClick={() => handleNotificationClick(index)}
                             >
                               {notification.message}
                               {notification.isNew && (
-                                <span className="ml-2 text-sm text-secondaryColor">
-                                  New
+                                <span className="ml-2 text-sm text-secondaryColor font-bold flash">
+                                  NEW
                                 </span>
                               )}
                             </Link>
                           </li>
                         ))}
-                        <li className="flex justify-between px-6 py-3">
+                        <li>
                           <button
                             onClick={handlePreviousPage}
-                            disabled={currentPage === 1}
-                            className="text-sm text-blue-500 hover:underline disabled:text-gray-400"
+                            className="px-6 py-3 text-sm hover:bg-gray-50 transition duration-150 ease-in-out"
                           >
                             Previous
                           </button>
+                        </li>
+                        <li>
                           <button
                             onClick={handleNextPage}
-                            disabled={currentPage === totalPages}
-                            className="text-sm text-blue-500 hover:underline disabled:text-gray-400"
+                            className="px-6 py-3 text-sm hover:bg-gray-50 transition duration-150 ease-in-out"
                           >
                             Next
                           </button>
@@ -213,7 +255,6 @@ function Navbar() {
                       </ul>
                     )}
                   </li>
-
                   <li
                     onClick={toggleUserMenu}
                     className="hidden lg:block relative"

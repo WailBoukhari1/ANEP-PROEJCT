@@ -9,9 +9,7 @@ const User = require('../models/User');
 router.get('/notifications', async (req, res) => {
     try {
         const userId = "666e024aef86c2482444b3a8"; // Hardcoded user ID
-        const page = parseInt(req.query.page) || 1;
-        const limit = parseInt(req.query.limit) || 10;
-        const skip = (page - 1) * limit;
+        const { page = 1, limit = 5 } = req.query; // Default to page 1 and limit 5
 
         if (!mongoose.Types.ObjectId.isValid(userId)) {
             return res.status(400).json({ message: 'Invalid user ID' });
@@ -22,14 +20,16 @@ router.get('/notifications', async (req, res) => {
             return res.status(404).json({ message: 'User not found' });
         }
 
-        const notifications = user.notifications.slice(skip, skip + limit);
-        const totalNotifications = user.notifications.length;
+        const notifications = user.notifications;
+        const totalNotifications = notifications.length;
+        const totalPages = Math.ceil(totalNotifications / limit);
+        const paginatedNotifications = notifications.slice((page - 1) * limit, page * limit);
 
         res.json({
-            notifications,
-            totalNotifications,
-            totalPages: Math.ceil(totalNotifications / limit),
-            currentPage: page
+            notifications: paginatedNotifications,
+            currentPage: parseInt(page),
+            totalPages: totalPages,
+            totalNotifications: totalNotifications
         });
     } catch (error) {
         console.error('Error fetching notifications:', error);
