@@ -275,6 +275,30 @@ const requestJoin = async (req, res) => {
         res.status(500).send(error.message);
     }
 }
+const sendCourseNotification = async (req, res) => {
+    const courseName = req.body.courseName;
+    try {
+        const course = await Course.findById(req.params.id).populate('assignedUsers');
+        if (!course) {
+            return res.status(404).send('Course not found');
+        }
+        course.assignedUsers.forEach(async (user) => {
+            io.to(user._id.toString()).emit('notification', `You have been assigned to the course ${courseName}`);
+            try {
+                await User.findByIdAndUpdate(user._id, {
+                    $push: { notifications: { message: `You have been assigned to the course ${courseName}`, date: new Date() } }
+
+                });
+            } catch (err) {
+                console.error("Failed to save notification for user:", user._id, err);
+            }
+        });
+        res.send('Notification sent and stored');
+    } catch (error) {
+        console.error("Failed to send notification:", error);
+        res.status(500).send('Error sending notification');
+    }
+};
 module.exports = {
     getAllCourses,
     getCourseById,
@@ -290,4 +314,5 @@ module.exports = {
     fetchFiles,
     assignIntersetedUser,
     requestJoin,
+    sendCourseNotification
 };

@@ -329,7 +329,7 @@ function CoursesDetails() {
                                       </span>
                                     </div>
                                     <a
-                                      href={`http://localhost:5000/static/${file.link}`}
+                                      href={`http://localhost:5000/uploads/${file.link}`}
                                       target="_blank"
                                       rel="noopener noreferrer"
                                       className="download-button bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"

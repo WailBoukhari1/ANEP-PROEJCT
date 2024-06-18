@@ -1,21 +1,37 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect } from "react";
+import { io } from "socket.io-client";
 import {
-  Box, Button, Typography, Paper, IconButton, Tooltip, Menu, MenuItem,
-  Checkbox, FormControlLabel, useTheme
-} from '@mui/material';
-import { DataGrid } from '@mui/x-data-grid';
-import { Link } from 'react-router-dom';
-import axios from 'axios';
-import PropTypes from 'prop-types';
-import AddIcon from '@mui/icons-material/Add';
-import EditIcon from '@mui/icons-material/Edit';
-import DeleteIcon from '@mui/icons-material/Delete';
-import Notifications from '@mui/icons-material/Notifications';
-import People from '@mui/icons-material/People';
-import AdminLayout from '../../layout/admin/AdminLayout';
+  Box,
+  Button,
+  Typography,
+  Paper,
+  IconButton,
+  Tooltip,
+  Menu,
+  MenuItem,
+  Checkbox,
+  FormControlLabel,
+  useTheme,
+} from "@mui/material";
+import { DataGrid } from "@mui/x-data-grid";
+import { Link } from "react-router-dom";
+import axios from "axios";
+import PropTypes from "prop-types";
+import AddIcon from "@mui/icons-material/Add";
+import EditIcon from "@mui/icons-material/Edit";
+import DeleteIcon from "@mui/icons-material/Delete";
+import Notifications from "@mui/icons-material/Notifications";
+import People from "@mui/icons-material/People";
+import AdminLayout from "../../layout/admin/AdminLayout";
+
+const socket = io("http://localhost:5000");
 
 const PresenceMenu = ({
-  anchorEl, userPresence, handleMenuClose, handlePresenceChange, handleSavePresence
+  anchorEl,
+  userPresence,
+  handleMenuClose,
+  handlePresenceChange,
+  handleSavePresence,
 }) => {
   const theme = useTheme();
   return (
@@ -25,7 +41,7 @@ const PresenceMenu = ({
       onClose={handleMenuClose}
       PaperProps={{
         style: {
-          padding: '10px',
+          padding: "10px",
           backgroundColor: theme.palette.background.paper,
           color: theme.palette.text.primary,
           boxShadow: theme.shadows[3],
@@ -33,7 +49,7 @@ const PresenceMenu = ({
       }}
     >
       {userPresence.map((user) => (
-        <MenuItem key={user._id} style={{ justifyContent: 'space-between' }}>
+        <MenuItem key={user._id} style={{ justifyContent: "space-between" }}>
           <Typography variant="body1" color="textSecondary">
             {user.name}
           </Typography>
@@ -41,8 +57,8 @@ const PresenceMenu = ({
             <FormControlLabel
               control={
                 <Checkbox
-                  checked={user.status === 'present'}
-                  onChange={() => handlePresenceChange(user._id, 'present')}
+                  checked={user.status === "present"}
+                  onChange={() => handlePresenceChange(user._id, "present")}
                 />
               }
               label="Present"
@@ -52,8 +68,8 @@ const PresenceMenu = ({
             <FormControlLabel
               control={
                 <Checkbox
-                  checked={user.status === 'absent'}
-                  onChange={() => handlePresenceChange(user._id, 'absent')}
+                  checked={user.status === "absent"}
+                  onChange={() => handlePresenceChange(user._id, "absent")}
                 />
               }
               label="Absent"
@@ -93,6 +109,14 @@ function CourseManagement() {
 
   useEffect(() => {
     fetchCourses();
+
+    socket.on("notification", (message) => {
+      alert(`Notification: ${message}`);
+    });
+
+    return () => {
+      socket.off("notification");
+    };
   }, []);
 
   const handleMenuOpen = async (event, course) => {
@@ -108,24 +132,24 @@ function CourseManagement() {
     }
   };
 
-const handleSavePresence = async () => {
-  const presenceData = userPresence.map((user) => ({
-    userId: user._id,
-    status: user.status,
-  }));
+  const handleSavePresence = async () => {
+    const presenceData = userPresence.map((user) => ({
+      userId: user._id,
+      status: user.status,
+    }));
 
-  try {
-    await axios.post(
-      `http://localhost:5000/courses/${selectedCourse._id}/updatePresence`,
-      {
-        presence: presenceData,
-      }
-    );
-    console.log("Presence updated successfully");
-  } catch (error) {
-    console.error("Failed to update presence:", error);
-  }
-};
+    try {
+      await axios.post(
+        `http://localhost:5000/courses/${selectedCourse._id}/updatePresence`,
+        {
+          presence: presenceData,
+        }
+      );
+      console.log("Presence updated successfully");
+    } catch (error) {
+      console.error("Failed to update presence:", error);
+    }
+  };
 
   const handleMenuClose = () => {
     setAnchorEl(null);
@@ -158,8 +182,20 @@ const handleSavePresence = async () => {
     }
   };
 
-  const handleNotify = (course) => {
-    console.log("Notifying users for course:", course.title);
+  const handleNotify = async (course) => {
+    try {
+      const response = await axios.get(
+        `http://localhost:5000/courses/${course._id}/assignedUsers`
+      );
+      const userIds = response.data.map((user) => user._id);
+      socket.emit("notify", {
+        userIds,
+        message: `Notification for course: ${course.title}`,
+      });
+      console.log("Notifying users for course:", course.title);
+    } catch (error) {
+      console.error("Failed to fetch assigned users for notification:", error);
+    }
   };
 
   const columns = [
@@ -233,7 +269,7 @@ const handleSavePresence = async () => {
           checkboxSelection
           disableSelectionOnClick
           autoHeight
-          getRowId={(row) => row._id}  // This line tells DataGrid to use `_id` as the unique row identifier
+          getRowId={(row) => row._id} // This line tells DataGrid to use `_id` as the unique row identifier
         />
         {selectedCourse && (
           <PresenceMenu
@@ -250,4 +286,3 @@ const handleSavePresence = async () => {
 }
 
 export default CourseManagement;
-            

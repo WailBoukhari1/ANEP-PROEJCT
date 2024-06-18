@@ -50,6 +50,9 @@ router.post('/:id/request-join', courseController.requestJoin);
 // Assign a user to a course
 router.post('/:id/assign-interseted-user', courseController.assignIntersetedUser);
 
+// Send course notification
+router.post('/:id/notify', courseController.sendCourseNotification);
+
 // ---- Generic routes ---- //
 // Get a single course by ID
 router.get('/:id', courseController.getCourseById);
@@ -62,8 +65,6 @@ router.put('/:id', courseController.updateCourse);
 
 // Delete a course
 router.delete('/:id', courseController.deleteCourse);
-
-
 
 
 
