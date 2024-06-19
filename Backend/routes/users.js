@@ -5,68 +5,11 @@ const mongoose = require('mongoose');
 const User = require('../models/User');
 
 // ---- Specific routes ---- //
-// Route to get notifications for a user
-router.get('/notifications', async (req, res) => {
-    try {
-        const userId = "666e024aef86c2482444b3a8";
-        const { page = 1, limit = 5 } = req.query;
+// Route to get notifications for users
+router.get('/notifications', userController.getNotifications);
+// Route to get notifications for a admin
+router.get('/admin/notifications', userController.getAdminNotifications);
 
-        if (!mongoose.Types.ObjectId.isValid(userId)) {
-            return res.status(400).json({ message: 'Invalid user ID' });
-        }
-
-        const user = await User.findById(userId).select('notifications');
-        if (!user) {
-            return res.status(404).json({ message: 'User not found' });
-        }
-
-        const notifications = user.notifications;
-        const totalNotifications = notifications.length;
-        const totalPages = Math.ceil(totalNotifications / limit);
-        const paginatedNotifications = notifications.slice((page - 1) * limit, page * limit);
-
-        res.json({
-            notifications: paginatedNotifications,
-            currentPage: parseInt(page),
-            totalPages: totalPages,
-            totalNotifications: totalNotifications
-        });
-    } catch (error) {
-        console.error('Error fetching notifications:', error);
-        res.status(500).json({ message: 'Server error' });
-    }
-});
-// Fetch notifications for the admin user
-router.get('/admin/notifications', async (req, res) => {
-    try {
-        const adminId = "6671ba1141116692e9f8a1be";
-        const { page = 1, limit = 5 } = req.query;
-
-        if (!mongoose.Types.ObjectId.isValid(adminId)) {
-            return res.status(400).json({ message: 'Invalid user ID' });
-        }
-
-        const user = await User.findById(adminId).select('notifications');
-        if (!user) {
-            return res.status(404).json({ message: 'User not found' });
-        }
-
-        const notifications = user.notifications;
-        const totalNotifications = notifications.length;
-        const totalPages = Math.ceil(totalNotifications / limit);
-        const paginatedNotifications = notifications.slice((page - 1) * limit, page * limit);
-
-        res.json({
-            notifications: paginatedNotifications,
-            currentPage: parseInt(page),
-            totalPages: totalPages,
-            totalNotifications: totalNotifications
-        });
-    } catch (error) {
-        console.error('Error fetching notifications:', error);
-        res.status(500).json({ message: 'Server error' });
-    }
-});
 // ---- Generic routes ---- //
 // Get all users
 router.get('/', userController.getAllUsers);

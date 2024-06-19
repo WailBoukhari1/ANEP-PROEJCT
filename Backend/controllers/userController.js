@@ -61,11 +61,72 @@ const deleteUser = async (req, res) => {
         res.status(500).send(error.message);
     }
 };
+const getNotifications = async (req, res) => {
+    try {
+        const userId = "666e024aef86c2482444b3a8";
+        const { page = 1, limit = 5 } = req.query;
 
+        if (!mongoose.Types.ObjectId.isValid(userId)) {
+            return res.status(400).json({ message: 'Invalid user ID' });
+        }
+
+        const user = await User.findById(userId).select('notifications');
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+
+        const notifications = user.notifications;
+        const totalNotifications = notifications.length;
+        const totalPages = Math.ceil(totalNotifications / limit);
+        const paginatedNotifications = notifications.slice((page - 1) * limit, page * limit);
+
+        res.json({
+            notifications: paginatedNotifications,
+            currentPage: parseInt(page),
+            totalPages: totalPages,
+            totalNotifications: totalNotifications
+        });
+    } catch (error) {
+        console.error('Error fetching notifications:', error);
+        res.status(500).json({ message: 'Server error' });
+    }
+};
+const getAdminNotifications = async (req, res) => {
+    try {
+        const adminId = "6671ba1141116692e9f8a1be";
+        const { page = 1, limit = 5 } = req.query;
+
+        if (!mongoose.Types.ObjectId.isValid(adminId)) {
+            return res.status(400).json({ message: 'Invalid user ID' });
+        }
+
+        const user = await User.findById(adminId).select('notifications');
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+
+        const notifications = user.notifications;
+        const totalNotifications = notifications.length;
+        const totalPages = Math.ceil(totalNotifications / limit);
+        const paginatedNotifications = notifications.slice((page - 1) * limit, page * limit);
+
+        res.json({
+            notifications: paginatedNotifications,
+            currentPage: parseInt(page),
+            totalPages: totalPages,
+            totalNotifications: totalNotifications
+        });
+    } catch (error) {
+        console.error('Error fetching notifications:', error);
+        res.status(500).json({ message: 'Server error' });
+    }
+};
 module.exports = {
     getAllUsers,
     getUser,
     createUser,
     updateUser,
     deleteUser,
+    getNotifications,
+    getAdminNotifications
 };

@@ -183,12 +183,37 @@ function EditCoursePage() {
 
   const handleSubmit = async (event) => {
     event.preventDefault();
+
     const courseData = {
       ...course,
       assignedUsers: assignedUsers.map((user) => user._id),
     };
 
     try {
+      if (course.image) {
+        const formData = new FormData();
+        formData.append("image", course.image);
+
+        const imageUploadResponse = await axios.post(
+          "http://localhost:5000/courses/uploadImage",
+          formData,
+          {
+            headers: {
+              "Content-Type": "multipart/form-data",
+            },
+          }
+        );
+
+        if (imageUploadResponse.status === 200) {
+          courseData.imageUrl = imageUploadResponse.data.imageUrl;
+        } else {
+          alert(
+            `Image upload failed: ${imageUploadResponse.status} ${imageUploadResponse.data}`
+          );
+          return;
+        }
+      }
+
       for (const user of assignedUsers) {
         const conflictCourse = checkConflicts(
           user._id,
@@ -207,6 +232,7 @@ function EditCoursePage() {
           );
         }
       }
+
       await axios.put(`http://localhost:5000/courses/${id}`, courseData);
       console.log("Course updated successfully");
       navigate("/CoursesManagement");
@@ -270,7 +296,6 @@ function EditCoursePage() {
       });
     }
   };
-
 
   // Filter interested users to exclude those who are already assigned
   const filteredInterestedUsers = course.interestedUsers.filter(
