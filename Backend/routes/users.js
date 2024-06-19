@@ -1,8 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const userController = require('../controllers/userController'); // Adjust the path as necessary
-const mongoose = require('mongoose');
-const User = require('../models/User');
+
 
 // ---- Specific routes ---- //
 // Route to get notifications for users
