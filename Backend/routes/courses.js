@@ -53,6 +53,13 @@ router.post('/:id/assign-interseted-user', courseController.assignIntersetedUser
 // Send course notification
 router.post('/:id/notify', courseController.sendCourseNotification);
 
+// Delete a comment
+router.delete('/:id/comments/:commentId', courseController.deleteComment);
+
+// Report a comment
+router.post('/:id/comments/:commentId/report', courseController.reportComment);
+
+
 // ---- Generic routes ---- //
 // Get a single course by ID
 router.get('/:id', courseController.getCourseById);

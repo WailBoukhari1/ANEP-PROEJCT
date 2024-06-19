@@ -14,7 +14,9 @@ const commentSchema = new mongoose.Schema({
     userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
     userName: { type: String, required: true },
     text: { type: String, required: true },
-    createdAt: { type: Date, default: Date.now }
+    createdAt: { type: Date, default: Date.now },
+    reported: { type: Boolean, default: false },
+    reportedBy: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }] // Track users who reported
 });
 
 const timeSchema = new mongoose.Schema({
@@ -34,7 +36,7 @@ const courseSchema = new mongoose.Schema({
     offline: {
         type: String,
         required: true,
-        enum: ['online', 'offline',]
+        enum: ['online', 'offline']
     },
     description: { type: String },
     notifyUsers: { type: Boolean, default: false },

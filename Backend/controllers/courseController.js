@@ -1,6 +1,6 @@
 // courseController.js
 const Course = require('../models/Course');
-
+const User = require('../models/User');
 // Get all courses
 const getAllCourses = async (req, res) => {
     try {
@@ -301,6 +301,57 @@ const sendCourseNotification = async (req, res) => {
         res.status(500).send('Error sending notification');
     }
 };
+const deleteComment = async (req, res) => {
+    const { id, commentId } = req.params;
+
+    try {
+        const course = await Course.findById(id);
+        if (!course) {
+            return res.status(404).send('Course not found');
+        }
+
+        const comment = course.comments.id(commentId);
+        if (!comment) {
+            return res.status(404).send('Comment not found');
+        }
+
+        course.comments.pull(commentId);
+        await course.save();
+
+        res.status(200).json(course.comments); // Return the updated list of comments
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
+// Report a comment
+const reportComment = async (req, res) => {
+    const { id, commentId } = req.params;
+    const { userId } = req.body;
+
+    try {
+        const course = await Course.findById(id);
+        if (!course) {
+            return res.status(404).send('Course not found');
+        }
+
+        const comment = course.comments.id(commentId);
+        if (!comment) {
+            return res.status(404).send('Comment not found');
+        }
+
+        if (comment.reportedBy.includes(userId)) {
+            return res.status(400).json({ message: 'You have already reported this comment' });
+        }
+
+        comment.reportedBy.push(userId);
+        comment.reported = true;
+        await course.save();
+
+        res.status(200).send('Comment reported successfully');
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
 module.exports = {
     getAllCourses,
     getCourseById,
@@ -316,5 +367,7 @@ module.exports = {
     fetchFiles,
     assignIntersetedUser,
     requestJoin,
-    sendCourseNotification
+    sendCourseNotification,
+    deleteComment,
+    reportComment,
 };

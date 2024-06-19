@@ -19,7 +19,6 @@ app.use(cors());
 
 // Static files
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
-app.use('/static', express.static(path.join(__dirname, 'uploads')));
 
 // Routes
 app.use('/users', userRoutes);
@@ -27,6 +26,8 @@ app.use('/courses', courseRoutes);
 app.get('/', (req, res) => {
     res.send('Hello World!');
 });
+// Make io accessible to our router
+app.set('socketio', io);
 
 // Connect to MongoDB and start server
 const startServer = async () => {

@@ -1,9 +1,10 @@
 import { useState, useRef, useEffect } from "react";
-import { Link, NavLink } from "react-router-dom";
+import { Link, NavLink , useNavigate} from "react-router-dom";
 import { io } from "socket.io-client";
 import axios from "axios";
 
 function Navbar() {
+  const navigate = useNavigate();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isNotificationMenuOpen, setIsNotificationMenuOpen] = useState(false);
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
@@ -93,12 +94,16 @@ function Navbar() {
     }
   };
 
-const handleNotificationClick = (index) => {
+const handleNotificationClick = (index, courseId) => {
   setNotifications((prevNotifications) =>
     prevNotifications.map((notification, i) =>
       i === index ? { ...notification, isNew: false } : notification
     )
   );
+
+  if (courseId) {
+    navigate(`/courses/${courseId}`);
+  }
 };
 
   // Close notification menu when clicking outside

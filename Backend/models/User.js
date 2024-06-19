@@ -49,7 +49,8 @@ const userSchema = new mongoose.Schema({
     notifications: [{
         message: String,
         date: { type: Date, default: Date.now },
-        courseId: { type: mongoose.Schema.Types.ObjectId, ref: 'Course' }
+        courseId: { type: mongoose.Schema.Types.ObjectId, ref: 'Course' },
+        commentSnippet: String
     }]
 });
 

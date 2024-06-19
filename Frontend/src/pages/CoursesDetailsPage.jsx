@@ -1,7 +1,8 @@
 import MainLayout from "../layout/MainLayout";
 import { useEffect, useState } from "react";
 import { useDropzone } from "react-dropzone";
-import { useParams } from "react-router-dom";
+import { useParams } from "react-router-dom"; // Updated import
+import { io } from "socket.io-client";
 import axios from "axios";
 
 function CoursesDetails() {
@@ -15,8 +16,10 @@ function CoursesDetails() {
   const [feedbackMessage, setFeedbackMessage] = useState("");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const userId = "66709327df7aa2afdaf4118c";
+  const userId = "666e025bef86c2482444b3ac"; // Simulated user ID
   const baseURL = "http://localhost:5000";
+  const socket = io("http://localhost:5000");
+
   useEffect(() => {
     fetch(`http://localhost:5000/courses/${id}`)
       .then((response) => {
@@ -27,7 +30,7 @@ function CoursesDetails() {
       })
       .then((data) => {
         setCourse(data);
-        setComments(data.comments || []); // Assuming comments are part of the course data
+        setComments(data.comments || []);
         setLoading(false);
       })
       .catch((error) => {
@@ -36,6 +39,7 @@ function CoursesDetails() {
         setLoading(false);
       });
   }, [id]);
+
   const handleTabClick = (tab) => {
     setActiveTab(tab);
   };
@@ -43,6 +47,7 @@ function CoursesDetails() {
   const toggleModal = () => {
     setShowModal(!showModal);
   };
+
   const handleJoinRequest = () => {
     axios
       .post(`http://localhost:5000/courses/${id}/request-join`, { userId })
@@ -55,6 +60,7 @@ function CoursesDetails() {
         alert("Failed to send join request.");
       });
   };
+
   const { getRootProps, getInputProps } = useDropzone({
     onDrop: (acceptedFiles) => {
       const formData = new FormData();
@@ -68,6 +74,7 @@ function CoursesDetails() {
         .catch((error) => console.error("Error uploading file:", error));
     },
   });
+
   useEffect(() => {
     axios
       .get(`http://localhost:5000/courses/${id}/resources`)
@@ -76,6 +83,7 @@ function CoursesDetails() {
       })
       .catch((error) => console.error("Failed to load files:", error));
   }, [id]);
+
   const handleCommentSubmit = (event) => {
     event.preventDefault();
     if (newComment.trim()) {
@@ -91,7 +99,7 @@ function CoursesDetails() {
       })
         .then((response) => response.json())
         .then((data) => {
-          setComments(data); // Assuming the backend returns the updated list of comments
+          setComments(data);
           setNewComment("");
           setFeedbackMessage("Comment added successfully!");
           setTimeout(() => setFeedbackMessage(""), 3000);
@@ -106,14 +114,63 @@ function CoursesDetails() {
       setTimeout(() => setFeedbackMessage(""), 3000);
     }
   };
+
+  const handleDeleteComment = (commentId) => {
+    axios
+      .delete(`http://localhost:5000/courses/${id}/comments/${commentId}`)
+      .then((response) => {
+        setComments(response.data); // Assuming the backend returns the updated list of comments
+        setFeedbackMessage("Comment deleted successfully!");
+        setTimeout(() => setFeedbackMessage(""), 3000);
+      })
+      .catch((error) => {
+        console.error("Failed to delete comment:", error);
+        setFeedbackMessage("Failed to delete comment.");
+        setTimeout(() => setFeedbackMessage(""), 3000);
+      });
+  };
+
+  const handleReportComment = (commentId) => {
+    axios
+      .post(
+        `http://localhost:5000/courses/${id}/comments/${commentId}/report`,
+        {
+          userId,
+        }
+      )
+      .then(() => {
+        alert("Comment reported successfully!");
+        socket.emit("commentReported", {
+          courseId: id,
+          commentId,
+          courseName: course.title,
+          commentText: comments.find((comment) => comment._id === commentId)
+            .text,
+        });
+      })
+      .catch((error) => {
+        if (
+          error.response &&
+          error.response.status === 400 &&
+          error.response.data.message ===
+            "You have already reported this comment"
+        ) {
+          alert("You have already reported this comment.");
+        } else {
+          console.error("Failed to report comment:", error);
+          alert("Failed to report comment.");
+        }
+      });
+  };
+
   if (loading) return <MainLayout>Loading...</MainLayout>;
   if (error) return <MainLayout>Error: {error}</MainLayout>;
+
   return (
     <MainLayout>
       <>
         {/* banner section */}
         <section>
-          {/* banner section */}
           <div className="bg-lightGrey10 dark:bg-lightGrey10-dark relative z-0 overflow-y-visible py-50px md:py-20 lg:py-100px 2xl:pb-150px 2xl:pt-40.5">
             <div className="container">
               <div className="text-center">
@@ -253,6 +310,24 @@ function CoursesDetails() {
                                         {comment.text}{" "}
                                         {/* Display the text of the comment */}
                                       </p>
+                                      <div className="flex space-x-2">
+                                        <button
+                                          onClick={() =>
+                                            handleReportComment(comment._id)
+                                          }
+                                          className="bg-report-comment text-white px-4 py-2 rounded transition duration-300 flex items-center space-x-2"
+                                        >
+                                          <i className="fas fa-flag"></i>
+                                        </button>
+                                        <button
+                                          onClick={() =>
+                                            handleDeleteComment(comment._id)
+                                          }
+                                          className="bg-delete-comment text-white px-4 py-2 rounded transition duration-300 flex items-center space-x-2"
+                                        >
+                                          <i className="fas fa-trash-alt"></i>
+                                        </button>
+                                      </div>
                                     </div>
                                   </li>
                                 ))}
@@ -329,7 +404,7 @@ function CoursesDetails() {
                                       </span>
                                     </div>
                                     <a
-                                      href={`http://localhost:5000/uploads/${file.link}`}
+                                      href={`${baseURL}${file.link}`}
                                       target="_blank"
                                       rel="noopener noreferrer"
                                       className="download-button bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
