@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from "react";
-import { Link, NavLink , useNavigate} from "react-router-dom";
+import { Link, NavLink, useNavigate } from "react-router-dom";
 import { io } from "socket.io-client";
 import axios from "axios";
 
@@ -50,21 +50,21 @@ function Navbar() {
     };
   }, [userId]);
 
- const fetchNotifications = (page) => {
-   axios
-     .get(`http://localhost:5000/users/notifications?page=${page}&limit=5`)
-     .then((response) => {
-       setNotifications(
-         response.data.notifications.map((notification) => ({
-           ...notification,
-           isNew: false,
-         }))
-       );
-       setTotalPages(response.data.totalPages);
-       setCurrentPage(response.data.currentPage);
-     })
-     .catch((error) => console.error("Error fetching notifications:", error));
- };
+  const fetchNotifications = (page) => {
+    axios
+      .get(`http://localhost:5000/users/notifications?page=${page}&limit=5`)
+      .then((response) => {
+        setNotifications(
+          response.data.notifications.map((notification) => ({
+            ...notification,
+            isNew: false,
+          }))
+        );
+        setTotalPages(response.data.totalPages);
+        setCurrentPage(response.data.currentPage);
+      })
+      .catch((error) => console.error("Error fetching notifications:", error));
+  };
 
   useEffect(() => {
     fetchNotifications(currentPage);
@@ -94,17 +94,17 @@ function Navbar() {
     }
   };
 
-const handleNotificationClick = (index, courseId) => {
-  setNotifications((prevNotifications) =>
-    prevNotifications.map((notification, i) =>
-      i === index ? { ...notification, isNew: false } : notification
-    )
-  );
+  const handleNotificationClick = (index, courseId) => {
+    setNotifications((prevNotifications) =>
+      prevNotifications.map((notification, i) =>
+        i === index ? { ...notification, isNew: false } : notification
+      )
+    );
 
-  if (courseId) {
-    navigate(`/courses/${courseId}`);
-  }
-};
+    if (courseId) {
+      navigate(`/courses/${courseId}`);
+    }
+  };
 
   // Close notification menu when clicking outside
   useEffect(() => {
@@ -195,18 +195,6 @@ const handleNotificationClick = (index, courseId) => {
                       Auth
                     </NavLink>
                   </li>
-                  <li className="nav-item">
-                    <NavLink
-                      to="/UserCourses"
-                      className={({ isActive }) =>
-                        isActive
-                          ? "text-primaryColor font-extrabold border-b-4 border-primaryColor px-4 py-3"
-                          : "nav-link text-gray-700 hover:text-blue-700 transition duration-300 px-4 py-3 rounded-lg font-semibold hover:bg-blue-100"
-                      }
-                    >
-                      User Courses
-                    </NavLink>{" "}
-                  </li>
                 </ul>
               </div>
               {/* navbar right */}
@@ -287,18 +275,10 @@ const handleNotificationClick = (index, courseId) => {
                       >
                         <li>
                           <Link
-                            to="/profile"
+                            to={`/UserCourses/666e021bef86c2482444b3a6`}
                             className="block px-6 py-3 text-sm hover:bg-gray-50 transition duration-150 ease-in-out"
                           >
                             Profile
-                          </Link>
-                        </li>
-                        <li>
-                          <Link
-                            to="/settings"
-                            className="block px-6 py-3 text-sm hover:bg-gray-50 transition duration-150 ease-in-out"
-                          >
-                            Settings
                           </Link>
                         </li>
                         <li>
@@ -349,35 +329,71 @@ const handleNotificationClick = (index, courseId) => {
         </button>
         {/* mobile menu wrapper */}
         <div className="px-5 md:px-30px pt-5 md:pt-10 pb-50px h-full overflow-y-auto">
-          <ul>
+          <ul className="space-y-4">
             <li>
-              <Link to="/" className="text-darkdeep1 hover:text-secondaryColor">
+              <NavLink
+                to="/"
+                className={({ isActive }) =>
+                  isActive
+                    ? "text-primaryColor font-extrabold"
+                    : "text-darkdeep1 hover:text-secondaryColor"
+                }
+                onClick={toggleMobileMenu} // Close mobile menu on link click
+              >
                 Home
-              </Link>
+              </NavLink>
             </li>
             <li>
-              <Link
-                to="/about"
-                className="text-darkdeep1 hover:text-secondaryColor"
+              <NavLink
+                to="/Courses"
+                className={({ isActive }) =>
+                  isActive
+                    ? "text-primaryColor font-extrabold"
+                    : "text-darkdeep1 hover:text-secondaryColor"
+                }
+                onClick={toggleMobileMenu} // Close mobile menu on link click
               >
-                About
-              </Link>
+                Courses
+              </NavLink>
             </li>
             <li>
-              <Link
-                to="/services"
-                className="text-darkdeep1 hover:text-secondaryColor"
+              <NavLink
+                to="/Dashboard"
+                className={({ isActive }) =>
+                  isActive
+                    ? "text-primaryColor font-extrabold"
+                    : "text-darkdeep1 hover:text-secondaryColor"
+                }
+                onClick={toggleMobileMenu} // Close mobile menu on link click
               >
-                Services
-              </Link>
+                Dashboard
+              </NavLink>
             </li>
             <li>
-              <Link
-                to="/contact"
-                className="text-darkdeep1 hover:text-secondaryColor"
+              <NavLink
+                to={`/UserCourses/666e021bef86c2482444b3a6`}
+                className={({ isActive }) =>
+                  isActive
+                    ? "text-primaryColor font-extrabold"
+                    : "text-darkdeep1 hover:text-secondaryColor"
+                }
+                onClick={toggleMobileMenu} // Close mobile menu on link click
               >
-                Contact
-              </Link>
+                Profile
+              </NavLink>
+            </li>
+            <li>
+              <NavLink
+                to="/logout"
+                className={({ isActive }) =>
+                  isActive
+                    ? "text-primaryColor font-extrabold"
+                    : "text-darkdeep1 hover:text-secondaryColor"
+                }
+                onClick={toggleMobileMenu} // Close mobile menu on link click
+              >
+                Logout
+              </NavLink>
             </li>
           </ul>
         </div>

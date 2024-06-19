@@ -9452,9 +9452,16 @@ video {
 .bg-report-comment {
     background-color: rgb(8 113 181 / var(--tw-bg-opacity));
 }
+.bg-report-comment:hover {
+    background-color: rgb(8 113 181 / var(--tw-bg-opacity));
+}
+
 
 .bg-delete-comment {
-  background-color: red;
+  background-color: rgb(235, 10, 10);
+}
+.bg-delete-comment:hover {
+  background-color: rgb(241, 76, 76);
 }
 
 .text-white {

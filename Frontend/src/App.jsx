@@ -23,7 +23,6 @@ const CreateUser = lazy(() => import("./components/users/CreateUserPage"));
 const EditUser = lazy(() => import("./components/users/EditUserPage"));
 const UserManagmentPage = lazy(() => import("./pages/admin/UserManagmentPage"));
 const Auth = lazy(() => import("./pages/AuthPage"));
-const UserCourses = lazy(() => import("./pages/UserCoursesPage"));
 
 function App() {
   const [isDataLoaded, setIsDataLoaded] = useState(false);
@@ -53,7 +52,6 @@ function App() {
               <Route path="/Courses" element={<Course />} />
               <Route path="/CoursesDetails/:id" element={<CoursesDetails />} />
               <Route path="/Auth" element={<Auth />} />
-              <Route path="/UserCourses" element={<UserCourses />} />
               <Route path="/Dashboard" element={<Dashboard />} />
               <Route
                 path="/CoursesManagement"

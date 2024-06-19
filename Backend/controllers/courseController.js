@@ -91,7 +91,6 @@ const uploadImage = (req, res) => {
         });
     }
 };
-
 const getAssignedUsers = async (req, res) => {
     const { id } = req.params; // course ID
 
@@ -352,6 +351,7 @@ const reportComment = async (req, res) => {
         res.status(500).json({ message: error.message });
     }
 };
+
 module.exports = {
     getAllCourses,
     getCourseById,
@@ -370,4 +370,5 @@ module.exports = {
     sendCourseNotification,
     deleteComment,
     reportComment,
+
 };

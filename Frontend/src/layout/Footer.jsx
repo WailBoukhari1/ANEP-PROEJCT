@@ -14,7 +14,7 @@ function Footer() {
               <div className="lg:col-start-4 lg:col-span-6">
                 <p className="text-whiteColor">
                   Copyright © <span className="text-primaryColor">2024 </span>{" "}
-                  by edurock. All Rights Reserved.
+                  by ANEP. All Rights Reserved.
                 </p>
               </div>
               <div className="lg:col-start-10 lg:col-span-3">
