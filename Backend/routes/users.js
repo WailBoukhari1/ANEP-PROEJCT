@@ -8,7 +8,8 @@ const userController = require('../controllers/userController'); // Adjust the p
 router.get('/notifications', userController.getNotifications);
 // Route to get notifications for a admin
 router.get('/admin/notifications', userController.getAdminNotifications);
-
+// Route to mark a notification as read
+router.post('/mark-notification-read', userController.markNotificationRead);
 // ---- Generic routes ---- //
 // Get all users
 router.get('/', userController.getAllUsers);

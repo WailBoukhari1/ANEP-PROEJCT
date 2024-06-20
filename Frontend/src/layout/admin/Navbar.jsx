@@ -22,10 +22,10 @@ const Navbar = ({ handleDrawerOpen, open, drawerWidth, isMobile }) => {
   const [anchorElNotif, setAnchorElNotif] = useState(null);
   const [anchorElUser, setAnchorElUser] = useState(null);
   const [notifications, setNotifications] = useState([]);
+  const adminId = "6671ba1141116692e9f8a1be";
 
   useEffect(() => {
     // Register the admin user
-    const adminId = "6671ba1141116692e9f8a1be";
     socket.emit("register", adminId);
 
     // Fetch stored notifications
@@ -64,9 +64,32 @@ const Navbar = ({ handleDrawerOpen, open, drawerWidth, isMobile }) => {
     setAnchorElUser(null);
   };
 
-  const handleNotificationClick = (courseId) => {
-    window.location.href = `/courses/${courseId}`;
+  const handleNotificationClick = (notificationId) => {
+    // API call to mark the notification as read using the adminId
+    axios
+      .post(`http://localhost:5000/users/mark-notification-read`, {
+        userId: adminId, // Use adminId here
+        notificationId,
+      })
+      .then((response) => {
+        console.log(response.data.message); 
+        // Update the state to reflect the change
+        setNotifications(
+          notifications.map((notif) =>
+            notif._id === notificationId ? { ...notif, isNew: false } : notif
+          )
+        );
+      })
+      .catch((error) =>
+        console.error("Failed to mark notification as read:", error)
+      );
+
+    // Redirect or handle the click event
+    // window.location.href = `/courses/${courseId}`; // Assuming you need to redirect
   };
+const newNotificationsCount = notifications.filter(
+  (notif) => notif.isNew
+).length;
 
   return (
     <AppBar
@@ -107,7 +130,7 @@ const Navbar = ({ handleDrawerOpen, open, drawerWidth, isMobile }) => {
         <Box sx={{ display: "flex", alignItems: "center" }}>
           <Tooltip title="Notifications" arrow>
             <IconButton color="inherit" onClick={handleNotifClick}>
-              <Badge badgeContent={notifications.length} color="secondary">
+              <Badge badgeContent={newNotificationsCount} color="secondary">
                 <NotificationsIcon />
               </Badge>
             </IconButton>
@@ -133,8 +156,9 @@ const Navbar = ({ handleDrawerOpen, open, drawerWidth, isMobile }) => {
               notifications.map((notification, index) => (
                 <MenuItem
                   key={index}
-                  onClick={() => handleNotificationClick(notification.courseId)}
+                  onClick={() => handleNotificationClick(notification._id)}
                 >
+                  {notification.isNew ? <strong>New!</strong> : null}{" "}
                   {notification.message}
                 </MenuItem>
               ))

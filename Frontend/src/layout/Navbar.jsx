@@ -29,42 +29,45 @@ function Navbar() {
     setIsUserMenuOpen(!isUserMenuOpen);
   };
 
-  useEffect(() => {
-    // Initialize socket connection
-    socket.current = io("http://localhost:5000");
+useEffect(() => {
+  // Fetch notifications on mount
+  fetchNotifications(currentPage);
 
-    // Register the user ID with the socket
-    socket.current.emit("register", userId);
+  // Initialize socket connection
+  socket.current = io("http://localhost:5000");
 
-    // Listen for notifications
-    socket.current.on("notification", (message) => {
-      setNotifications((prevNotifications) => [
-        { message, isNew: true, courseId: message.courseId },
-        ...prevNotifications,
-      ]);
-      setNewNotification(message);
-    });
+  // Register the user ID with the socket
+  socket.current.emit("register", userId);
 
-    return () => {
-      socket.current.off("notification");
-    };
-  }, [userId]);
+  // Listen for new notifications
+  socket.current.on("notification", (notification) => {
+    setNotifications((prevNotifications) => [
+      { ...notification, isNew: true },
+      ...prevNotifications,
+    ]);
+  });
 
-  const fetchNotifications = (page) => {
-    axios
-      .get(`http://localhost:5000/users/notifications?page=${page}&limit=5`)
-      .then((response) => {
-        setNotifications(
-          response.data.notifications.map((notification) => ({
-            ...notification,
-            isNew: false,
-          }))
-        );
-        setTotalPages(response.data.totalPages);
-        setCurrentPage(response.data.currentPage);
-      })
-      .catch((error) => console.error("Error fetching notifications:", error));
+  return () => {
+    socket.current.off("notification");
+    socket.current.disconnect();
   };
+}, []);
+
+const fetchNotifications = (page) => {
+  axios
+    .get(`http://localhost:5000/users/notifications?page=${page}&limit=5`)
+    .then((response) => {
+      setNotifications(
+        response.data.notifications.map((notification) => ({
+          ...notification,
+          isNew: notification.isNew, // Respect the isNew flag from the server
+        }))
+      );
+      setTotalPages(response.data.totalPages);
+      setCurrentPage(response.data.currentPage);
+    })
+    .catch((error) => console.error("Error fetching notifications:", error));
+};
 
   useEffect(() => {
     fetchNotifications(currentPage);
@@ -94,18 +97,34 @@ function Navbar() {
     }
   };
 
-  const handleNotificationClick = (index, courseId) => {
-    setNotifications((prevNotifications) =>
-      prevNotifications.map((notification, i) =>
-        i === index ? { ...notification, isNew: false } : notification
-      )
-    );
-
-    if (courseId) {
-      navigate(`/courses/${courseId}`);
+const handleNotificationClick = async (index, courseId) => {
+  const notification = notifications[index];
+  if (notification.isNew) {
+    try {
+      // When marking notifications as read:
+      const response = await axios.post(
+        `http://localhost:5000/users/mark-notification-read`,
+        {
+          userId,
+          notificationId: notification._id,
+        }
+      );
+      if (response.status === 200) {
+        setNotifications((prevNotifications) =>
+          prevNotifications.map((n, i) =>
+            i === index ? { ...n, isNew: false } : n
+          )
+        );
+      }
+    } catch (error) {
+      console.error("Error marking notification as read:", error);
     }
-  };
+  }
 
+  if (courseId) {
+    navigate(`/courses/${courseId}`);
+  }
+};
   // Close notification menu when clicking outside
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -123,9 +142,9 @@ function Navbar() {
     };
   }, []);
 
-  const newNotificationsCount = notifications.filter(
-    (notification) => notification.isNew
-  ).length;
+const newNotificationsCount = notifications.filter(
+  (notification) => notification.isNew
+).length;
 
   return (
     <>

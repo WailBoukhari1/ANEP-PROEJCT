@@ -21,21 +21,19 @@ const setupSocket = (server) => {
         });
 
         socket.on('notify', async (data) => {
-            const { userIds, message } = data;
+            const { userIds, message, courseId } = data;
             try {
-                // Save notification to the database for each user
                 const notifications = userIds.map(userId => ({
                     updateOne: {
                         filter: { _id: userId },
-                        update: { $push: { notifications: { message } } }
+                        update: { $push: { notifications: { message, courseId, isNew: true } } }
                     }
                 }));
                 await User.bulkWrite(notifications);
 
-                // Emit notification to connected users
                 userIds.forEach(userId => {
                     if (users[userId]) {
-                        io.to(users[userId]).emit('notification', message);
+                        io.to(users[userId]).emit('notification', { message, courseId, isNew: true });
                     }
                 });
             } catch (error) {

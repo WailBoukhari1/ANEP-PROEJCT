@@ -81,7 +81,10 @@ const getNotifications = async (req, res) => {
         const paginatedNotifications = notifications.slice((page - 1) * limit, page * limit);
 
         res.json({
-            notifications: paginatedNotifications,
+            notifications: paginatedNotifications.map(notification => ({
+                ...notification.toObject(),
+                isNew: notification.isNew // Ensure isNew is correctly sent to the frontend
+            })),
             currentPage: parseInt(page),
             totalPages: totalPages,
             totalNotifications: totalNotifications
@@ -92,19 +95,21 @@ const getNotifications = async (req, res) => {
     }
 };
 const getAdminNotifications = async (req, res) => {
+
+    const adminId = "6671ba1141116692e9f8a1be";
+    const { page = 1, limit = 5 } = req.query;
+
+    if (!mongoose.Types.ObjectId.isValid(adminId)) {
+        return res.status(400).send('Invalid user ID');
+    }
+
     try {
-        const adminId = "6671ba1141116692e9f8a1be";
-        const { page = 1, limit = 5 } = req.query;
-
-        if (!mongoose.Types.ObjectId.isValid(adminId)) {
-            return res.status(400).json({ message: 'Invalid user ID' });
-        }
-
-        const user = await User.findById(adminId).select('notifications');
+        const user = await User.findById(adminId, 'notifications');
         if (!user) {
-            return res.status(404).json({ message: 'User not found' });
+            return res.status(404).send('User not found');
         }
 
+        // Pagination logic
         const notifications = user.notifications;
         const totalNotifications = notifications.length;
         const totalPages = Math.ceil(totalNotifications / limit);
@@ -118,6 +123,43 @@ const getAdminNotifications = async (req, res) => {
         });
     } catch (error) {
         console.error('Error fetching notifications:', error);
+        res.status(500).send('Server error');
+    }
+};
+const markNotificationRead = async (req, res) => {
+    const { userId, notificationId } = req.body;
+
+    try {
+        // Directly update the notification's isNew field in the database
+        const result = await User.updateOne(
+            { "_id": userId, "notifications._id": notificationId },
+            { "$set": { "notifications.$.isNew": false } }
+        );
+
+        if (result.nModified === 0) {
+            return res.status(404).json({ message: 'Notification not found or already updated' });
+        }
+
+        // Optionally, fetch the updated user or notification for response
+        const user = await User.findById(userId);
+        const notification = user.notifications.id(notificationId);
+
+        // Prepare the data to be returned
+        const responseData = {
+            message: 'Notification marked as read',
+            notificationId: notification._id,
+            commentSnippet: notification.commentSnippet,
+            isNew: notification.isNew,
+            user: {
+                id: user._id,
+                name: user.name,
+                email: user.email
+            }
+        };
+
+        res.status(200).json(responseData);
+    } catch (error) {
+        console.error('Error marking notification as read:', error);
         res.status(500).json({ message: 'Server error' });
     }
 };
@@ -128,5 +170,6 @@ module.exports = {
     updateUser,
     deleteUser,
     getNotifications,
-    getAdminNotifications
+    getAdminNotifications,
+    markNotificationRead
 };
