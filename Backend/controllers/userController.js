@@ -64,7 +64,6 @@ const deleteUser = async (req, res) => {
 const getNotifications = async (req, res) => {
     try {
         const userId = "666e024aef86c2482444b3a8";
-        const { page = 1, limit = 5 } = req.query;
 
         if (!mongoose.Types.ObjectId.isValid(userId)) {
             return res.status(400).json({ message: 'Invalid user ID' });
@@ -75,29 +74,20 @@ const getNotifications = async (req, res) => {
             return res.status(404).json({ message: 'User not found' });
         }
 
-        const notifications = user.notifications;
-        const totalNotifications = notifications.length;
-        const totalPages = Math.ceil(totalNotifications / limit);
-        const paginatedNotifications = notifications.slice((page - 1) * limit, page * limit);
+        const notifications = user.notifications.map(notification => ({
+            ...notification.toObject(),
+            isNew: notification.isNew // Ensure isNew is correctly sent to the frontend
+        }));
 
-        res.json({
-            notifications: paginatedNotifications.map(notification => ({
-                ...notification.toObject(),
-                isNew: notification.isNew // Ensure isNew is correctly sent to the frontend
-            })),
-            currentPage: parseInt(page),
-            totalPages: totalPages,
-            totalNotifications: totalNotifications
-        });
+        res.json({ notifications });
     } catch (error) {
         console.error('Error fetching notifications:', error);
         res.status(500).json({ message: 'Server error' });
     }
 };
-const getAdminNotifications = async (req, res) => {
 
+const getAdminNotifications = async (req, res) => {
     const adminId = "6671ba1141116692e9f8a1be";
-    const { page = 1, limit = 5 } = req.query;
 
     if (!mongoose.Types.ObjectId.isValid(adminId)) {
         return res.status(400).send('Invalid user ID');
@@ -109,18 +99,12 @@ const getAdminNotifications = async (req, res) => {
             return res.status(404).send('User not found');
         }
 
-        // Pagination logic
-        const notifications = user.notifications;
-        const totalNotifications = notifications.length;
-        const totalPages = Math.ceil(totalNotifications / limit);
-        const paginatedNotifications = notifications.slice((page - 1) * limit, page * limit);
+        const notifications = user.notifications.map(notification => ({
+            ...notification.toObject(),
+            isNew: notification.isNew // Ensure isNew is correctly sent to the frontend
+        }));
 
-        res.json({
-            notifications: paginatedNotifications,
-            currentPage: parseInt(page),
-            totalPages: totalPages,
-            totalNotifications: totalNotifications
-        });
+        res.json({ notifications });
     } catch (error) {
         console.error('Error fetching notifications:', error);
         res.status(500).send('Server error');

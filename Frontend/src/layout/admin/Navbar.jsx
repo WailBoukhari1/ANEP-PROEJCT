@@ -11,11 +11,13 @@ import {
   Avatar,
 } from "@mui/material";
 import MenuIcon from "@mui/icons-material/Menu";
+import { useNavigate } from "react-router-dom";
 import NotificationsIcon from "@mui/icons-material/Notifications";
 import PropTypes from "prop-types";
 import { useState, useEffect } from "react";
 import { io } from "socket.io-client";
 import axios from "axios";
+
 const socket = io("http://localhost:5000");
 
 const Navbar = ({ handleDrawerOpen, open, drawerWidth, isMobile }) => {
@@ -23,22 +25,31 @@ const Navbar = ({ handleDrawerOpen, open, drawerWidth, isMobile }) => {
   const [anchorElUser, setAnchorElUser] = useState(null);
   const [notifications, setNotifications] = useState([]);
   const adminId = "6671ba1141116692e9f8a1be";
-
+  const navigate = useNavigate();
   useEffect(() => {
     // Register the admin user
     socket.emit("register", adminId);
 
     // Fetch stored notifications
-    axios
-      .get(`http://localhost:5000/users/admin/notifications`)
-      .then((response) => {
-        setNotifications(response.data.notifications);
-      })
-      .catch((error) => console.error("Failed to load notifications:", error));
+    const fetchNotifications = () => {
+      axios
+        .get(`http://localhost:5000/users/admin/notifications`)
+        .then((response) => {
+          const sortedNotifications = response.data.notifications.sort(
+            (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
+          );
+          setNotifications(sortedNotifications);
+        })
+        .catch((error) =>
+          console.error("Failed to load notifications:", error)
+        );
+    };
+
+    fetchNotifications();
 
     socket.on("notification", (notification) => {
       setNotifications((prevNotifications) => [
-        notification,
+        { ...notification, isNew: true },
         ...prevNotifications,
       ]);
     });
@@ -64,16 +75,14 @@ const Navbar = ({ handleDrawerOpen, open, drawerWidth, isMobile }) => {
     setAnchorElUser(null);
   };
 
-  const handleNotificationClick = (notificationId) => {
-    // API call to mark the notification as read using the adminId
+  const handleNotificationClick = (notificationId, courseId) => {
+    navigate(`/CoursesDetails/${courseId}`);
     axios
       .post(`http://localhost:5000/users/mark-notification-read`, {
-        userId: adminId, // Use adminId here
+        userId: adminId,
         notificationId,
       })
-      .then((response) => {
-        console.log(response.data.message); 
-        // Update the state to reflect the change
+      .then(() => {
         setNotifications(
           notifications.map((notif) =>
             notif._id === notificationId ? { ...notif, isNew: false } : notif
@@ -83,13 +92,11 @@ const Navbar = ({ handleDrawerOpen, open, drawerWidth, isMobile }) => {
       .catch((error) =>
         console.error("Failed to mark notification as read:", error)
       );
-
-    // Redirect or handle the click event
-    // window.location.href = `/courses/${courseId}`; // Assuming you need to redirect
   };
-const newNotificationsCount = notifications.filter(
-  (notif) => notif.isNew
-).length;
+
+  const newNotificationsCount = notifications.filter(
+    (notif) => notif.isNew
+  ).length;
 
   return (
     <AppBar
@@ -143,6 +150,8 @@ const newNotificationsCount = notifications.filter(
             PaperProps={{
               elevation: 0,
               sx: {
+                overflowY: "auto",
+                maxHeight: "300px",
                 borderRadius: "10px",
                 boxShadow: "0px 4px 10px rgba(0,0,0,0.2)",
                 padding: "10px",
@@ -156,7 +165,12 @@ const newNotificationsCount = notifications.filter(
               notifications.map((notification, index) => (
                 <MenuItem
                   key={index}
-                  onClick={() => handleNotificationClick(notification._id)}
+                  onClick={() =>
+                    handleNotificationClick(
+                      notification._id,
+                      notification.courseId
+                    )
+                  }
                 >
                   {notification.isNew ? <strong>New!</strong> : null}{" "}
                   {notification.message}
@@ -195,10 +209,12 @@ const newNotificationsCount = notifications.filter(
     </AppBar>
   );
 };
+
 Navbar.propTypes = {
   handleDrawerOpen: PropTypes.func.isRequired,
   open: PropTypes.bool.isRequired,
   drawerWidth: PropTypes.number.isRequired,
   isMobile: PropTypes.bool.isRequired,
 };
+
 export default Navbar;

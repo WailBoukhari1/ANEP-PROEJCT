@@ -98,6 +98,7 @@ const fetchNotifications = (page) => {
   };
 
 const handleNotificationClick = async (index, courseId) => {
+  navigate(`/CoursesDetails/${courseId}`);
   const notification = notifications[index];
   if (notification.isNew) {
     try {
@@ -119,10 +120,6 @@ const handleNotificationClick = async (index, courseId) => {
     } catch (error) {
       console.error("Error marking notification as read:", error);
     }
-  }
-
-  if (courseId) {
-    navigate(`/courses/${courseId}`);
   }
 };
   // Close notification menu when clicking outside
