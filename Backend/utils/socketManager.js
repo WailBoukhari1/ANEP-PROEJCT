@@ -26,7 +26,15 @@ const setupSocket = (server) => {
                 const notifications = userIds.map(userId => ({
                     updateOne: {
                         filter: { _id: userId },
-                        update: { $push: { notifications: { message, courseId, isNew: true } } }
+                        update: {
+                            $push: {
+                                notifications: {
+                                    message,
+                                    courseId,
+                                    isNew: true
+                                }
+                            }
+                        }
                     }
                 }));
                 await User.bulkWrite(notifications);

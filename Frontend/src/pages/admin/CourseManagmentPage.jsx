@@ -182,21 +182,24 @@ function CourseManagement() {
     }
   };
 
-  const handleNotify = async (course) => {
-    try {
-      const response = await axios.get(
-        `http://localhost:5000/courses/${course._id}/assignedUsers`
-      );
-      const userIds = response.data.map((user) => user._id);
-      socket.emit("notify", {
-        userIds,
-        message: `Notification for course: ${course.title}`,
-      });
-      console.log("Notifying users for course:", course.title);
-    } catch (error) {
-      console.error("Failed to fetch assigned users for notification:", error);
-    }
-  };
+const handleNotify = async (course) => {
+  try {
+    const response = await axios.get(
+      `http://localhost:5000/courses/${course._id}/assignedUsers`
+    );
+    const userIds = response.data.map((user) => user._id);
+
+    socket.emit("notify", {
+      userIds,
+      message: `Notification for course: ${course.title}`,
+      courseId: course._id,
+    });
+
+    console.log("Notifying users for course:", course.title);
+  } catch (error) {
+    console.error("Failed to fetch assigned users for notification:", error);
+  }
+};
 
   const columns = [
     { field: "title", headerName: "Course Title", width: 150 },
