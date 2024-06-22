@@ -95,7 +95,7 @@ function EditCoursePage() {
         setCourse({
           ...courseData,
           times: courseData.times || [],
-          image: courseData.image ? { preview: courseData.imageUrl } : null,
+          image: courseData.image ? { preview: courseData.imageUrl } : null, // Set preview from imageUrl
           assignedUsers: courseData.assignedUsers || [], // Ensure assignedUsers is initialized
           interestedUsers: courseData.interestedUsers || [], // Ensure interestedUsers is initialized
         });
@@ -354,17 +354,9 @@ function EditCoursePage() {
           fullWidth
           style={{ marginBottom: "16px" }}
         />
-        <div
-          {...getRootProps()}
-          style={{
-            border: "2px dashed #ccc",
-            padding: "16px",
-            marginBottom: "16px",
-            textAlign: "center",
-          }}
-        >
+        <div {...getRootProps()}>
           <input {...getInputProps()} />
-          <Paper elevation={0} style={{ padding: "16px" }}>
+          <Paper elevation={0}>
             {isDragActive ? (
               <p>Drop the image here...</p>
             ) : (
@@ -374,17 +366,16 @@ function EditCoursePage() {
               </p>
             )}
           </Paper>
-          {course.imageUrl && (
-            <img
-              src={course.imageUrl}
-              alt="Course"
-              style={{ width: "100%", height: "auto" }}
-            />
-          )}
-          {course.image && (
+          {course.image ? (
             <img
               src={course.image.preview}
               alt="Preview"
+              style={{ marginTop: "16px", maxWidth: "100%", height: "auto" }}
+            />
+          ) : (
+            <img
+              src={course.imageUrl}
+              alt="Course"
               style={{ marginTop: "16px", maxWidth: "100%", height: "auto" }}
             />
           )}
