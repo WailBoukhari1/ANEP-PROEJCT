@@ -1,8 +1,28 @@
+import { values } from 'lodash';
 import { useState } from 'react';
+import useApiAxios from '../config/axios'
 
 function Auth() {
   const [activeTab, setActiveTab] = useState('login'); // Default active tab
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
 
+  const handleSubmit = async () => {
+    event.preventDefault();
+
+    useApiAxios.post('auth/login', { email, password })
+      .then(response => {
+        const token = response.data.user.tokenAccess;
+        localStorage.setItem('token', token);
+        const role = response.data.user.roles;
+        const isAdmin = role.includes('admin');
+        console.log(isAdmin);
+        isAdmin ? window.location.href = '/courses-admin' : window.location.href = '/';
+      })
+      .catch(error => {
+        console.error(error);
+      });
+  };
   return (
     <>
       {/* banner section */}
@@ -98,14 +118,15 @@ function Auth() {
                         </a>
                       </p>
                     </div>
-                    <form className="pt-25px" data-aos="fade-up">
+                    <form className="pt-25px"  data-aos="fade-up">
                       <div className="mb-25px">
                         <label className="text-contentColor dark:text-contentColor-dark mb-10px block">
-                          Username or email
+                         Email
                         </label>
                         <input
                           type="text"
-                          placeholder="Your username or email"
+                          placeholder="Your  email"
+                          onChange={(e)=>setEmail(e.target.value)}
                           className="w-full h-52px leading-52px pl-5 bg-transparent text-sm focus:outline-none text-contentColor dark:text-contentColor-dark border border-borderColor dark:border-borderColor-dark placeholder:text-placeholder placeholder:opacity-80 font-medium rounded"
                         />
                       </div>
@@ -114,6 +135,7 @@ function Auth() {
                           Password
                         </label>
                         <input
+                          onChange={(e) => setPassword(e.target.value)}
                           type="password"
                           placeholder="Password"
                           className="w-full h-52px leading-52px pl-5 bg-transparent text-sm focus:outline-none text-contentColor dark:text-contentColor-dark border border-borderColor dark:border-borderColor-dark placeholder:text-placeholder placeholder:opacity-80 font-medium rounded"
@@ -139,6 +161,7 @@ function Auth() {
                       </div>
                       <div className="my-25px text-center">
                         <button
+                        onClick={handleSubmit}
                           type="submit"
                           className="text-size-15 text-whiteColor bg-primaryColor px-25px py-10px w-full border border-primaryColor hover:text-primaryColor hover:bg-whiteColor inline-block rounded group dark:hover:text-whiteColor dark:hover:bg-whiteColor-dark"
                         >
@@ -266,3 +289,8 @@ function Auth() {
 }
 
 export default Auth;
+
+
+
+
+

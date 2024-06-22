@@ -61,6 +61,7 @@ const deleteUser = async (req, res) => {
         res.status(500).send(error.message);
     }
 };
+
 const getNotifications = async (req, res) => {
     try {
         const userId = "666e024aef86c2482444b3a8";
@@ -128,5 +129,6 @@ module.exports = {
     updateUser,
     deleteUser,
     getNotifications,
-    getAdminNotifications
+    getAdminNotifications,
+    
 };

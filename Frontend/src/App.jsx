@@ -6,6 +6,7 @@ import "./utils/cssLoader.css";
 import Aos from "aos";
 import "aos/dist/aos";
 import LoadingComponent from "./components/LoadingComponent";
+import PrivateRoute from "./config/PrivateRoute";
 
 // Lazy loaded components
 const HomePage = lazy(() => import("./pages/HomePage"));
@@ -48,20 +49,31 @@ function App() {
         <Suspense fallback={<LoadingComponent />}>
           {isDataLoaded ? (
             <Routes>
-              <Route path="/" element={<HomePage />} />
-              <Route path="/Courses" element={<Course />} />
-              <Route path="/CoursesDetails/:id" element={<CoursesDetails />} />
               <Route path="/Auth" element={<Auth />} />
-              <Route path="/Dashboard" element={<Dashboard />} />
+              
+              <Route path="/" element={
+                <PrivateRoute><HomePage /></PrivateRoute>} />
+              <Route path="/Courses" element={
+                <PrivateRoute><Course /></PrivateRoute>} />
+              <Route path="/CoursesDetails/:id" element={
+                <PrivateRoute><CoursesDetails /></PrivateRoute>} />
+              <Route path="/Dashboard" element={
+                <PrivateRoute><Dashboard /></PrivateRoute>} />
               <Route
                 path="/CoursesManagement"
-                element={<CourseManagmentPage />}
+                element={
+                <PrivateRoute><CourseManagmentPage /></PrivateRoute>}
               />
-              <Route path="/CreateCourse" element={<CreateCourse />} />
-              <Route path="/EditCourse/:id" element={<EditCourse />} />
-              <Route path="/UsersManagement" element={<UserManagmentPage />} />
-              <Route path="/CreateUser" element={<CreateUser />} />
-              <Route path="/EditUser/:id" element={<EditUser />} />
+              <Route path="/CreateCourse" element={
+                <PrivateRoute><CreateCourse /></PrivateRoute>} />
+              <Route path="/EditCourse/:id" element={
+                <PrivateRoute><EditCourse /></PrivateRoute>} />
+              <Route path="/UsersManagement" element={
+                <PrivateRoute><UserManagmentPage /></PrivateRoute>} />
+              <Route path="/CreateUser" element={
+                <PrivateRoute><CreateUser /></PrivateRoute>} />
+              <Route path="/EditUser/:id" element={
+                <PrivateRoute><EditUser /></PrivateRoute>} />
             </Routes>
           ) : (
             <LoadingComponent />

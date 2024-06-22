@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const userController = require('../controllers/userController'); // Adjust the path as necessary
+const { authenticateUser } = require('../utils/auth');
 
 
 // ---- Specific routes ---- //
@@ -14,16 +15,17 @@ router.get('/admin/notifications', userController.getAdminNotifications);
 router.get('/', userController.getAllUsers);
 
 // Get a single user by ID
-router.get('/:id', userController.getUser);
+router.get('/:id', authenticateUser(), userController.getUser);
 
 // Create a new user
-router.post('/', userController.createUser);
+router.post('/', authenticateUser('admin'), userController.createUser);
 
 // Update a user
-router.put('/:id', userController.updateUser);
+router.put('/:id', authenticateUser('admin'), userController.updateUser);
 
 // Delete a user
-router.delete('/:id', userController.deleteUser);
+router.delete('/:id', authenticateUser('admin'), userController.deleteUser);
+
 
 
 module.exports = router;

@@ -21,7 +21,7 @@ function CoursesDetails() {
   const socket = io("http://localhost:5000");
 
   useEffect(() => {
-    fetch(`http://localhost:5000/courses/${id}`)
+    fetch(`${baseURL}/courses/${id}`)
       .then((response) => {
         if (!response.ok) {
           throw new Error("Failed to fetch course details.");
@@ -50,7 +50,7 @@ function CoursesDetails() {
 
   const handleJoinRequest = () => {
     axios
-      .post(`http://localhost:5000/courses/${id}/request-join`, { userId })
+      .post(`${baseURL}/courses/${id}/request-join`, { userId })
       .then((response) => {
         alert("Request to join sent successfully!");
         console.log(response.data);
@@ -67,7 +67,7 @@ function CoursesDetails() {
       formData.append("file", acceptedFiles[0]); // Assuming single file upload
 
       axios
-        .post(`http://localhost:5000/courses/${id}/resources`, formData)
+        .post(`${baseURL}/courses/${id}/resources`, formData)
         .then((response) => {
           setFiles(response.data); // Assuming the backend returns the updated list of files
         })
@@ -77,7 +77,7 @@ function CoursesDetails() {
 
   useEffect(() => {
     axios
-      .get(`http://localhost:5000/courses/${id}/resources`)
+      .get(`${baseURL}/courses/${id}/resources`)
       .then((response) => {
         setFiles(response.data);
       })
@@ -87,7 +87,7 @@ function CoursesDetails() {
   const handleCommentSubmit = (event) => {
     event.preventDefault();
     if (newComment.trim()) {
-      fetch(`http://localhost:5000/courses/${id}/comments`, {
+      fetch(`${baseURL}/courses/${id}/comments`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -117,7 +117,7 @@ function CoursesDetails() {
 
   const handleDeleteComment = (commentId) => {
     axios
-      .delete(`http://localhost:5000/courses/${id}/comments/${commentId}`)
+      .delete(`${baseURL}/courses/${id}/comments/${commentId}`)
       .then((response) => {
         setComments(response.data); // Assuming the backend returns the updated list of comments
         setFeedbackMessage("Comment deleted successfully!");
@@ -133,7 +133,7 @@ function CoursesDetails() {
   const handleReportComment = (commentId) => {
     axios
       .post(
-        `http://localhost:5000/courses/${id}/comments/${commentId}/report`,
+        `${baseURL}/courses/${id}/comments/${commentId}/report`,
         {
           userId,
         }

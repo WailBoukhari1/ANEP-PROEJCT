@@ -1,0 +1,13 @@
+
+
+POST http://localhost:5000/auth/login
+Content-Type: application/json
+
+{
+  "email": "admin@admin.com",
+  "password": "password"
+}
+
+### logout
+GET http://localhost:5000/auth/refreshUser
+Authorization:Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY2NWY0MTYxZTcyODRlZDMwMGU2MmNlNyIsImVtYWlsIjoiYWRtaW5AYWRtaW4uY29tIiwicm9sZXMiOlsidXNlciIsImFkbWluIl0sImlhdCI6MTcxOTA4NDEyMSwiZXhwIjoxNzE5MDg3NzIxfQ.mvtWZAXzotHJ_f4bqiyXXWU8UtLpUGuBWb0Gm0d5wo0

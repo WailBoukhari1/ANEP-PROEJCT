@@ -7,6 +7,7 @@ const cors = require('cors');
 const connectDB = require('./config/db');
 const userRoutes = require('./routes/users');
 const courseRoutes = require('./routes/courses');
+const authRoutes = require('./routes/authontification');
 const setupSocket = require('./utils/socketManager');
 
 const app = express();
@@ -23,6 +24,8 @@ app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 // Routes
 app.use('/users', userRoutes);
 app.use('/courses', courseRoutes);
+app.use('/auth', authRoutes);
+
 app.get('/', (req, res) => {
     res.send('Hello World!');
 });

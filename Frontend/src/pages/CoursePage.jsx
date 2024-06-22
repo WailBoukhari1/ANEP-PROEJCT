@@ -15,7 +15,7 @@ function Course() {
     const baseURL = "http://localhost:5000";
 
   useEffect(() => {
-    fetch('http://localhost:5000/courses') // Adjust the URL as needed
+    fetch(`${baseURL}/courses`) // Adjust the URL as needed
       .then(response => response.json())
       .then(data => {
         setCourses(data);
