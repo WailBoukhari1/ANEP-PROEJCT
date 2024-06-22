@@ -65,7 +65,6 @@ const deleteUser = async (req, res) => {
 const getNotifications = async (req, res) => {
     try {
         const userId = "666e024aef86c2482444b3a8";
-        const { page = 1, limit = 5 } = req.query;
 
         if (!mongoose.Types.ObjectId.isValid(userId)) {
             return res.status(400).json({ message: 'Invalid user ID' });
@@ -76,49 +75,76 @@ const getNotifications = async (req, res) => {
             return res.status(404).json({ message: 'User not found' });
         }
 
-        const notifications = user.notifications;
-        const totalNotifications = notifications.length;
-        const totalPages = Math.ceil(totalNotifications / limit);
-        const paginatedNotifications = notifications.slice((page - 1) * limit, page * limit);
+        const notifications = user.notifications.map(notification => ({
+            ...notification.toObject(),
+            isNew: notification.isNew // Ensure isNew is correctly sent to the frontend
+        }));
 
-        res.json({
-            notifications: paginatedNotifications,
-            currentPage: parseInt(page),
-            totalPages: totalPages,
-            totalNotifications: totalNotifications
-        });
+        res.json({ notifications });
     } catch (error) {
         console.error('Error fetching notifications:', error);
         res.status(500).json({ message: 'Server error' });
     }
 };
+
 const getAdminNotifications = async (req, res) => {
+    const adminId = "6671ba1141116692e9f8a1be";
+
+    if (!mongoose.Types.ObjectId.isValid(adminId)) {
+        return res.status(400).send('Invalid user ID');
+    }
+
     try {
-        const adminId = "6671ba1141116692e9f8a1be";
-        const { page = 1, limit = 5 } = req.query;
-
-        if (!mongoose.Types.ObjectId.isValid(adminId)) {
-            return res.status(400).json({ message: 'Invalid user ID' });
-        }
-
-        const user = await User.findById(adminId).select('notifications');
+        const user = await User.findById(adminId, 'notifications');
         if (!user) {
-            return res.status(404).json({ message: 'User not found' });
+            return res.status(404).send('User not found');
         }
 
-        const notifications = user.notifications;
-        const totalNotifications = notifications.length;
-        const totalPages = Math.ceil(totalNotifications / limit);
-        const paginatedNotifications = notifications.slice((page - 1) * limit, page * limit);
+        const notifications = user.notifications.map(notification => ({
+            ...notification.toObject(),
+            isNew: notification.isNew // Ensure isNew is correctly sent to the frontend
+        }));
 
-        res.json({
-            notifications: paginatedNotifications,
-            currentPage: parseInt(page),
-            totalPages: totalPages,
-            totalNotifications: totalNotifications
-        });
+        res.json({ notifications });
     } catch (error) {
         console.error('Error fetching notifications:', error);
+        res.status(500).send('Server error');
+    }
+};
+const markNotificationRead = async (req, res) => {
+    const { userId, notificationId } = req.body;
+
+    try {
+        // Directly update the notification's isNew field in the database
+        const result = await User.updateOne(
+            { "_id": userId, "notifications._id": notificationId },
+            { "$set": { "notifications.$.isNew": false } }
+        );
+
+        if (result.nModified === 0) {
+            return res.status(404).json({ message: 'Notification not found or already updated' });
+        }
+
+        // Optionally, fetch the updated user or notification for response
+        const user = await User.findById(userId);
+        const notification = user.notifications.id(notificationId);
+
+        // Prepare the data to be returned
+        const responseData = {
+            message: 'Notification marked as read',
+            notificationId: notification._id,
+            commentSnippet: notification.commentSnippet,
+            isNew: notification.isNew,
+            user: {
+                id: user._id,
+                name: user.name,
+                email: user.email
+            }
+        };
+
+        res.status(200).json(responseData);
+    } catch (error) {
+        console.error('Error marking notification as read:', error);
         res.status(500).json({ message: 'Server error' });
     }
 };
@@ -130,5 +156,5 @@ module.exports = {
     deleteUser,
     getNotifications,
     getAdminNotifications,
-    
+    markNotificationRead
 };

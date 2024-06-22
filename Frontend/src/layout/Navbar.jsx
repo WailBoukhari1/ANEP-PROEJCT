@@ -9,9 +9,6 @@ function Navbar() {
   const [isNotificationMenuOpen, setIsNotificationMenuOpen] = useState(false);
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
   const [notifications, setNotifications] = useState([]);
-  const [newNotification, setNewNotification] = useState(null);
-  const [currentPage, setCurrentPage] = useState(1);
-  const [totalPages, setTotalPages] = useState(1);
   const notificationMenuRef = useRef(null);
   const userMenuRef = useRef(null);
   const socket = useRef(null);
@@ -36,74 +33,53 @@ function Navbar() {
     // Register the user ID with the socket
     socket.current.emit("register", userId);
 
-    // Listen for notifications
-    socket.current.on("notification", (message) => {
-      setNotifications((prevNotifications) => [
-        { message, isNew: true, courseId: message.courseId },
-        ...prevNotifications,
-      ]);
-      setNewNotification(message);
-    });
-
+    // Listen for new notifications
+   socket.current.on("notification", (notification) => {
+     setNotifications((prevNotifications) => [
+       { ...notification, isNew: true },
+       ...prevNotifications,
+     ]);
+   });
     return () => {
       socket.current.off("notification");
+      socket.current.disconnect();
     };
-  }, [userId]);
+  }, []);
 
-  const fetchNotifications = (page) => {
+  const fetchNotifications = () => {
     axios
-      .get(`http://localhost:5000/users/notifications?page=${page}&limit=5`)
+      .get(`http://localhost:5000/users/notifications`)
       .then((response) => {
-        setNotifications(
-          response.data.notifications.map((notification) => ({
-            ...notification,
-            isNew: false,
-          }))
+        const sortedNotifications = response.data.notifications.sort(
+          (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
         );
-        setTotalPages(response.data.totalPages);
-        setCurrentPage(response.data.currentPage);
+        setNotifications(sortedNotifications);
       })
-      .catch((error) => console.error("Error fetching notifications:", error));
+      .catch((error) => console.error("Failed to load notifications:", error));
   };
 
   useEffect(() => {
-    fetchNotifications(currentPage);
-  }, [currentPage]);
+    fetchNotifications();
+  }, []);
 
-  useEffect(() => {
-    if (newNotification) {
-      const timer = setTimeout(() => {
-        setNewNotification(null);
-      }, 3000); // Flash for 3 seconds
-
-      return () => clearTimeout(timer);
-    }
-  }, [newNotification]);
-
-  const handleNextPage = (event) => {
-    event.stopPropagation();
-    if (currentPage < totalPages) {
-      setCurrentPage(currentPage + 1);
-    }
-  };
-
-  const handlePreviousPage = (event) => {
-    event.stopPropagation();
-    if (currentPage > 1) {
-      setCurrentPage(currentPage - 1);
-    }
-  };
-
-  const handleNotificationClick = (index, courseId) => {
-    setNotifications((prevNotifications) =>
-      prevNotifications.map((notification, i) =>
-        i === index ? { ...notification, isNew: false } : notification
-      )
-    );
-
-    if (courseId) {
-      navigate(`/courses/${courseId}`);
-    }
+  const handleNotificationClick = (notificationId, courseId) => {
+    navigate(`/CoursesDetails/${courseId}`);
+    axios
+      .post(`http://localhost:5000/users/mark-notification-read`, {
+        userId: userId,
+        notificationId,
+        courseId,
+      })
+      .then(() => {
+        setNotifications(
+          notifications.map((notif) =>
+            notif._id === notificationId ? { ...notif, isNew: false } : notif
+          )
+        );
+      })
+      .catch((error) =>
+        console.error("Failed to mark notification as read:", error)
+      );
   };
 
   // Close notification menu when clicking outside
@@ -219,16 +195,11 @@ function Navbar() {
                       >
                         {notifications.map((notification, index) => (
                           <li key={notification.id || index}>
-                            <Link
-                              to={
-                                notification.courseId
-                                  ? `/courses/${notification.courseId}`
-                                  : "#"
-                              }
-                              className="block px-6 py-3 text-sm hover:bg-gray-50 transition duration-150 ease-in-out"
+                            <button
+                              className="block px-6 py-3 text-sm hover:bg-gray-50 transition duration-150 ease-in-out w-full text-left"
                               onClick={() =>
                                 handleNotificationClick(
-                                  index,
+                                  notification._id,
                                   notification.courseId
                                 )
                               }
@@ -239,25 +210,9 @@ function Navbar() {
                                   NEW
                                 </span>
                               )}
-                            </Link>
+                            </button>
                           </li>
                         ))}
-                        <li>
-                          <button
-                            onClick={handlePreviousPage}
-                            className="notification-menu-button"
-                          >
-                            Previous
-                          </button>
-                        </li>
-                        <li>
-                          <button
-                            onClick={handleNextPage}
-                            className="notification-menu-button"
-                          >
-                            Next
-                          </button>
-                        </li>
                       </ul>
                     )}
                   </li>

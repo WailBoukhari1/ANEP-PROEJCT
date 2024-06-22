@@ -50,7 +50,9 @@ const userSchema = new mongoose.Schema({
         message: String,
         date: { type: Date, default: Date.now },
         courseId: { type: mongoose.Schema.Types.ObjectId, ref: 'Course' },
-        commentSnippet: String
+        commentSnippet: String,
+        isNew: { type: Boolean, default: true },
+        createdAt: { type: Date, default: Date.now }
     }]
 });
 
