@@ -35,7 +35,7 @@ const Navbar = ({ handleDrawerOpen, open, drawerWidth, isMobile }) => {
     // Fetch stored notifications
     const fetchNotifications = () => {
       useApiAxios
-        .get(`http://localhost:5000/users/admin/notifications`)
+        .get(`/users/admin/notifications`)
         .then((response) => {
           const sortedNotifications = response.data.notifications.sort(
             (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
@@ -78,22 +78,24 @@ const Navbar = ({ handleDrawerOpen, open, drawerWidth, isMobile }) => {
   };
 
   const handleNotificationClick = (notificationId, courseId) => {
-    navigate(`/CoursesDetails/${courseId}`);
-    useApiAxios
-      .post(`http://localhost:5000/users/mark-notification-read`, {
-        userId: adminId,
-        notificationId,
-      })
-      .then(() => {
-        setNotifications(
-          notifications.map((notif) =>
-            notif._id === notificationId ? { ...notif, isNew: false } : notif
-          )
-        );
-      })
-      .catch((error) =>
-        console.error("Failed to mark notification as read:", error)
-      );
+    
+     useApiAxios
+       .post(`/users/mark-notification-read`, {
+         userId: adminId,
+         notificationId,
+         courseId,
+       })
+       .then(() => {
+         setNotifications(
+           notifications.map((notif) =>
+             notif._id === notificationId ? { ...notif, isNew: false } : notif
+           )
+         );
+       })
+       .catch((error) =>
+         console.error("Failed to mark notification as read:", error)
+       );
+        navigate(`/CoursesDetails/${courseId}`);
   };
 
   const newNotificationsCount = notifications.filter(

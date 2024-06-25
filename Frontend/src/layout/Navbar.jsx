@@ -64,23 +64,25 @@ function Navbar() {
   }, []);
 
   const handleNotificationClick = (notificationId, courseId) => {
-    navigate(`/CoursesDetails/${courseId}`);
-    useApiAxios
-      .post(`http://localhost:5000/users/mark-notification-read`, {
-        userId: userId,
-        notificationId,
-        courseId,
-      })
-      .then(() => {
-        setNotifications(
-          notifications.map((notif) =>
-            notif._id === notificationId ? { ...notif, isNew: false } : notif
-          )
+    
+      useApiAxios
+        .post(`/users/mark-notification-read`, {
+          userId: userId,
+          notificationId,
+          courseId,
+        })
+        .then(() => {
+          setNotifications(
+            notifications.map((notif) =>
+              notif._id === notificationId ? { ...notif, isNew: false } : notif
+            )
+          );
+        })
+        .catch((error) =>
+          console.error("Failed to mark notification as read:", error)
         );
-      })
-      .catch((error) =>
-        console.error("Failed to mark notification as read:", error)
-      );
+      navigate(`/CoursesDetails/${courseId}`);
+    
   };
 
   // Close notification menu when clicking outside
