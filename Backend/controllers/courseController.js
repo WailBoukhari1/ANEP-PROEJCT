@@ -11,7 +11,7 @@ const getAllCourses = async (req, res) => {
     }
 };
 
-// Get a single course by ID
+// Get a single course by IDconst getCourseById = async (req, res) => {
 const getCourseById = async (req, res) => {
     try {
         const course = await Course.findById(req.params.id)
@@ -19,14 +19,17 @@ const getCourseById = async (req, res) => {
             .exec();
 
         if (!course) {
-            return res.status(404).send('Course not found');
+            return res.status(404).json({ message: 'Course not found' });
         }
 
-        res.json(course);
+        res.status(200).json(course);
     } catch (error) {
-        res.status(500).send(error.toString());
+        console.error('Error fetching course details:', error);
+        res.status(500).json({ message: 'Internal Server Error', error: error.toString() });
     }
 };
+
+
 
 // Create a new course
 const createCourse = async (req, res) => {
@@ -119,6 +122,23 @@ const getAssignedUsers = async (req, res) => {
         res.status(500).send('Failed to fetch assigned users: ' + error.message);
     }
 };
+const getCoursesByUserId = async (req, res) => {
+    const { userId } = req.params;
+
+    try {
+        const courses = await Course.find({
+            $or: [
+                { assignedUsers: userId },
+                { interestedUsers: userId }
+            ]
+        });
+
+        res.status(200).json(courses);
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
+
 
 const updateCoursePresence = async (req, res) => {
     const { id } = req.params;
@@ -360,6 +380,7 @@ module.exports = {
     deleteCourse,
     uploadImage,
     getAssignedUsers,
+    getCoursesByUserId,
     updateCoursePresence,
     getLastestComments,
     handleComments,

@@ -45,17 +45,17 @@ function HomePage() {
     fetchComments();
   }, []);
 
-  const settings = {
-    dots: true,
-    infinite: true,
-    speed: 500,
-    slidesToShow: 1,
-    slidesToScroll: 1,
-    autoplay: true,
-    autoplaySpeed: 3000,
-    cssEase: "linear",
-    arrows: true,
-  };
+    const settings = {
+      dots: true,
+      infinite: true,
+      speed: 500,
+      slidesToShow: 1,
+      slidesToScroll: 1,
+      autoplay: true,
+      autoplaySpeed: 3000,
+      cssEase: "linear",
+      arrows: true,
+    };
 
   return (
     <MainLayout>
@@ -64,7 +64,7 @@ function HomePage() {
           <section>
             <>
               {/* banner section */}
-              <div className="hero bg-lightGrey11 bg-lightGrey11 relative z-0 overflow-hidden py-50px md:pt-70px md:pb-30">
+              <div className="hero bg-lightGrey11 relative z-0 overflow-hidden py-50px">
                 <div className="container 2xl:container-secondary-md relative">
                   <div className="grid grid-cols-1 md:grid-cols-12 items-center gap-30px">
                     {/* banner Left */}
@@ -76,14 +76,14 @@ function HomePage() {
                         <h3 className="uppercase text-secondaryColor text-size-15 mb-5px md:mb-15px font-inter tracking-[4px] font-semibold">
                           EDUCATION SOLUTION
                         </h3>
-                        <h1 className="text-size-35 md:text-size-65 lg:text-5xl 2xl:text-size-65 leading-42px md:leading-18 lg:leading-15 2xl:leading-18 text-blackColor text-blackColor- md:tracking-half lg:tracking-normal 2xl:tracking-half font-bold mb-15px">
+                        <h1 className="text-size-35 md:text-size-65 lg:text-5xl 2xl:text-size-65 leading-42px md:leading-18 lg:leading-15 2xl:leading-18 text-whiteColor md:tracking-half lg:tracking-normal 2xl:tracking-half font-bold mb-15px">
                           Ignite Your{" "}
                           <span className="text-secondaryColor">Career</span>{" "}
                           with Learning the Largest{" "}
                           <span className="text-secondaryColor"> Online </span>{" "}
                           Platform.
                         </h1>
-                        <p className="text-size-15md:text-lg text-blackColor text-blackColor- font-medium">
+                        <p className="text-size-15 md:text-lg text-whiteColor  font-medium">
                           Lorem Ipsum is simply dummy text of the printing
                           <br />
                           typesetting industry. Lorem Ipsum has been
@@ -142,7 +142,7 @@ function HomePage() {
                             {/* card image */}
                             <div className="relative mb-4">
                               <Link
-                                to="#"
+                                to={`/CoursesDetails/${card._id}`}
                                 className="w-full overflow-hidden rounded"
                               >
                                 <img
@@ -163,7 +163,7 @@ function HomePage() {
                             {/* card content */}
                             <div>
                               <Link
-                                to="#"
+                                to={`/CoursesDetails/${card._id}`}
                                 className="text-xl font-semibold text-blackColor mb-10px font-hind text-blackColor- hover:text-primaryColor hover:text-primaryColor"
                               >
                                 {card.title}
@@ -209,8 +209,6 @@ function HomePage() {
                     <Slider {...settings}>
                       {comments.map((comment, index) => (
                         <div key={index}>
-                          {" "}
-                          {/* Added unique key here */}
                           <p className="text-lightGrey text-black">
                             <i className="icofont-quote-left text-primaryColor text-xl" />{" "}
                             {comment.text}{" "}
@@ -222,8 +220,8 @@ function HomePage() {
                                 {comment.userName}
                               </h4>
                               {/* <Link to="#" className="text-primaryColor">
-                                {comment.position}
-                              </Link> */}
+                        {comment.position}
+                      </Link> */}
                             </div>
                           </div>
                         </div>
@@ -236,7 +234,7 @@ function HomePage() {
                       <img
                         className="w-full"
                         src="/assets/images/testimonial/testi__group__1.png"
-                        alt=""
+                        alt="Testimonial"
                       />
                     </div>
                   </div>

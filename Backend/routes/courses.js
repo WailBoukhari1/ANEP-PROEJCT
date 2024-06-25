@@ -61,6 +61,9 @@ router.delete('/:id/comments/:commentId', authenticateUser, courseController.del
 // Report a comment
 router.post('/:id/comments/:commentId/report', authenticateUser, courseController.reportComment);
 
+// Get courses by user id
+router.get('/user/:userId', authenticateUser, courseController.getCoursesByUserId);
+
 // ---- Generic routes ---- //
 // Get a single course by ID
 router.get('/:id', authenticateUser, courseController.getCourseById);
@@ -72,7 +75,7 @@ router.post('/', authenticateUser, courseController.createCourse);
 router.put('/:id', authenticateUser, courseController.updateCourse);
 
 // Delete a course
-router.delete('/:id', courseController.deleteCourse);
+router.delete('/:id', authenticateUser, courseController.deleteCourse);
 
 
 

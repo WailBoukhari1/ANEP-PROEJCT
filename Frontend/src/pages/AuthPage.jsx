@@ -18,7 +18,7 @@ function Auth() {
         const isAdmin = role.includes("admin");
         console.log(isAdmin);
         isAdmin
-          ? (window.location.href = "/courses-admin")
+          ? (window.location.href = "/Dashboard")
           : (window.location.href = "/");
       })
       .catch((error) => {

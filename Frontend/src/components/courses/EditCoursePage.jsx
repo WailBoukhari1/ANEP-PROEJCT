@@ -74,6 +74,7 @@ function EditCoursePage() {
     gradeFonction: null,
   });
   const [allCourses, setAllCourses] = useState([]); // State to store all courses
+const baseUrl = "http://localhost:5000";
 
   useEffect(() => {
     const fetchUsersAndCourse = async () => {
@@ -347,9 +348,17 @@ function EditCoursePage() {
           fullWidth
           style={{ marginBottom: "16px" }}
         />
-        <div {...getRootProps()}>
+        <div
+          {...getRootProps()}
+          style={{
+            border: "2px dashed #ccc",
+            padding: "16px",
+            marginBottom: "16px",
+            textAlign: "center",
+          }}
+        >
           <input {...getInputProps()} />
-          <Paper elevation={0}>
+          <Paper elevation={0} style={{ padding: "16px" }}>
             {isDragActive ? (
               <p>Drop the image here...</p>
             ) : (
@@ -367,7 +376,7 @@ function EditCoursePage() {
             />
           ) : (
             <img
-              src={course.imageUrl}
+              src={`${baseUrl}${course.imageUrl}`}
               alt="Course"
               style={{ marginTop: "16px", maxWidth: "100%", height: "auto" }}
             />

@@ -77,7 +77,7 @@ const getNotifications = async (req, res) => {
 
         const notifications = user.notifications.map(notification => ({
             ...notification.toObject(),
-            isNew: notification.isNew // Ensure isNew is correctly sent to the frontend
+            isNew: notification.isNew 
         }));
 
         res.json({ notifications });

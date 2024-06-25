@@ -10,7 +10,6 @@ function Navbar() {
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
   const [notifications, setNotifications] = useState([]);
   const notificationMenuRef = useRef(null);
-  const userMenuRef = useRef(null);
   const socket = useRef(null);
   const [currentUser] = useContext(UserContext);
   const userId = currentUser._id;
@@ -109,7 +108,7 @@ function Navbar() {
   return (
     <>
       {/* navbar start */}
-      <div className="transition-all duration-500 sticky-header z-medium dark:bg-whiteColor-dark">
+      <div className="navbar sticky top-0 z-medium dark:bg-whiteColor-dark">
         <nav>
           <div className="py-15px lg:py-0 px-15px lg:container 3xl:container-secondary-lg 4xl:container mx-auto relative">
             <div className="grid grid-cols-2 lg:grid-cols-12 items-center gap-15px">
@@ -223,32 +222,12 @@ function Navbar() {
                     onClick={toggleUserMenu}
                     className="hidden lg:block relative"
                   >
-                    <Link className="text-size-12 2xl:text-size-15 px-15px py-2 text-blackColor hover:text-whiteColor bg-whiteColor block hover:bg-primaryColor border border-borderColor1 rounded-standard font-semibold mr-[7px] 2xl:mr-15px dark:text-blackColor-dark dark:bg-whiteColor-dark dark:hover:bg-primaryColor dark:hover:text-whiteColor dark:hover:border-primaryColor cursor-pointer">
+                    <Link
+                      to="/UserProfile"
+                      className="text-size-12 2xl:text-size-15 px-15px py-2 text-blackColor hover:text-whiteColor bg-whiteColor block hover:bg-primaryColor border border-borderColor1 rounded-standard font-semibold mr-[7px] 2xl:mr-15px dark:text-blackColor-dark dark:bg-whiteColor-dark dark:hover:bg-primaryColor dark:hover:text-whiteColor dark:hover:border-primaryColor cursor-pointer"
+                    >
                       <i className="icofont-user-alt-5" />
                     </Link>
-                    {isUserMenuOpen && (
-                      <ul
-                        ref={userMenuRef}
-                        className="absolute right-0 bg-white text-gray-800 shadow-xl mt-2 rounded-md overflow-hidden z-50 w-60 border border-gray-200"
-                      >
-                        <li>
-                          <Link
-                            to={`/UserCourses/666e021bef86c2482444b3a6`}
-                            className="block px-6 py-3 text-sm hover:bg-gray-50 transition duration-150 ease-in-out"
-                          >
-                            Profile
-                          </Link>
-                        </li>
-                        <li>
-                          <Link
-                            to="/logout"
-                            className="block px-6 py-3 text-sm hover:bg-gray-50 transition duration-150 ease-in-out"
-                          >
-                            Logout
-                          </Link>
-                        </li>
-                      </ul>
-                    )}
                   </li>
                   <li className="hidden lg:block">
                     <Link

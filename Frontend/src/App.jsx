@@ -13,6 +13,7 @@ import UserProvider from "./auth/user-provider";
 const HomePage = lazy(() => import("./pages/HomePage"));
 const Course = lazy(() => import("./pages/CoursePage"));
 const CoursesDetails = lazy(() => import("./pages/CoursesDetailsPage"));
+const UserProfilePage = lazy(() => import("./pages/UserProfilePage"));
 const Dashboard = lazy(() => import("./pages/admin/DashboardPage"));
 const CourseManagmentPage = lazy(() =>
   import("./pages/admin/CourseManagmentPage")
@@ -25,6 +26,7 @@ const CreateUser = lazy(() => import("./components/users/CreateUserPage"));
 const EditUser = lazy(() => import("./components/users/EditUserPage"));
 const UserManagmentPage = lazy(() => import("./pages/admin/UserManagmentPage"));
 const Auth = lazy(() => import("./pages/AuthPage"));
+const NotFoundPage = lazy(() => import("./pages/NotFoundPage")); // Add this line
 
 function App() {
   const [isDataLoaded, setIsDataLoaded] = useState(false);
@@ -37,7 +39,7 @@ function App() {
   const fetchData = async () => {
     try {
       // Simulate fetching data
-      await new Promise((resolve) => setTimeout(resolve, 2000)); // Replace with actual API call
+      await new Promise((resolve) => setTimeout(resolve, 2000));
       setIsDataLoaded(true);
     } catch (error) {
       console.error("Failed to fetch data:", error);
@@ -52,16 +54,99 @@ function App() {
             {isDataLoaded ? (
               <Routes>
                 <Route path="/Auth" element={<Auth />} />
-                <Route path="/" element={<PrivateRoute><HomePage /></PrivateRoute>} />
-                <Route path="/Courses" element={<PrivateRoute><Course /></PrivateRoute>} />
-                <Route path="/CoursesDetails/:id" element={<PrivateRoute><CoursesDetails /></PrivateRoute>} />
-                <Route path="/Dashboard" element={<PrivateRoute><Dashboard /></PrivateRoute>} />
-                <Route path="/CoursesManagement" element={<PrivateRoute><CourseManagmentPage /></PrivateRoute>} />
-                <Route path="/CreateCourse" element={<PrivateRoute><CreateCourse /></PrivateRoute>} />
-                <Route path="/EditCourse/:id" element={<PrivateRoute><EditCourse /></PrivateRoute>} />
-                <Route path="/UsersManagement" element={<PrivateRoute><UserManagmentPage /></PrivateRoute>} />
-                <Route path="/CreateUser" element={<PrivateRoute><CreateUser /></PrivateRoute>} />
-                <Route path="/EditUser/:id" element={<PrivateRoute><EditUser /></PrivateRoute>} />
+                <Route
+                  path="/"
+                  element={
+                    <PrivateRoute>
+                      <HomePage />
+                    </PrivateRoute>
+                  }
+                />
+                <Route
+                  path="/Courses"
+                  element={
+                    <PrivateRoute>
+                      <Course />
+                    </PrivateRoute>
+                  }
+                />
+                <Route
+                  path="/CoursesDetails/:id"
+                  element={
+                    <PrivateRoute>
+                      <CoursesDetails />
+                    </PrivateRoute>
+                  }
+                />
+                <Route
+                  path="/Dashboard"
+                  element={
+                    <PrivateRoute>
+                      <Dashboard />
+                    </PrivateRoute>
+                  }
+                />
+                <Route
+                  path="/CoursesManagement"
+                  element={
+                    <PrivateRoute>
+                      <CourseManagmentPage />
+                    </PrivateRoute>
+                  }
+                />
+                <Route
+                  path="/CreateCourse"
+                  element={
+                    <PrivateRoute>
+                      <CreateCourse />
+                    </PrivateRoute>
+                  }
+                />
+                <Route
+                  path="/EditCourse/:id"
+                  element={
+                    <PrivateRoute>
+                      <EditCourse />
+                    </PrivateRoute>
+                  }
+                />
+                <Route
+                  path="/UsersManagement"
+                  element={
+                    <PrivateRoute>
+                      <UserManagmentPage />
+                    </PrivateRoute>
+                  }
+                />
+                <Route
+                  path="/CreateUser"
+                  element={
+                    <PrivateRoute>
+                      <CreateUser />
+                    </PrivateRoute>
+                  }
+                />
+                <Route
+                  path="/EditUser/:id"
+                  element={
+                    <PrivateRoute>
+                      <EditUser />
+                    </PrivateRoute>
+                  }
+                />
+                <Route
+                  path="/UserProfile"
+                  element={
+                    <PrivateRoute>
+                      <UserProfilePage />
+                    </PrivateRoute>
+                  }
+                />
+                <Route
+                  path="*"
+                  element={<NotFoundPage isDataLoaded={isDataLoaded} />}
+                />{" "}
+                {/* Pass isDataLoaded */}
               </Routes>
             ) : (
               <LoadingComponent />
