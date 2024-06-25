@@ -15,7 +15,7 @@ import {
 } from "@mui/material";
 import { DataGrid } from "@mui/x-data-grid";
 import { Link } from "react-router-dom";
-import axios from "axios";
+import useApiAxios from "../../config/axios";
 import PropTypes from "prop-types";
 import AddIcon from "@mui/icons-material/Add";
 import EditIcon from "@mui/icons-material/Edit";
@@ -123,8 +123,8 @@ function CourseManagement() {
     setAnchorEl(event.currentTarget);
     setSelectedCourse(course);
     try {
-      const response = await axios.get(
-        `http://localhost:5000/courses/${course._id}/assignedUsers`
+      const response = await useApiAxios.get(
+        `/courses/${course._id}/assignedUsers`
       );
       setUserPresence(response.data);
     } catch (error) {
@@ -139,8 +139,8 @@ function CourseManagement() {
     }));
 
     try {
-      await axios.post(
-        `http://localhost:5000/courses/${selectedCourse._id}/updatePresence`,
+      await useApiAxios.post(
+        `/courses/${selectedCourse._id}/updatePresence`,
         {
           presence: presenceData,
         }
@@ -166,7 +166,7 @@ function CourseManagement() {
 
   const fetchCourses = async () => {
     try {
-      const response = await axios.get("http://localhost:5000/courses");
+      const response = await useApiAxios.get("/courses");
       setCourses(response.data);
     } catch (error) {
       console.error("Failed to fetch courses:", error);
@@ -175,7 +175,7 @@ function CourseManagement() {
 
   const handleDelete = async (id) => {
     try {
-      await axios.delete(`http://localhost:5000/courses/${id}`);
+      await useApiAxios.delete(`/courses/${id}`);
       setCourses(courses.filter((course) => course._id !== id));
     } catch (error) {
       console.error("Failed to delete course:", error);
@@ -184,8 +184,8 @@ function CourseManagement() {
 
 const handleNotify = async (course) => {
   try {
-    const response = await axios.get(
-      `http://localhost:5000/courses/${course._id}/assignedUsers`
+    const response = await useApiAxios.get(
+      `/courses/${course._id}/assignedUsers`
     );
     const userIds = response.data.map((user) => user._id);
 

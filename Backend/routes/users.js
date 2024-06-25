@@ -15,7 +15,7 @@ router.post('/mark-notification-read', authenticateUser, userController.markNoti
 
 // ---- Generic routes ---- //
 // Get all users
-router.get('/', userController.getAllUsers);
+router.get('/', authenticateUser, userController.getAllUsers);
 
 // Get a single user by ID
 router.get('/:id', authenticateUser, userController.getUser);

@@ -17,35 +17,33 @@ import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
 import ImportExportIcon from "@mui/icons-material/ImportExport";
 // import FileUploadIcon from "@mui/icons-material/FileUpload";
-import axios from 'axios';
+import useApiAxios from "../../config/axios";
 
 function UserManagement() {
-
   const theme = useTheme();
   const [users, setUsers] = useState([]);
 
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const response = await useApiAxios.get("users");
+        const formattedData = response.data.map((user) => ({
+          ...user,
+          DATE_NAISSANCE: user.DATE_NAISSANCE
+            ? new Date(user.DATE_NAISSANCE)
+            : null,
+          DATE_RECRUTEMENT: user.DATE_RECRUTEMENT
+            ? new Date(user.DATE_RECRUTEMENT)
+            : null,
+        }));
+        setUsers(formattedData);
+      } catch (error) {
+        console.error("Failed to fetch users:", error);
+      }
+    };
 
-useEffect(() => {
-  const fetchData = async () => {
-    try {
-      const response = await axios.get("http://localhost:5000/users");
-      const formattedData = response.data.map((user) => ({
-        ...user,
-        DATE_NAISSANCE: user.DATE_NAISSANCE
-          ? new Date(user.DATE_NAISSANCE)
-          : null,
-        DATE_RECRUTEMENT: user.DATE_RECRUTEMENT
-          ? new Date(user.DATE_RECRUTEMENT)
-          : null,
-      }));
-      setUsers(formattedData);
-    } catch (error) {
-      console.error("Failed to fetch users:", error);
-    }
-  };
-
-  fetchData();
-}, []);
+    fetchData();
+  }, []);
 
   const columns = [
     { field: "email", headerName: "Email", width: 200 },
@@ -109,10 +107,11 @@ useEffect(() => {
       width: 180,
     },
   ];
+
   const handleDeleteUser = async (id) => {
     try {
-      await axios.delete(`http://localhost:5000/users/${id}`);
-      setUsers(users.filter(user => user.id !== id));
+      await useApiAxios.delete(`users/${id}`);
+      setUsers(users.filter((user) => user.id !== id));
     } catch (error) {
       console.error("Failed to delete user:", error);
     }

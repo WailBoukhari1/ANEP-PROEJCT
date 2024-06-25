@@ -217,15 +217,12 @@ function EditCoursePage() {
           course.times[0].endTime
         );
         if (conflictCourse) {
-          await useApiAxios.put(
-            `/courses/${conflictCourse._id}`,
-            {
-              ...conflictCourse,
-              assignedUsers: conflictCourse.assignedUsers.filter(
-                (u) => u._id !== user._id
-              ),
-            }
-          );
+          await useApiAxios.put(`/courses/${conflictCourse._id}`, {
+            ...conflictCourse,
+            assignedUsers: conflictCourse.assignedUsers.filter(
+              (u) => u._id !== user._id
+            ),
+          });
         }
       }
 

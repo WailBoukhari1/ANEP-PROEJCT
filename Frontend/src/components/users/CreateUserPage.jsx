@@ -13,7 +13,7 @@ import {
   Paper,
   Button,
 } from "@mui/material";
-import axios from "axios";
+import useApiAxios from "../../config/axios";
 
 const rolesOptions = ["user", "admin"];
 
@@ -63,7 +63,10 @@ const CreateUser = () => {
   const handleSubmit = async (event) => {
     event.preventDefault();
     try {
-      const response = await axios.post("http://localhost:5000/users", user);
+      const response = await useApiAxios.post(
+        "/users",
+        user
+      );
       console.log("User created:", response.data);
       navigate("/UsersManagement");
     } catch (error) {

@@ -14,7 +14,7 @@ import {
   Paper,
   Button,
 } from "@mui/material";
-import axios from "axios"; // Ensure axios is installed or use fetch API
+import useApiAxios from "../../config/axios";
 
 const rolesOptions = ["user", "admin"];
 
@@ -26,7 +26,9 @@ const EditUser = () => {
   useEffect(() => {
     const fetchUserData = async () => {
       try {
-        const response = await axios.get(`http://localhost:5000/users/${id}`);
+        const response = await useApiAxios.get(
+          `/users/${id}`
+        );
         setUser(response.data);
       } catch (error) {
         console.error("Failed to fetch user data:", error);
@@ -50,8 +52,8 @@ const EditUser = () => {
   const handleSubmit = async (event) => {
     event.preventDefault();
     try {
-      const response = await axios.put(
-        `http://localhost:5000/users/${id}`,
+      const response = await useApiAxios.put(
+        `/users/${id}`,
         user
       );
       console.log("User updated:", response.data); 

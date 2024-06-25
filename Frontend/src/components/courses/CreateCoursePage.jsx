@@ -35,7 +35,13 @@ function CreateCoursePage() {
     hidden: "",
     budget: "",
     times: [
-      { startTime: "", endTime: "", instructorType: "", instructor: "", instructorName: "" },
+      {
+        startTime: "",
+        endTime: "",
+        instructorType: "",
+        instructor: "",
+        instructorName: "",
+      },
     ],
     image: null,
   });
@@ -48,11 +54,17 @@ function CreateCoursePage() {
       try {
         const internalResponse = await useApiAxios.get("/users");
         setInternalInstructors(
-          internalResponse.data.map((instructor) => ({ label: instructor.name, id: instructor._id }))
+          internalResponse.data.map((instructor) => ({
+            label: instructor.name,
+            id: instructor._id,
+          }))
         );
         const externalResponse = await useApiAxios.get("/external-instructors");
         setExternalInstructors(
-          externalResponse.data.map((instructor) => ({ label: instructor.name, id: instructor._id }))
+          externalResponse.data.map((instructor) => ({
+            label: instructor.name,
+            id: instructor._id,
+          }))
         );
       } catch (error) {
         console.error("Failed to fetch instructors:", error);
@@ -104,7 +116,13 @@ function CreateCoursePage() {
       ...prev,
       times: [
         ...prev.times,
-        { startTime: "", endTime: "", instructorType: "", instructor: "", instructorName: "" },
+        {
+          startTime: "",
+          endTime: "",
+          instructorType: "",
+          instructor: "",
+          instructorName: "",
+        },
       ],
     }));
   };
@@ -133,14 +151,22 @@ function CreateCoursePage() {
       return;
     }
 
-    if (!course.title || !course.offline || !course.hidden || course.budget === "" || !course.times.length) {
+    if (
+      !course.title ||
+      !course.offline ||
+      !course.hidden ||
+      course.budget === "" ||
+      !course.times.length
+    ) {
       alert("Please fill in all required fields.");
       return;
     }
 
     for (const time of course.times) {
       if (!time.startTime || !time.endTime || !time.instructor) {
-        alert("Please fill in all time slots with start time, end time, and instructor.");
+        alert(
+          "Please fill in all time slots with start time, end time, and instructor."
+        );
         return;
       }
     }
@@ -176,7 +202,9 @@ function CreateCoursePage() {
           alert(`Failed to create course: ${response.status} ${response.data}`);
         }
       } else {
-        alert(`Image upload failed: ${imageUploadResponse.status} ${imageUploadResponse.data}`);
+        alert(
+          `Image upload failed: ${imageUploadResponse.status} ${imageUploadResponse.data}`
+        );
       }
     } catch (error) {
       console.error("Error creating course:", error);
