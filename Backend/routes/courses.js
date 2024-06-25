@@ -5,7 +5,7 @@ const multer = require('multer');
 const path = require('path');
 const { authenticateUser } = require('../utils/auth');
 const Course = require('../models/Course'); // Ensure the correct path to the Course model
-
+const XLSX = require('xlsx');
 // Setup multer as shown in courseController.js
 const storage = multer.diskStorage({
     destination: function (req, file, cb) {
@@ -77,6 +77,40 @@ router.post('/:id/comments/:commentId/report', authenticateUser, courseControlle
 // Get courses by user id
 router.get('/user/:userId', authenticateUser, courseController.getCoursesByUserId);
 
+// Route to download evaluations as an Excel file
+router.get('/:courseId/evaluations/download', async (req, res) => {
+    try {
+        const course = await Course.findById(req.params.courseId).populate('evaluations.userId');
+        if (!course) {
+            return res.status(404).send('Course not found');
+        }
+
+        // Convert evaluations to a format suitable for Excel
+        const evaluations = course.evaluations.map(evaluation => ({
+            userId: evaluation.userId._id.toString(),
+            userName: evaluation.userId.name,
+            evaluationData: evaluation.evaluationData.join(', '),
+            comments: evaluation.comments,
+            aspectsToImprove: evaluation.aspectsToImprove,
+            createdAt: evaluation.createdAt.toISOString()
+        }));
+
+        // Create a new workbook and add the evaluations data
+        const wb = XLSX.utils.book_new();
+        const ws = XLSX.utils.json_to_sheet(evaluations);
+        XLSX.utils.book_append_sheet(wb, ws, 'Evaluations');
+
+        // Write the workbook to a buffer
+        const buffer = XLSX.write(wb, { bookType: 'xlsx', type: 'buffer' });
+
+        // Set headers and send the buffer as a downloadable file
+        res.setHeader('Content-Disposition', 'attachment; filename=evaluations.xlsx');
+        res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+        res.status(200).send(buffer);
+    } catch (error) {
+        res.status(500).send('Server error');
+    }
+});
 // ---- Generic routes ---- //
 // Get a single course by ID
 router.get('/:id', authenticateUser, courseController.getCourseById);

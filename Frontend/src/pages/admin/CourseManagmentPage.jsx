@@ -12,6 +12,7 @@ import {
   Checkbox,
   FormControlLabel,
   useTheme,
+  
 } from "@mui/material";
 import { DataGrid } from "@mui/x-data-grid";
 import { Link } from "react-router-dom";
@@ -23,6 +24,7 @@ import DeleteIcon from "@mui/icons-material/Delete";
 import Notifications from "@mui/icons-material/Notifications";
 import People from "@mui/icons-material/People";
 import AdminLayout from "../../layout/admin/AdminLayout";
+import FileUploadIcon from "@mui/icons-material/FileUpload";
 
 const socket = io("http://localhost:5000");
 
@@ -201,6 +203,22 @@ const handleNotify = async (course) => {
   }
 };
 
+const handleDownloadEvaluations = async (courseId) => {
+  try {
+    const response = await useApiAxios.get(`/courses/${courseId}/evaluations/download`, {
+      responseType: 'blob'
+    });
+    const url = window.URL.createObjectURL(new Blob([response.data]));
+    const link = document.createElement('a');
+    link.href = url;
+    link.setAttribute('download', 'evaluations.xlsx');
+    document.body.appendChild(link);
+    link.click();
+  } catch (error) {
+    console.error('Failed to download evaluations:', error);
+  }
+};
+
   const columns = [
     { field: "title", headerName: "Course Title", width: 150 },
     { field: "offline", headerName: "Mode", width: 100 },
@@ -211,7 +229,7 @@ const handleNotify = async (course) => {
       field: "actions",
       headerName: "Actions",
       sortable: false,
-      width: 200,
+      width: 250,
       renderCell: (params) => (
         <Box sx={{ display: "flex", justifyContent: "center", gap: 1 }}>
           <Tooltip title="Edit">
@@ -242,6 +260,11 @@ const handleNotify = async (course) => {
               color="default"
             >
               <People />
+            </IconButton>
+          </Tooltip>
+          <Tooltip title="Download Evaluations">
+            <IconButton onClick={() => handleDownloadEvaluations(params.row._id)} color="primary">
+              <FileUploadIcon />
             </IconButton>
           </Tooltip>
         </Box>
