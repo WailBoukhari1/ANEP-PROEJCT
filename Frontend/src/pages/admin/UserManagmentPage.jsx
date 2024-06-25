@@ -65,9 +65,6 @@ function UserManagement() {
       headerName: "Date of Recruitment",
       width: 150,
       type: "date",
-      valueGetter: (params) => {
-        return params.value ? new Date(params.value) : null;
-      },
     },
     { field: "GRADE_fonction", headerName: "Grade/Function", width: 150 },
     { field: "AFFECTATION", headerName: "Assignment", width: 150 },
@@ -111,7 +108,7 @@ function UserManagement() {
   const handleDeleteUser = async (id) => {
     try {
       await useApiAxios.delete(`users/${id}`);
-      setUsers(users.filter((user) => user.id !== id));
+      setUsers(users.filter((user) => user._id !== id));
     } catch (error) {
       console.error("Failed to delete user:", error);
     }
