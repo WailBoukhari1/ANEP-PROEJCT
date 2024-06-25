@@ -23,7 +23,7 @@ import RemoveCircleOutlineIcon from "@mui/icons-material/RemoveCircleOutline";
 import FileCopyIcon from "@mui/icons-material/FileCopy";
 import ReactQuill from "react-quill";
 import "react-quill/dist/quill.snow.css";
-import axios from "axios";
+import useApiAxios from "../../config/axios";
 
 function CreateCoursePage() {
   const navigate = useNavigate();
@@ -46,11 +46,11 @@ function CreateCoursePage() {
   useEffect(() => {
     const fetchInstructors = async () => {
       try {
-        const internalResponse = await axios.get("http://localhost:5000/users");
+        const internalResponse = await useApiAxios.get("/users");
         setInternalInstructors(
           internalResponse.data.map((instructor) => ({ label: instructor.name, id: instructor._id }))
         );
-        const externalResponse = await axios.get("http://localhost:5000/external-instructors");
+        const externalResponse = await useApiAxios.get("/external-instructors");
         setExternalInstructors(
           externalResponse.data.map((instructor) => ({ label: instructor.name, id: instructor._id }))
         );
@@ -149,8 +149,8 @@ function CreateCoursePage() {
     formData.append("image", course.image);
 
     try {
-      const imageUploadResponse = await axios.post(
-        "http://localhost:5000/courses/uploadImage",
+      const imageUploadResponse = await useApiAxios.post(
+        "/courses/uploadImage",
         formData,
         {
           headers: {
@@ -167,7 +167,7 @@ function CreateCoursePage() {
           imageUrl,
         };
 
-        const response = await axios.post("http://localhost:5000/courses", finalCourseData);
+        const response = await useApiAxios.post("/courses", finalCourseData);
 
         if (response.status === 201) {
           console.log("Course created successfully!");

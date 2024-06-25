@@ -3,6 +3,7 @@ const router = express.Router();
 const courseController = require('../controllers/courseController');
 const multer = require('multer');
 const path = require('path');
+const { authenticateUser } = require('../utils/auth');
 
 // Setup multer as shown in courseController.js
 const storage = multer.diskStorage({
@@ -19,56 +20,56 @@ const upload = multer({ storage: storage });
 
 // ---- Specific routes ---- //
 // Add a comment
-router.post('/:id/comments', courseController.handleComments);
+router.post('/:id/comments', authenticateUser, courseController.handleComments);
 
 // Get the latest 6 comments
-router.get('/latest-comments', courseController.getLastestComments);
+router.get('/latest-comments', authenticateUser, courseController.getLastestComments);
 
 // Get all courses
-router.get('/', courseController.getAllCourses);
+router.get('/', authenticateUser, courseController.getAllCourses);
+
 // Upload an image
-router.post('/uploadImage', upload.single('image'), courseController.uploadImage);
+router.post('/uploadImage', authenticateUser, upload.single('image'), courseController.uploadImage);
 
 // Get presence data for a course
-router.get('/:id/assignedUsers', courseController.getAssignedUsers);
+router.get('/:id/assignedUsers', authenticateUser, courseController.getAssignedUsers);
 
 // Endpoint to update presence data for a course
-router.post('/:id/updatePresence', courseController.updateCoursePresence);
+router.post('/:id/updatePresence', authenticateUser, courseController.updateCoursePresence);
 
 // Get the latest 6 courses
-router.get('/latest-courses', courseController.getLastestComments);
+router.get('/latest-courses', authenticateUser, courseController.getLastestComments);
 
 // Upload a file
-router.post('/:id/resources', upload.single('file'), courseController.filesUpload);
+router.post('/:id/resources', authenticateUser, upload.single('file'), courseController.filesUpload);
 
 // Get all files
-router.get('/:id/resources', courseController.fetchFiles);
+router.get('/:id/resources', authenticateUser, courseController.fetchFiles);
 
 // Request to join a course
-router.post('/:id/request-join', courseController.requestJoin);
+router.post('/:id/request-join', authenticateUser, courseController.requestJoin);
 
 // Assign a user to a course
-router.post('/:id/assign-interseted-user', courseController.assignIntersetedUser);
+router.post('/:id/assign-interseted-user', authenticateUser, courseController.assignIntersetedUser);
 
 // Send course notification
-router.post('/:id/notify', courseController.sendCourseNotification);
+router.post('/:id/notify', authenticateUser, courseController.sendCourseNotification);
 
 // Delete a comment
-router.delete('/:id/comments/:commentId', courseController.deleteComment);
+router.delete('/:id/comments/:commentId', authenticateUser, courseController.deleteComment);
 
 // Report a comment
-router.post('/:id/comments/:commentId/report', courseController.reportComment);
-
+router.post('/:id/comments/:commentId/report', authenticateUser, courseController.reportComment);
 
 // ---- Generic routes ---- //
 // Get a single course by ID
-router.get('/:id', courseController.getCourseById);
+router.get('/:id', authenticateUser, courseController.getCourseById);
 
 // Create a new course
-router.post('/', courseController.createCourse);
+router.post('/', authenticateUser, courseController.createCourse);
 
 // Update an existing course
-router.put('/:id', courseController.updateCourse);
+router.put('/:id', authenticateUser, courseController.updateCourse);
 
 // Delete a course
 router.delete('/:id', courseController.deleteCourse);

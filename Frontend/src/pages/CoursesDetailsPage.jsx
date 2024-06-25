@@ -1,9 +1,9 @@
 import MainLayout from "../layout/MainLayout";
 import { useEffect, useState } from "react";
 import { useDropzone } from "react-dropzone";
-import { useParams } from "react-router-dom"; // Updated import
+import { useParams } from "react-router-dom";
 import { io } from "socket.io-client";
-import axios from "axios";
+import useApiAxios from "../config/axios"; // Adjusted import path
 
 function CoursesDetails() {
   const { id } = useParams();
@@ -17,27 +17,22 @@ function CoursesDetails() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const userId = "666e025bef86c2482444b3ac"; // Simulated user ID
-  const baseURL = "http://localhost:5000";
   const socket = io("http://localhost:5000");
 
   useEffect(() => {
-    fetch(`${baseURL}/courses/${id}`)
-      .then((response) => {
-        if (!response.ok) {
-          throw new Error("Failed to fetch course details.");
-        }
-        return response.json();
-      })
-      .then((data) => {
-        setCourse(data);
-        setComments(data.comments || []);
+    const fetchCourseDetails = async () => {
+      try {
+        const response = await useApiAxios.get(`/courses/${id}`);
+        setCourse(response.data);
+        setComments(response.data.comments || []);
         setLoading(false);
-      })
-      .catch((error) => {
+      } catch (error) {
         console.error("Error fetching course details:", error);
         setError(error.message);
         setLoading(false);
-      });
+      }
+    };
+    fetchCourseDetails();
   }, [id]);
 
   const handleTabClick = (tab) => {
@@ -48,124 +43,121 @@ function CoursesDetails() {
     setShowModal(!showModal);
   };
 
-  const handleJoinRequest = () => {
-    axios
-      .post(`${baseURL}/courses/${id}/request-join`, { userId })
-      .then((response) => {
-        alert("Request to join sent successfully!");
-        console.log(response.data);
-      })
-      .catch((error) => {
-        console.error("Error sending join request:", error);
-        alert("Failed to send join request.");
-      });
+  const handleJoinRequest = async () => {
+    try {
+      const response = await useApiAxios.post(
+        `/courses/${id}/request-join`,
+        { userId }
+      );
+      alert("Request to join sent successfully!");
+      console.log(response.data);
+    } catch (error) {
+      console.error("Error sending join request:", error);
+      alert("Failed to send join request.");
+    }
   };
 
   const { getRootProps, getInputProps } = useDropzone({
-    onDrop: (acceptedFiles) => {
+    onDrop: async (acceptedFiles) => {
       const formData = new FormData();
       formData.append("file", acceptedFiles[0]); // Assuming single file upload
 
-      axios
-        .post(`${baseURL}/courses/${id}/resources`, formData)
-        .then((response) => {
-          setFiles(response.data); // Assuming the backend returns the updated list of files
-        })
-        .catch((error) => console.error("Error uploading file:", error));
+      try {
+        const response = await useApiAxios.post(
+          `/courses/${id}/resources`,
+          formData
+        );
+        setFiles(response.data); // Assuming the backend returns the updated list of files
+      } catch (error) {
+        console.error("Error uploading file:", error);
+      }
     },
   });
 
   useEffect(() => {
-    axios
-      .get(`${baseURL}/courses/${id}/resources`)
-      .then((response) => {
+    const fetchFiles = async () => {
+      try {
+        const response = await useApiAxios.get(
+          `/courses/${id}/resources`
+        );
         setFiles(response.data);
-      })
-      .catch((error) => console.error("Failed to load files:", error));
+      } catch (error) {
+        console.error("Failed to load files:", error);
+      }
+    };
+    fetchFiles();
   }, [id]);
 
-  const handleCommentSubmit = (event) => {
+  const handleCommentSubmit = async (event) => {
     event.preventDefault();
     if (newComment.trim()) {
-      fetch(`${baseURL}/courses/${id}/comments`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          userName: "Placeholder User",
-          text: newComment,
-        }),
-      })
-        .then((response) => response.json())
-        .then((data) => {
-          setComments(data);
-          setNewComment("");
-          setFeedbackMessage("Comment added successfully!");
-          setTimeout(() => setFeedbackMessage(""), 3000);
-        })
-        .catch((error) => {
-          console.error("Failed to submit comment:", error);
-          setFeedbackMessage("Failed to submit comment.");
-          setTimeout(() => setFeedbackMessage(""), 3000);
-        });
+      try {
+        const response = await useApiAxios.post(
+          `/courses/${id}/comments`,
+          {
+            userName: "Placeholder User",
+            text: newComment,
+          }
+        );
+        setComments(response.data);
+        setNewComment("");
+        setFeedbackMessage("Comment added successfully!");
+        setTimeout(() => setFeedbackMessage(""), 3000);
+      } catch (error) {
+        console.error("Failed to submit comment:", error);
+        setFeedbackMessage("Failed to submit comment.");
+        setTimeout(() => setFeedbackMessage(""), 3000);
+      }
     } else {
       setFeedbackMessage("Please enter a valid comment.");
       setTimeout(() => setFeedbackMessage(""), 3000);
     }
   };
 
-  const handleDeleteComment = (commentId) => {
-    axios
-      .delete(`${baseURL}/courses/${id}/comments/${commentId}`)
-      .then((response) => {
-        setComments(response.data); // Assuming the backend returns the updated list of comments
-        setFeedbackMessage("Comment deleted successfully!");
-        setTimeout(() => setFeedbackMessage(""), 3000);
-      })
-      .catch((error) => {
-        console.error("Failed to delete comment:", error);
-        setFeedbackMessage("Failed to delete comment.");
-        setTimeout(() => setFeedbackMessage(""), 3000);
-      });
+  const handleDeleteComment = async (commentId) => {
+    try {
+      const response = await useApiAxios.delete(
+        `/courses/${id}/comments/${commentId}`
+      );
+      setComments(response.data); // Assuming the backend returns the updated list of comments
+      setFeedbackMessage("Comment deleted successfully!");
+      setTimeout(() => setFeedbackMessage(""), 3000);
+    } catch (error) {
+      console.error("Failed to delete comment:", error);
+      setFeedbackMessage("Failed to delete comment.");
+      setTimeout(() => setFeedbackMessage(""), 3000);
+    }
   };
 
-  const handleReportComment = (commentId) => {
-    axios
-      .post(
-        `${baseURL}/courses/${id}/comments/${commentId}/report`,
-        {
-          userId,
-        }
-      )
-      .then(() => {
-        alert("Comment reported successfully!");
-        socket.emit("commentReported", {
-          courseId: id,
-          commentId,
-          courseName: course.title,
-          commentText: comments.find((comment) => comment._id === commentId)
-            .text,
-        });
-      })
-      .catch((error) => {
-        if (
-          error.response &&
-          error.response.status === 400 &&
-          error.response.data.message ===
-            "You have already reported this comment"
-        ) {
-          alert("You have already reported this comment.");
-        } else {
-          console.error("Failed to report comment:", error);
-          alert("Failed to report comment.");
-        }
+  const handleReportComment = async (commentId) => {
+    try {
+      await useApiAxios.post(
+        `/courses/${id}/comments/${commentId}/report`,
+        { userId }
+      );
+      alert("Comment reported successfully!");
+      socket.emit("commentReported", {
+        courseId: id,
+        commentId,
+        courseName: course.title,
+        commentText: comments.find((comment) => comment._id === commentId).text,
       });
+    } catch (error) {
+      if (
+        error.response &&
+        error.response.status === 400 &&
+        error.response.data.message === "You have already reported this comment"
+      ) {
+        alert("You have already reported this comment.");
+      } else {
+        console.error("Failed to report comment:", error);
+        alert("Failed to report comment.");
+      }
+    }
   };
 
   if (loading) return <MainLayout>Loading...</MainLayout>;
   if (error) return <MainLayout>Error: {error}</MainLayout>;
-
   return (
     <MainLayout>
       <>
@@ -206,7 +198,7 @@ function CoursesDetails() {
                   {/* course thumbnail */}
                   <div className="overflow-hidden relative mb-5">
                     <img
-                      src={`${baseURL}${course.imageUrl}`}
+                      src={`${course.imageUrl}`}
                       alt=""
                       className="w-full"
                     />
@@ -404,7 +396,7 @@ function CoursesDetails() {
                                       </span>
                                     </div>
                                     <a
-                                      href={`${baseURL}${file.link}`}
+                                      href={`${file.link}`}
                                       target="_blank"
                                       rel="noopener noreferrer"
                                       className="download-button bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"

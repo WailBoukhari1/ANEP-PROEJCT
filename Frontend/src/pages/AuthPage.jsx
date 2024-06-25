@@ -1,25 +1,27 @@
-import { values } from 'lodash';
-import { useState } from 'react';
-import useApiAxios from '../config/axios'
+import { useState } from "react";
+import useApiAxios from "../config/axios";
 
 function Auth() {
-  const [activeTab, setActiveTab] = useState('login'); // Default active tab
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const [activeTab, setActiveTab] = useState("login"); // Default active tab
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
 
   const handleSubmit = async () => {
     event.preventDefault();
 
-    useApiAxios.post('auth/login', { email, password })
-      .then(response => {
+    useApiAxios
+      .post("auth/login", { email, password })
+      .then((response) => {
         const token = response.data.user.tokenAccess;
-        localStorage.setItem('token', token);
+        localStorage.setItem("token", token);
         const role = response.data.user.roles;
-        const isAdmin = role.includes('admin');
+        const isAdmin = role.includes("admin");
         console.log(isAdmin);
-        isAdmin ? window.location.href = '/courses-admin' : window.location.href = '/';
+        isAdmin
+          ? (window.location.href = "/courses-admin")
+          : (window.location.href = "/");
       })
-      .catch(error => {
+      .catch((error) => {
         console.error(error);
       });
   };
@@ -83,15 +85,23 @@ function Auth() {
             {/* tab controller */}
             <div className="tab-links grid grid-cols-2 gap-11px text-blackColor text-lg lg:text-size-22 font-semibold font-hind mb-43px mt-30px md:mt-0">
               <button
-                className={`py-9px lg:py-6 ${activeTab === 'login' ? 'text-primaryColor bg-white' : 'hover:text-primaryColor dark:text-whiteColor dark:hover:text-primaryColor bg-lightGrey7 dark:bg-lightGrey7-dark hover:bg-white dark:hover:bg-whiteColor-dark'} relative group/btn shadow-bottom hover:shadow-bottom dark:shadow-standard-dark disabled:cursor-pointer rounded-standard`}
-                onClick={() => setActiveTab('login')}
+                className={`py-9px lg:py-6 ${
+                  activeTab === "login"
+                    ? "text-primaryColor bg-white"
+                    : "hover:text-primaryColor dark:text-whiteColor dark:hover:text-primaryColor bg-lightGrey7 dark:bg-lightGrey7-dark hover:bg-white dark:hover:bg-whiteColor-dark"
+                } relative group/btn shadow-bottom hover:shadow-bottom dark:shadow-standard-dark disabled:cursor-pointer rounded-standard`}
+                onClick={() => setActiveTab("login")}
               >
                 <span className="absolute w-full h-1 bg-primaryColor top-0 left-0 group-hover/btn:w-full" />
                 Login
               </button>
               <button
-                className={`py-9px lg:py-6 ${activeTab === 'signup' ? 'text-primaryColor bg-white' : 'hover:text-primaryColor dark:hover:text-primaryColor dark:text-whiteColor bg-lightGrey7 dark:bg-lightGrey7-dark hover:bg-white dark:hover:bg-whiteColor-dark'} relative group/btn hover:shadow-bottom dark:shadow-standard-dark disabled:cursor-pointer rounded-standard`}
-                onClick={() => setActiveTab('signup')}
+                className={`py-9px lg:py-6 ${
+                  activeTab === "signup"
+                    ? "text-primaryColor bg-white"
+                    : "hover:text-primaryColor dark:hover:text-primaryColor dark:text-whiteColor bg-lightGrey7 dark:bg-lightGrey7-dark hover:bg-white dark:hover:bg-whiteColor-dark"
+                } relative group/btn hover:shadow-bottom dark:shadow-standard-dark disabled:cursor-pointer rounded-standard`}
+                onClick={() => setActiveTab("signup")}
               >
                 <span className="absolute w-0 h-1 bg-primaryColor top-0 left-0 group-hover/btn:w-full" />
                 Sing up
@@ -101,7 +111,7 @@ function Auth() {
             <div className="shadow-container bg-whiteColor dark:bg-whiteColor-dark pt-10px px-5 pb-10 md:p-50px md:pt-30px rounded-5px">
               <div className="tab-contents">
                 {/* login form*/}
-                {activeTab === 'login' && (
+                {activeTab === "login" && (
                   <div className="block opacity-100 transition-opacity duration-150 ease-linear">
                     {/* heading   */}
                     <div className="text-center">
@@ -118,15 +128,15 @@ function Auth() {
                         </a>
                       </p>
                     </div>
-                    <form className="pt-25px"  data-aos="fade-up">
+                    <form className="pt-25px" data-aos="fade-up">
                       <div className="mb-25px">
                         <label className="text-contentColor dark:text-contentColor-dark mb-10px block">
-                         Email
+                          Email
                         </label>
                         <input
                           type="text"
                           placeholder="Your  email"
-                          onChange={(e)=>setEmail(e.target.value)}
+                          onChange={(e) => setEmail(e.target.value)}
                           className="w-full h-52px leading-52px pl-5 bg-transparent text-sm focus:outline-none text-contentColor dark:text-contentColor-dark border border-borderColor dark:border-borderColor-dark placeholder:text-placeholder placeholder:opacity-80 font-medium rounded"
                         />
                       </div>
@@ -161,19 +171,18 @@ function Auth() {
                       </div>
                       <div className="my-25px text-center">
                         <button
-                        onClick={handleSubmit}
+                          onClick={handleSubmit}
                           type="submit"
                           className="text-size-15 text-whiteColor bg-primaryColor px-25px py-10px w-full border border-primaryColor hover:text-primaryColor hover:bg-whiteColor inline-block rounded group dark:hover:text-whiteColor dark:hover:bg-whiteColor-dark"
                         >
                           Log in
                         </button>
                       </div>
-    
                     </form>
                   </div>
                 )}
                 {/* sign up form*/}
-                {activeTab === 'signup' && (
+                {activeTab === "signup" && (
                   <div className="block opacity-100 transition-opacity duration-150 ease-linear">
                     {/* heading   */}
                     <div className="text-center">
@@ -282,15 +291,9 @@ function Auth() {
             </div>
           </div>
         </div>
-
       </section>
     </>
   );
 }
 
 export default Auth;
-
-
-
-
-

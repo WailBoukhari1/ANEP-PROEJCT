@@ -24,7 +24,7 @@ import { useDropzone } from "react-dropzone";
 import AddCircleOutlineIcon from "@mui/icons-material/AddCircleOutline";
 import RemoveCircleOutlineIcon from "@mui/icons-material/RemoveCircleOutline";
 import FileCopyIcon from "@mui/icons-material/FileCopy";
-import axios from "axios";
+import useApiAxios from "../../config/axios";
 import debounce from "lodash/debounce";
 import ReactQuill from "react-quill";
 import "react-quill/dist/quill.snow.css";
@@ -78,13 +78,9 @@ function EditCoursePage() {
   useEffect(() => {
     const fetchUsersAndCourse = async () => {
       try {
-        const usersResponse = await axios.get("http://localhost:5000/users");
-        const courseResponse = await axios.get(
-          `http://localhost:5000/courses/${id}`
-        );
-        const allCoursesResponse = await axios.get(
-          "http://localhost:5000/courses"
-        );
+        const usersResponse = await useApiAxios.get("/users");
+        const courseResponse = await useApiAxios.get(`/courses/${id}`);
+        const allCoursesResponse = await useApiAxios.get("/courses");
 
         setUsers(usersResponse.data);
         setInternalInstructors(usersResponse.data);
@@ -103,7 +99,7 @@ function EditCoursePage() {
         if (courseData.assignedUsers) {
           const assignedUsersDetails = await Promise.all(
             courseData.assignedUsers.map((userId) =>
-              axios.get(`http://localhost:5000/users/${userId}`)
+              useApiAxios.get(`/users/${userId}`)
             )
           );
           setAssignedUsers(assignedUsersDetails.map((res) => res.data));
@@ -194,8 +190,8 @@ function EditCoursePage() {
         const formData = new FormData();
         formData.append("image", course.image);
 
-        const imageUploadResponse = await axios.post(
-          "http://localhost:5000/courses/uploadImage",
+        const imageUploadResponse = await useApiAxios.post(
+          "/courses/uploadImage",
           formData,
           {
             headers: {
@@ -221,8 +217,8 @@ function EditCoursePage() {
           course.times[0].endTime
         );
         if (conflictCourse) {
-          await axios.put(
-            `http://localhost:5000/courses/${conflictCourse._id}`,
+          await useApiAxios.put(
+            `/courses/${conflictCourse._id}`,
             {
               ...conflictCourse,
               assignedUsers: conflictCourse.assignedUsers.filter(
@@ -233,7 +229,7 @@ function EditCoursePage() {
         }
       }
 
-      await axios.put(`http://localhost:5000/courses/${id}`, courseData);
+      await useApiAxios.put(`/courses/${id}`, courseData);
       console.log("Course updated successfully");
       navigate("/CoursesManagement");
     } catch (error) {

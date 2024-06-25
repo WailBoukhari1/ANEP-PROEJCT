@@ -1,29 +1,25 @@
 const jwt = require('jsonwebtoken');
-const Users = require('../models/User');
-const authenticateUser = (requiredRole) => async (req, res, next) => {
+const User = require('../models/User');
+
+const authenticateUser = async (req, res, next) => {
+    const authHeader = req.headers.authorization;
+    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+        return res.status(401).json({ message: 'No token provided' });
+    }
+
+    const token = authHeader.split(' ')[1];
     try {
-        const authHeader = req.headers.authorization;
-        
-        if (!authHeader) {
-            return res.status(401).json({ message: 'No token provided' });
-        }
-        // Check if the header starts with 'Bearer '
-        const token = authHeader.startsWith('Bearer ') ? authHeader.slice(7) : authHeader;
-        const user = await Users.findOne({ tokenAccess: token });
+        const decoded = jwt.verify(token, process.env.JWT_SECRET_KEY);
+        const user = await User.findById(decoded.id);
         if (!user) {
             return res.status(401).json({ message: 'Unauthorized' });
-        }
-        // Check if the user has the required role
-        if (requiredRole && !user.roles.includes(requiredRole)) {
-            return res.status(403).json({ message: 'Forbidden' });
         }
         req.user = user;
         next();
     } catch (error) {
-        res.status(500).json({ error: error.message });
+        res.status(401).json({ message: 'Invalid token' });
     }
 };
-
 
 const generateToken = (userId, email, roles) => {
     return jwt.sign(
@@ -33,9 +29,8 @@ const generateToken = (userId, email, roles) => {
     );
 };
 
-
-
 module.exports = {
     generateToken,
     authenticateUser,
 };
+

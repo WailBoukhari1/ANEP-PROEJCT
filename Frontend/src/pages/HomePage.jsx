@@ -4,49 +4,47 @@ import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
 import { Link } from "react-router-dom";
 import { useState, useEffect } from "react";
-import axios from "axios";
+import useApiAxios from "../config/axios";
+
 function HomePage() {
   const [cards, setCards] = useState([]);
   const [comments, setComments] = useState([]);
 
   const baseURL = "http://localhost:5000";
 
+  useEffect(() => {
+    async function fetchCards() {
+      try {
+        const response = await useApiAxios.get(`/courses`);
+        const data = response.data;
+        const sortedCourses = data
+          .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+          .slice(0, 6);
 
-
-useEffect(() => {
-  async function fetchCards() {
-    try {
-      const response = await axios.get(`http://localhost:5000/courses`);
-      const data = response.data;
-      const sortedCourses = data
-        .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
-        .slice(0, 6);
-
-      setCards(sortedCourses);
-    } catch (error) {
-      console.error("Failed to fetch cards:", error);
+        setCards(sortedCourses);
+      } catch (error) {
+        console.error("Failed to fetch cards:", error);
+      }
     }
-  }
 
-  fetchCards();
-}, []);
+    fetchCards();
+  }, []);
 
-useEffect(() => {
-  async function fetchComments() {
-    try {
-      const response = await axios.get(
-        `http://localhost:5000/courses/latest-comments`
-      );
-      const data = response.data;
-      const lastSixComments = data.slice(-6);
-      setComments(lastSixComments);
-    } catch (error) {
-      console.error("Failed to fetch comments:", error);
+  useEffect(() => {
+    async function fetchComments() {
+      try {
+        const response = await useApiAxios.get(`/courses/latest-comments`);
+        const data = response.data;
+        const lastSixComments = data.slice(-6);
+        setComments(lastSixComments);
+      } catch (error) {
+        console.error("Failed to fetch comments:", error);
+      }
     }
-  }
 
-  fetchComments();
-}, []);
+    fetchComments();
+  }, []);
+
   const settings = {
     dots: true,
     infinite: true,
@@ -58,6 +56,7 @@ useEffect(() => {
     cssEase: "linear",
     arrows: true,
   };
+
   return (
     <MainLayout>
       <>
@@ -210,6 +209,8 @@ useEffect(() => {
                     <Slider {...settings}>
                       {comments.map((comment, index) => (
                         <div key={index}>
+                          {" "}
+                          {/* Added unique key here */}
                           <p className="text-lightGrey text-black">
                             <i className="icofont-quote-left text-primaryColor text-xl" />{" "}
                             {comment.text}{" "}

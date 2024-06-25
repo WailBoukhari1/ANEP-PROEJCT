@@ -1,6 +1,8 @@
 import MainLayout from "../layout/MainLayout";
 import { useState, useEffect, useCallback } from "react";
-import { Link } from 'react-router-dom';
+import { Link } from "react-router-dom";
+import useApiAxios from "../config/axios";
+
 function Course() {
   const [courses, setCourses] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
@@ -12,45 +14,59 @@ function Course() {
 
   const categories = ["All", "online", "offline"];
 
-    const baseURL = "http://localhost:5000";
+  const baseURL = "http://localhost:5000";
 
   useEffect(() => {
-    fetch(`${baseURL}/courses`) // Adjust the URL as needed
-      .then(response => response.json())
-      .then(data => {
+    async function fetchCourses() {
+      try {
+        const response = await useApiAxios.get(`/courses`);
+        const data = response.data;
         setCourses(data);
         setFilteredCourses(data); // Initially, no filter applied
-      })
-      .catch(error => console.error('Error fetching courses:', error));
-  }, []);
-
-  const filterCourses = useCallback((searchValue) => {
-    let filtered = courses.filter(
-      (course) =>
-        (selectedCategory === "All" || course.offline === selectedCategory) &&
-        (course.title.toLowerCase().includes(searchValue.toLowerCase()) ||
-         course.description.toLowerCase().includes(searchValue.toLowerCase()))
-    );
-
-    switch (sortOrder) {
-      case "dateAsc":
-        filtered.sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt));
-        break;
-      case "dateDesc":
-        filtered.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
-        break;
-      case "titleAsc":
-        filtered.sort((a, b) => a.title.localeCompare(b.title));
-        break;
-      case "titleDesc":
-        filtered.sort((a, b) => b.title.localeCompare(a.title));
-        break;
-      default:
-        break;
+      } catch (error) {
+        console.error("Error fetching courses:", error);
+      }
     }
 
-    setFilteredCourses(filtered);
-  }, [courses, sortOrder, selectedCategory]);
+    fetchCourses();
+  }, []);
+
+  const filterCourses = useCallback(
+    (searchValue) => {
+      let filtered = courses.filter(
+        (course) =>
+          (selectedCategory === "All" || course.offline === selectedCategory) &&
+          (course.title.toLowerCase().includes(searchValue.toLowerCase()) ||
+            course.description
+              .toLowerCase()
+              .includes(searchValue.toLowerCase()))
+      );
+
+      switch (sortOrder) {
+        case "dateAsc":
+          filtered.sort(
+            (a, b) => new Date(a.createdAt) - new Date(b.createdAt)
+          );
+          break;
+        case "dateDesc":
+          filtered.sort(
+            (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
+          );
+          break;
+        case "titleAsc":
+          filtered.sort((a, b) => a.title.localeCompare(b.title));
+          break;
+        case "titleDesc":
+          filtered.sort((a, b) => b.title.localeCompare(a.title));
+          break;
+        default:
+          break;
+      }
+
+      setFilteredCourses(filtered);
+    },
+    [courses, sortOrder, selectedCategory]
+  );
 
   useEffect(() => {
     filterCourses(searchTerm);
@@ -89,7 +105,6 @@ function Course() {
       <>
         {/* banner section */}
         <section>
-          {/* banner section */}
           <div className="bg-lightGrey10 dark:bg-lightGrey10-dark relative z-0 overflow-y-visible py-50px md:py-20 lg:py-100px 2xl:pb-150px 2xl:pt-40.5">
             <div className="container">
               <div className="text-center">
