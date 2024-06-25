@@ -518,7 +518,8 @@ const baseUrl = "http://localhost:5000";
                         ? internalInstructors
                         : externalInstructors
                       ).find(
-                        (instructor) => instructor._id === session.instructor
+                        (instructor) =>
+                          instructor._id === session.instructor._id
                       ) || null
                     }
                     onChange={(event, newValue) =>
