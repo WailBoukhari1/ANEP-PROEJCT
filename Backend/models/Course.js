@@ -11,11 +11,12 @@ const resourceSchema = new mongoose.Schema({
 });
 const evaluationSchema = new mongoose.Schema({
     userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
-    evaluationData: { type: [Number], required: true },
-    comments: { type: String, required: true },
+    evaluationData: [{
+        name: { type: String, required: true },
+        value: { type: Number, required: true }
+    }],
     aspectsToImprove: { type: String, required: true },
     createdAt: { type: Date, default: Date.now }
-
 });
 
 const commentSchema = new mongoose.Schema({

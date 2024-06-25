@@ -1,6 +1,8 @@
 // courseController.js
 const Course = require('../models/Course');
 const User = require('../models/User');
+const XLSX = require('xlsx');
+
 // Get all courses
 const getAllCourses = async (req, res) => {
     try {
@@ -34,7 +36,16 @@ const getCourseById = async (req, res) => {
     }
 };
 
-
+const getAllComments = async (req, res) => {
+    try {
+        const courses = await Course.find().select('comments');
+        const comments = courses.reduce((acc, course) => acc.concat(course.comments), []);
+        res.status(200).json(comments);
+    } catch (error) {
+        console.error('Error fetching comments:', error); // Log the error to the console
+        res.status(500).json({ message: 'Error fetching comments', error: error.message });
+    }
+}
 
 // Create a new course
 const createCourse = async (req, res) => {
@@ -376,6 +387,75 @@ const reportComment = async (req, res) => {
         res.status(500).json({ message: error.message });
     }
 };
+// Create a new evaluation
+const createEvaluation = async (req, res) => {
+    const { courseId } = req.params;
+    const { userId, evaluationData, comments, aspectsToImprove } = req.body;
+
+    try {
+        const course = await Course.findById(courseId);
+        if (!course) {
+            return res.status(404).json({ message: 'Course not found' });
+        }
+
+        const newEvaluation = {
+            userId,
+            evaluationData,
+            comments,
+            aspectsToImprove,
+            createdAt: new Date()
+        };
+
+        course.evaluations.push(newEvaluation);
+        await course.save();
+
+        res.status(201).json(course.evaluations);
+    } catch (error) {
+        res.status(500).json({ message: 'Server error', error: error.message });
+    }
+};
+
+// Download evaluations as an Excel file
+const downloadEvaluations = async (req, res) => {
+    try {
+        const course = await Course.findById(req.params.courseId).populate('evaluations.userId');
+        if (!course) {
+            return res.status(404).send('Course not found');
+        }
+
+        // Convert evaluations to a format suitable for Excel
+        const evaluations = course.evaluations.map(evaluation => {
+            const evaluationData = evaluation.evaluationData.reduce((acc, item) => {
+                acc[item.name] = item.value;
+                return acc;
+            }, {});
+
+            return {
+                userId: evaluation.userId._id.toString(),
+                userName: evaluation.userId.name,
+                ...evaluationData,
+                aspectsToImprove: evaluation.aspectsToImprove,
+                createdAt: evaluation.createdAt.toISOString()
+            };
+        });
+
+        // Create a new workbook and add the evaluations data
+        const wb = XLSX.utils.book_new();
+        const ws = XLSX.utils.json_to_sheet(evaluations);
+        XLSX.utils.book_append_sheet(wb, ws, 'Evaluations');
+
+        // Write the workbook to a buffer
+        const buffer = XLSX.write(wb, { bookType: 'xlsx', type: 'buffer' });
+
+        // Set headers and send the buffer as a downloadable file
+        res.setHeader('Content-Disposition', 'attachment; filename=evaluations.xlsx');
+        res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+        res.status(200).send(buffer);
+    } catch (error) {
+        console.error('Server error:', error);
+        res.status(500).send('Server error');
+    }
+};
 
 module.exports = {
     getAllCourses,
@@ -396,5 +476,8 @@ module.exports = {
     sendCourseNotification,
     deleteComment,
     reportComment,
+    createEvaluation,
+    downloadEvaluations,
+    getAllComments
 
 };

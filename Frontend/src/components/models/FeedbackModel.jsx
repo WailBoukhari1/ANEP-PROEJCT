@@ -60,7 +60,10 @@ const RadarChart = ({ courseId, userId }) => {
     e.preventDefault();
     const evaluation = {
       userId: userId,
-      evaluationData,
+      evaluationData: data.labels.map((label, index) => ({
+        name: label,
+        value: evaluationData[index],
+      })),
       comments,
       aspectsToImprove,
     };
@@ -70,7 +73,7 @@ const RadarChart = ({ courseId, userId }) => {
 
     try {
       const response = await useApiAxios.post(
-        `/evaluations/${courseId}`,
+        `/evaluations/${courseId}/`,
         evaluation
       );
 
@@ -195,7 +198,9 @@ const RadarChart = ({ courseId, userId }) => {
           <div className="col-md-4 font-weight-bold">
             Thème de la formation:
           </div>
-          <div className="col-md-8">{courseData ? courseData.offline : "Loading..."}</div>
+          <div className="col-md-8">
+            {courseData ? courseData.offline : "Loading..."}
+          </div>
         </div>
         <div className="row mb-2">
           <div className="col-md-4 font-weight-bold">Nom des formateurs:</div>
