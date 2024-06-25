@@ -5,19 +5,28 @@ import { useParams } from "react-router-dom";
 import { io } from "socket.io-client";
 import useApiAxios from "../config/axios";
 import UserContext from "../auth/user-context";
+import FeedbackModal from "../components/models/FeedbackModel";
+import {
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  Button,
+} from "@mui/material";
 
 function CoursesDetails() {
   const { id } = useParams();
   const [course, setCourse] = useState(null);
   const [activeTab, setActiveTab] = useState("description");
   const [files, setFiles] = useState([]);
-  const [showModal, setShowModal] = useState(false);
+  const [showEvaluationModal, setShowEvaluationModal] = useState(false);
   const [comments, setComments] = useState([]);
   const [newComment, setNewComment] = useState("");
   const [feedbackMessage, setFeedbackMessage] = useState("");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [currentUser] = useContext(UserContext);
+  const [currentUser] = useContext(UserContext); // Ensure currentUser is declared and initialized before use
+  const userId = currentUser._id;
   const baseURL = "http://localhost:5000";
   const socket = io("http://localhost:5000");
 
@@ -47,10 +56,9 @@ function CoursesDetails() {
     setActiveTab(tab);
   };
 
-  const toggleModal = () => {
-    setShowModal(!showModal);
+  const handleShowEvaluationModal = () => {
+    setShowEvaluationModal(true);
   };
-
   const handleJoinRequest = () => {
     if (!currentUser || !currentUser._id) {
       alert("User not logged in.");
@@ -486,34 +494,27 @@ function CoursesDetails() {
                           Did you finish the Course ? Leave you FeedBack
                         </p>
                         <button
-                          type="submit"
-                          onClick={toggleModal}
-                          className="w-full text-size-15 text-whiteColor bg-secondaryColor px-25px py-10px mb-10px leading-1.8 border border-secondaryColor hover:text-secondaryColor hover:bg-whiteColor inline-block  group dark:hover:text-secondaryColor dark:hover:bg-whiteColor-dark"
+                          onClick={handleShowEvaluationModal}
+                          className="w-full text-size-15 text-whiteColor bg-secondaryColor px-25px py-10px mb-10px leading-1.8 border border-secondaryColor hover:text-secondaryColor hover:bg-whiteColor inline-block group dark:hover:text-secondaryColor dark:hover:bg-whiteColor-dark"
                         >
                           Feedback
                         </button>
-                        {showModal && (
-                          <div className="fixed inset-0 pos bg-black bg-opacity-50 z-50 flex">
-                            <div className="bg-white p-5 rounded-lg shadow-lg w-full max-w-lg mx-auto">
-                              <h4 className="text-lg font-bold mb-3">
-                                Feedback Form
-                              </h4>
-                              <p>Please enter your feedback.</p>
-                              <textarea className="w-full p-2 border border-gray-300 rounded mt-2"></textarea>
-                              <div className="flex justify-end space-x-2 mt-4">
-                                <button
-                                  onClick={toggleModal}
-                                  className="px-4 py-2 bg-gray-200 text-black rounded hover:bg-gray-300"
-                                >
-                                  Close
-                                </button>
-                                <button className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600">
-                                  Submit
-                                </button>
-                              </div>
-                            </div>
-                          </div>
-                        )}
+                        <Dialog
+                          open={showEvaluationModal}
+                          onClose={() => setShowEvaluationModal(false)}
+                        >
+                          <DialogTitle>Evaluation</DialogTitle>
+                          <DialogContent>
+                            <FeedbackModal courseId={id} userId={userId} />
+                          </DialogContent>
+                          <DialogActions>
+                            <Button
+                              onClick={() => setShowEvaluationModal(false)}
+                            >
+                              Close
+                            </Button>
+                          </DialogActions>
+                        </Dialog>
                       </div>
                     </div>
                   </div>

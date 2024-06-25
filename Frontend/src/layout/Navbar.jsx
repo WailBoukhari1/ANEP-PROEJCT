@@ -108,7 +108,7 @@ function Navbar() {
   return (
     <>
       {/* navbar start */}
-      <div className="navbar sticky top-0 z-medium dark:bg-whiteColor-dark">
+      <div className="top-0 z-medium dark:bg-whiteColor-dark bg-whiteColor">
         <nav>
           <div className="py-15px lg:py-0 px-15px lg:container 3xl:container-secondary-lg 4xl:container mx-auto relative">
             <div className="grid grid-cols-2 lg:grid-cols-12 items-center gap-15px">
@@ -193,7 +193,7 @@ function Navbar() {
                     {isNotificationMenuOpen && (
                       <ul
                         ref={notificationMenuRef}
-                        className="notification-menu absolute right-0 bg-white text-gray-800 shadow-xl mt-2 rounded-md overflow-hidden z-50 w-60 border border-gray-200"
+                        className="notification-menu absolute right-0 bg-white text-gray-800 shadow-xl mt-2 rounded-md overflow-hidden z-50 w-60 border border-gray-200 max-h-60 overflow-y-auto"
                       >
                         {notifications.map((notification, index) => (
                           <li key={notification.id || index}>

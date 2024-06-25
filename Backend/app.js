@@ -9,6 +9,7 @@ const userRoutes = require('./routes/users');
 const courseRoutes = require('./routes/courses');
 const authRoutes = require('./routes/authontification');
 const setupSocket = require('./utils/socketManager');
+const evaluationsRoutes = require('./routes/evaluations');
 
 const app = express();
 const server = http.createServer(app);
@@ -25,6 +26,7 @@ app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 app.use('/users', userRoutes);
 app.use('/courses', courseRoutes);
 app.use('/auth', authRoutes);
+app.use('/evaluations', evaluationsRoutes);
 
 app.get('/', (req, res) => {
     res.send('Hello World!');

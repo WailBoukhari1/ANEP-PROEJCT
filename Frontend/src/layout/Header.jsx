@@ -16,31 +16,6 @@ function Header() {
                   <span>684 West College St. Sun City, USA</span>
                 </p>
               </div>
-              <div>
-                {/* header social list */}
-                <ul className="flex gap-13px text-size-15">
-                  <li>
-                    <a className="hover:text-primaryColor" href="#">
-                      <i className="icofont-facebook" />
-                    </a>
-                  </li>
-                  <li>
-                    <a className="hover:text-primaryColor" href="#">
-                      <i className="icofont-twitter" />
-                    </a>
-                  </li>
-                  <li>
-                    <a className="hover:text-primaryColor" href="#">
-                      <i className="icofont-instagram" />
-                    </a>
-                  </li>
-                  <li>
-                    <a className="hover:text-primaryColor" href="#">
-                      <i className="icofont-youtube-play" />
-                    </a>
-                  </li>
-                </ul>
-              </div>
             </div>
           </div>
         </div>

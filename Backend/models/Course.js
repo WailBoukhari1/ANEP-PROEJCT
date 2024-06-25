@@ -9,7 +9,13 @@ const resourceSchema = new mongoose.Schema({
     title: { type: String, required: true },
     link: { type: String, required: true },
 });
-
+const evaluationSchema = new mongoose.Schema({
+    userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
+    evaluationData: { type: [Number], required: true },
+    comments: { type: String, required: true },
+    aspectsToImprove: { type: String, required: true },
+    createdAt: { type: Date, default: Date.now }
+});
 const commentSchema = new mongoose.Schema({
     userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
     userName: { type: String, required: true },
@@ -64,7 +70,8 @@ const courseSchema = new mongoose.Schema({
             type: String,
             required: true
         }
-    }]
+    }],
+    evaluations: [evaluationSchema]
 }, { timestamps: true });
 
 const Course = mongoose.model('Course', courseSchema);
