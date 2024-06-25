@@ -64,7 +64,7 @@ const deleteUser = async (req, res) => {
 
 const getNotifications = async (req, res) => {
     try {
-        const userId = "666e024aef86c2482444b3a8";
+        const userId = req.user._id; // Get user ID from the authenticated user
 
         if (!mongoose.Types.ObjectId.isValid(userId)) {
             return res.status(400).json({ message: 'Invalid user ID' });
@@ -88,7 +88,7 @@ const getNotifications = async (req, res) => {
 };
 
 const getAdminNotifications = async (req, res) => {
-    const adminId = "6671ba1141116692e9f8a1be";
+    const adminId = req.user._id; // Assuming the admin ID is also from the authenticated user
 
     if (!mongoose.Types.ObjectId.isValid(adminId)) {
         return res.status(400).send('Invalid user ID');

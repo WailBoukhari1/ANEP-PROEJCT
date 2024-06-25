@@ -1,8 +1,8 @@
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useContext } from "react";
 import { Link, NavLink, useNavigate } from "react-router-dom";
 import { io } from "socket.io-client";
-import axios from "axios";
-
+import useApiAxios from "../config/axios";
+import UserContext from "../auth/user-context";
 function Navbar() {
   const navigate = useNavigate();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -12,7 +12,8 @@ function Navbar() {
   const notificationMenuRef = useRef(null);
   const userMenuRef = useRef(null);
   const socket = useRef(null);
-  const userId = "666e024aef86c2482444b3a8"; // Hardcoded user ID
+  const [currentUser] = useContext(UserContext);
+  const userId = currentUser._id;
 
   const toggleMobileMenu = () => {
     setIsMobileMenuOpen(!isMobileMenuOpen);
@@ -47,7 +48,7 @@ function Navbar() {
   }, []);
 
   const fetchNotifications = () => {
-    axios
+    useApiAxios
       .get(`http://localhost:5000/users/notifications`)
       .then((response) => {
         const sortedNotifications = response.data.notifications.sort(
@@ -64,7 +65,7 @@ function Navbar() {
 
   const handleNotificationClick = (notificationId, courseId) => {
     navigate(`/CoursesDetails/${courseId}`);
-    axios
+    useApiAxios
       .post(`http://localhost:5000/users/mark-notification-read`, {
         userId: userId,
         notificationId,

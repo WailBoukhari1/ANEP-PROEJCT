@@ -14,16 +14,19 @@ import MenuIcon from "@mui/icons-material/Menu";
 import { useNavigate } from "react-router-dom";
 import NotificationsIcon from "@mui/icons-material/Notifications";
 import PropTypes from "prop-types";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useContext } from "react";
 import { io } from "socket.io-client";
-import axios from "axios";
+import useApiAxios from "../../config/axios";
+import UserContext from "../../auth/user-context";
+
 const socket = io("http://localhost:5000");
 
 const Navbar = ({ handleDrawerOpen, open, drawerWidth, isMobile }) => {
   const [anchorElNotif, setAnchorElNotif] = useState(null);
   const [anchorElUser, setAnchorElUser] = useState(null);
   const [notifications, setNotifications] = useState([]);
-  const adminId = "6671ba1141116692e9f8a1be";
+ const [currentUser] = useContext(UserContext);
+  const adminId = currentUser._id;
   const navigate = useNavigate();
   useEffect(() => {
     // Register the admin user
@@ -31,7 +34,7 @@ const Navbar = ({ handleDrawerOpen, open, drawerWidth, isMobile }) => {
 
     // Fetch stored notifications
     const fetchNotifications = () => {
-      axios
+      useApiAxios
         .get(`http://localhost:5000/users/admin/notifications`)
         .then((response) => {
           const sortedNotifications = response.data.notifications.sort(
@@ -76,7 +79,7 @@ const Navbar = ({ handleDrawerOpen, open, drawerWidth, isMobile }) => {
 
   const handleNotificationClick = (notificationId, courseId) => {
     navigate(`/CoursesDetails/${courseId}`);
-    axios
+    useApiAxios
       .post(`http://localhost:5000/users/mark-notification-read`, {
         userId: adminId,
         notificationId,
