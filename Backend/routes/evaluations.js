@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const Course = require('../models/Course');
+const courseController = require('../controllers/courseController');
 
 // Route to handle evaluation submissions
 router.post('/:courseId', async (req, res) => {

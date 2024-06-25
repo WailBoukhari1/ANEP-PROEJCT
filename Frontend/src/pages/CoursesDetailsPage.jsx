@@ -29,6 +29,7 @@ function CoursesDetails() {
   const userId = currentUser._id;
   const baseURL = "http://localhost:5000";
   const socket = io("http://localhost:5000");
+  const [hasSubmittedFeedback, setHasSubmittedFeedback] = useState(false);
 
   useEffect(() => {
     useApiAxios
@@ -52,12 +53,26 @@ function CoursesDetails() {
       });
   }, [id]);
 
+  useEffect(() => {
+    // Fetch whether the user has already submitted feedback
+    useApiAxios
+      .get(`http://localhost:5000/courses/${id}/feedback/${userId}`)
+      .then((response) => {
+        setHasSubmittedFeedback(response.data.hasSubmitted);
+      })
+      .catch((error) => {
+        console.error("Error checking feedback submission:", error);
+      });
+  }, [id, userId]);
+
   const handleTabClick = (tab) => {
     setActiveTab(tab);
   };
 
   const handleShowEvaluationModal = () => {
-    setShowEvaluationModal(true);
+    if (!hasSubmittedFeedback) {
+      setShowEvaluationModal(true);
+    }
   };
   const handleJoinRequest = () => {
     if (!currentUser || !currentUser._id) {
@@ -105,19 +120,13 @@ function CoursesDetails() {
   const handleCommentSubmit = (event) => {
     event.preventDefault();
     if (newComment.trim()) {
-      fetch(`http://localhost:5000/courses/${id}/comments`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          userName: "Placeholder User",
+      useApiAxios
+        .post(`http://localhost:5000/courses/${id}/comments`, {
+          userName: currentUser.name, // Use the name of the logged-in user
           text: newComment,
-        }),
-      })
-        .then((response) => response.json())
-        .then((data) => {
-          setComments(data);
+        })
+        .then((response) => {
+          setComments(response.data);
           setNewComment("");
           setFeedbackMessage("Comment added successfully!");
           setTimeout(() => setFeedbackMessage(""), 3000);
