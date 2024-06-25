@@ -15,14 +15,16 @@ const evaluationSchema = new mongoose.Schema({
     comments: { type: String, required: true },
     aspectsToImprove: { type: String, required: true },
     createdAt: { type: Date, default: Date.now }
+
 });
+
 const commentSchema = new mongoose.Schema({
     userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
     userName: { type: String, required: true },
     text: { type: String, required: true },
     createdAt: { type: Date, default: Date.now },
     reported: { type: Boolean, default: false },
-    reportedBy: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }] // Track users who reported
+    reportedBy: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }]
 });
 
 const timeSchema = new mongoose.Schema({

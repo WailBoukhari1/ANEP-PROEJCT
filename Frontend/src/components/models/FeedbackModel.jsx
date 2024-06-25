@@ -175,6 +175,10 @@ const RadarChart = ({ courseId, userId }) => {
       },
     },
   };
+
+  // Get today's date
+  const today = new Date().toLocaleDateString("fr-CA");
+
   return (
     <div className="container evaluation-form hna">
       <header className="text-center my-4">
@@ -185,13 +189,13 @@ const RadarChart = ({ courseId, userId }) => {
       <section className="info-section my-4">
         <div className="row mb-2">
           <div className="col-md-4 font-weight-bold">Date:</div>
-          <div className="col-md-8">19-04-2024</div>
+          <div className="col-md-8">{today}</div>
         </div>
         <div className="row mb-2">
           <div className="col-md-4 font-weight-bold">
             Thème de la formation:
           </div>
-          <div className="col-md-8">REVIT</div>
+          <div className="col-md-8">{courseData ? courseData.offline : "Loading..."}</div>
         </div>
         <div className="row mb-2">
           <div className="col-md-4 font-weight-bold">Nom des formateurs:</div>

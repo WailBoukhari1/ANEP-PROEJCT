@@ -4,6 +4,7 @@ const courseController = require('../controllers/courseController');
 const multer = require('multer');
 const path = require('path');
 const { authenticateUser } = require('../utils/auth');
+const Course = require('../models/Course'); // Ensure the correct path to the Course model
 
 // Setup multer as shown in courseController.js
 const storage = multer.diskStorage({
@@ -19,6 +20,18 @@ const storage = multer.diskStorage({
 const upload = multer({ storage: storage });
 
 // ---- Specific routes ---- //
+// get all comments
+router.get('/comments', async (req, res) => {
+    try {
+        const courses = await Course.find().select('comments');
+        const comments = courses.reduce((acc, course) => acc.concat(course.comments), []);
+        res.status(200).json(comments);
+    } catch (error) {
+        console.error('Error fetching comments:', error); // Log the error to the console
+        res.status(500).json({ message: 'Error fetching comments', error: error.message });
+    }
+});
+
 // Add a comment
 router.post('/:id/comments', authenticateUser, courseController.handleComments);
 
