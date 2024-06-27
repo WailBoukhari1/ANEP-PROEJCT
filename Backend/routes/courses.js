@@ -33,7 +33,7 @@ router.get('/latest-comments', authenticateUser, courseController.getLastestComm
 router.get('/', authenticateUser, courseController.getAllCourses);
 
 // Upload an image
-router.post('/uploadImage', authenticateUser, upload.single('image'), courseController.uploadImage);
+router.post('/uploadImage', upload.single('image'), courseController.uploadImage);
 
 // Get presence data for a course
 router.get('/:id/assignedUsers', authenticateUser, courseController.getAssignedUsers);
@@ -72,10 +72,10 @@ router.get('/user/:userId', authenticateUser, courseController.getCoursesByUserI
 router.get('/:id', authenticateUser, courseController.getCourseById);
 
 // Create a new course
-router.post('/', authenticateUser, courseController.createCourse);
+router.post('/', courseController.createCourse);
 
 // Update an existing course
-router.put('/:id', authenticateUser, courseController.updateCourse);
+router.put('/:id', courseController.updateCourse);
 
 // Delete a course
 router.delete('/:id', authenticateUser, courseController.deleteCourse);

@@ -2,12 +2,38 @@ import { useState } from "react";
 import useApiAxios from "../config/axios";
 
 function Auth() {
-  const [activeTab, setActiveTab] = useState("login"); // Default active tab
+  const [activeTab, setActiveTab] = useState("login"); // Onglet actif par défaut
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [errors, setErrors] = useState({ email: "", password: "", general: "" });
 
-  const handleSubmit = async () => {
+  const validate = () => {
+    let valid = true;
+    let errors = { email: "", password: "", general: "" };
+
+    if (!email) {
+      errors.email = "L'email est requis";
+      valid = false;
+    } else if (!/\S+@\S+\.\S+/.test(email)) {
+      errors.email = "L'adresse email est invalide";
+      valid = false;
+    }
+
+    if (!password) {
+      errors.password = "Le mot de passe est requis";
+      valid = false;
+    } else if (password.length < 6) {
+      errors.password = "Le mot de passe doit comporter au moins 6 caractères";
+      valid = false;
+    }
+
+    setErrors(errors);
+    return valid;
+  };
+
+  const handleSubmit = async (event) => {
     event.preventDefault();
+    if (!validate()) return;
 
     useApiAxios
       .post("auth/login", { email, password })
@@ -22,16 +48,21 @@ function Auth() {
           : (window.location.href = "/");
       })
       .catch((error) => {
+        setErrors((prevErrors) => ({
+          ...prevErrors,
+          general: "Email ou mot de passe incorrect",
+        }));
         console.error(error);
       });
   };
+
   return (
     <>
-      {/* banner section */}
+      {/* section bannière */}
       <section>
-        {/* banner section */}
+        {/* section bannière */}
         <div className="bg-lightGrey10 dark:bg-lightGrey10-dark relative z-0 overflow-y-visible py-50px md:py-20 lg:py-100px 2xl:pb-150px 2xl:pt-40.5">
-          {/* animated icons */}
+          {/* icônes animées */}
           <div>
             <img
               className="absolute left-0 bottom-0 md:left-[14px] lg:left-[50px] lg:bottom-[21px] 2xl:left-[165px] 2xl:bottom-[60px] animate-move-var z-10"
@@ -57,7 +88,7 @@ function Auth() {
           <div className="container">
             <div className="text-center">
               <h1 className="text-3xl md:text-size-40 2xl:text-size-55 font-bold text-blackColor dark:text-blackColor-dark mb-7 md:mb-6 pt-3">
-                Log In
+                Connexion
               </h1>
               <ul className="flex gap-1 justify-center">
                 <li>
@@ -65,12 +96,12 @@ function Auth() {
                     href="index.html"
                     className="text-lg text-blackColor2 dark:text-blackColor2-dark"
                   >
-                    Home <i className="icofont-simple-right" />
+                    Accueil <i className="icofont-simple-right" />
                   </a>
                 </li>
                 <li>
                   <span className="text-lg text-blackColor2 dark:text-blackColor2-dark">
-                    Log In
+                    Connexion
                   </span>
                 </li>
               </ul>
@@ -78,11 +109,11 @@ function Auth() {
           </div>
         </div>
       </section>
-      {/*form section */}
+      {/* section formulaire */}
       <section className="relative">
         <div className="container py-100px">
           <div className="tab md:w-2/3 mx-auto">
-            {/* tab controller */}
+            {/* contrôleur d'onglet */}
             <div className="tab-links grid grid-cols-2 gap-11px text-blackColor text-lg lg:text-size-22 font-semibold font-hind mb-43px mt-30px md:mt-0">
               <button
                 className={`py-9px lg:py-6 ${
@@ -93,7 +124,7 @@ function Auth() {
                 onClick={() => setActiveTab("login")}
               >
                 <span className="absolute w-full h-1 bg-primaryColor top-0 left-0 group-hover/btn:w-full" />
-                Login
+                Connexion
               </button>
               <button
                 className={`py-9px lg:py-6 ${
@@ -104,27 +135,27 @@ function Auth() {
                 onClick={() => setActiveTab("signup")}
               >
                 <span className="absolute w-0 h-1 bg-primaryColor top-0 left-0 group-hover/btn:w-full" />
-                Sing up
+                Inscription
               </button>
             </div>
-            {/*  tab contents */}
+            {/* contenus des onglets */}
             <div className="shadow-container bg-whiteColor dark:bg-whiteColor-dark pt-10px px-5 pb-10 md:p-50px md:pt-30px rounded-5px">
               <div className="tab-contents">
-                {/* login form*/}
+                {/* formulaire de connexion */}
                 {activeTab === "login" && (
                   <div className="block opacity-100 transition-opacity duration-150 ease-linear">
-                    {/* heading   */}
+                    {/* titre */}
                     <div className="text-center">
                       <h3 className="text-size-32 font-bold text-blackColor dark:text-blackColor-dark mb-2 leading-normal">
-                        Login
+                        Connexion
                       </h3>
                       <p className="text-contentColor dark:text-contentColor-dark mb-15px">
-                        Don&apos;t have an account yet?
+                        Vous n'avez pas encore de compte ?
                         <a
                           href="login.html"
                           className="hover:text-primaryColor relative after:absolute after:left-0 after:bottom-0.5 after:w-0 after:h-0.5 after:bg-primaryColor after:transition-all after:duration-300 hover:after:w-full"
                         >
-                          Sign up for free
+                          Inscrivez-vous gratuitement
                         </a>
                       </p>
                     </div>
@@ -135,21 +166,23 @@ function Auth() {
                         </label>
                         <input
                           type="text"
-                          placeholder="Your  email"
+                          placeholder="Votre email"
                           onChange={(e) => setEmail(e.target.value)}
                           className="w-full h-52px leading-52px pl-5 bg-transparent text-sm focus:outline-none text-contentColor dark:text-contentColor-dark border border-borderColor dark:border-borderColor-dark placeholder:text-placeholder placeholder:opacity-80 font-medium rounded"
                         />
+                        {errors.email && <div className="text-red-500">{errors.email}</div>}
                       </div>
                       <div className="mb-25px">
                         <label className="text-contentColor dark:text-contentColor-dark mb-10px block">
-                          Password
+                          Mot de passe
                         </label>
                         <input
                           onChange={(e) => setPassword(e.target.value)}
                           type="password"
-                          placeholder="Password"
+                          placeholder="Mot de passe"
                           className="w-full h-52px leading-52px pl-5 bg-transparent text-sm focus:outline-none text-contentColor dark:text-contentColor-dark border border-borderColor dark:border-borderColor-dark placeholder:text-placeholder placeholder:opacity-80 font-medium rounded"
                         />
+                        {errors.password && <div className="text-red-500">{errors.password}</div>}
                       </div>
                       <div className="text-contentColor dark:text-contentColor-dark flex items-center justify-between">
                         <div className="flex items-center">
@@ -158,14 +191,14 @@ function Auth() {
                             id="remember"
                             className="w-18px h-18px mr-2 block box-content"
                           />
-                          <label htmlFor="remember"> Remember me</label>
+                          <label htmlFor="remember"> Se souvenir de moi</label>
                         </div>
                         <div>
                           <a
                             href="#"
                             className="hover:text-primaryColor relative after:absolute after:left-0 after:bottom-0.5 after:w-0 after:h-0.5 after:bg-primaryColor after:transition-all after:duration-300 hover:after:w-full"
                           >
-                            Forgot your password?
+                            Mot de passe oublié ?
                           </a>
                         </div>
                       </div>
@@ -175,27 +208,27 @@ function Auth() {
                           type="submit"
                           className="text-size-15 text-whiteColor bg-primaryColor px-25px py-10px w-full border border-primaryColor hover:text-primaryColor hover:bg-whiteColor inline-block rounded group dark:hover:text-whiteColor dark:hover:bg-whiteColor-dark"
                         >
-                          Log in
+                          Se connecter
                         </button>
                       </div>
                     </form>
                   </div>
                 )}
-                {/* sign up form*/}
+                {/* formulaire d'inscription */}
                 {activeTab === "signup" && (
                   <div className="block opacity-100 transition-opacity duration-150 ease-linear">
-                    {/* heading   */}
+                    {/* titre */}
                     <div className="text-center">
                       <h3 className="text-size-32 font-bold text-blackColor dark:text-blackColor-dark mb-2 leading-normal">
-                        Sing Up
+                        Inscription
                       </h3>
                       <p className="text-contentColor dark:text-contentColor-dark mb-15px">
-                        Already have an account?
+                        Vous avez déjà un compte ?
                         <a
                           href="login.html"
                           className="hover:text-primaryColor relative after:absolute after:left-0 after:bottom-0.5 after:w-0 after:h-0.5 after:bg-primaryColor after:transition-all after:duration-300 hover:after:w-full"
                         >
-                          Log In
+                          Se connecter
                         </a>
                       </p>
                     </div>
@@ -203,21 +236,21 @@ function Auth() {
                       <div className="grid grid-cols-1 lg:grid-cols-2 lg:gap-x-30px gap-y-25px mb-25px">
                         <div>
                           <label className="text-contentColor dark:text-contentColor-dark mb-10px block">
-                            First Name
+                            Prénom
                           </label>
                           <input
                             type="text"
-                            placeholder="First Name"
+                            placeholder="Prénom"
                             className="w-full h-52px leading-52px pl-5 bg-transparent text-sm focus:outline-none text-contentColor dark:text-contentColor-dark border border-borderColor dark:border-borderColor-dark placeholder:text-placeholder placeholder:opacity-80 font-medium rounded"
                           />
                         </div>
                         <div>
                           <label className="text-contentColor dark:text-contentColor-dark mb-10px block">
-                            Last Name
+                            Nom
                           </label>
                           <input
                             type="text"
-                            placeholder="Last Name"
+                            placeholder="Nom"
                             className="w-full h-52px leading-52px pl-5 bg-transparent text-sm focus:outline-none text-contentColor dark:text-contentColor-dark border border-borderColor dark:border-borderColor-dark placeholder:text-placeholder placeholder:opacity-80 font-medium rounded"
                           />
                         </div>
@@ -225,11 +258,11 @@ function Auth() {
                       <div className="grid grid-cols-1 lg:grid-cols-2 lg:gap-x-30px gap-y-25px mb-25px">
                         <div>
                           <label className="text-contentColor dark:text-contentColor-dark mb-10px block">
-                            Username
+                            Nom d'utilisateur
                           </label>
                           <input
                             type="text"
-                            placeholder="Username"
+                            placeholder="Nom d'utilisateur"
                             className="w-full h-52px leading-52px pl-5 bg-transparent text-sm focus:outline-none text-contentColor dark:text-contentColor-dark border border-borderColor dark:border-borderColor-dark placeholder:text-placeholder placeholder:opacity-80 font-medium rounded"
                           />
                         </div>
@@ -239,7 +272,7 @@ function Auth() {
                           </label>
                           <input
                             type="email"
-                            placeholder="Your Email"
+                            placeholder="Votre Email"
                             className="w-full h-52px leading-52px pl-5 bg-transparent text-sm focus:outline-none text-contentColor dark:text-contentColor-dark border border-borderColor dark:border-borderColor-dark placeholder:text-placeholder placeholder:opacity-80 font-medium rounded"
                           />
                         </div>
@@ -247,21 +280,21 @@ function Auth() {
                       <div className="grid grid-cols-1 lg:grid-cols-2 lg:gap-x-30px gap-y-25px mb-25px">
                         <div>
                           <label className="text-contentColor dark:text-contentColor-dark mb-10px block">
-                            Password
+                            Mot de passe
                           </label>
                           <input
                             type="password"
-                            placeholder="Password"
+                            placeholder="Mot de passe"
                             className="w-full h-52px leading-52px pl-5 bg-transparent text-sm focus:outline-none text-contentColor dark:text-contentColor-dark border border-borderColor dark:border-borderColor-dark placeholder:text-placeholder placeholder:opacity-80 font-medium rounded"
                           />
                         </div>
                         <div>
                           <label className="text-contentColor dark:text-contentColor-dark mb-10px block">
-                            Re-Enter Password
+                            Répéter le mot de passe
                           </label>
                           <input
                             type="password"
-                            placeholder="Re-Enter Password"
+                            placeholder="Répéter le mot de passe"
                             className="w-full h-52px leading-52px pl-5 bg-transparent text-sm focus:outline-none text-contentColor dark:text-contentColor-dark border border-borderColor dark:border-borderColor-dark placeholder:text-placeholder placeholder:opacity-80 font-medium rounded"
                           />
                         </div>
@@ -273,7 +306,7 @@ function Auth() {
                           className="w-18px h-18px mr-2 block box-content"
                         />
                         <label htmlFor="accept-pp">
-                          Accept the Terms and Privacy Policy
+                          Accepter les termes et la politique de confidentialité
                         </label>
                       </div>
                       <div className="mt-25px text-center">
@@ -281,7 +314,7 @@ function Auth() {
                           type="submit"
                           className="text-size-15 text-whiteColor bg-primaryColor px-25px py-10px w-full border border-primaryColor hover:text-primaryColor hover:bg-whiteColor inline-block rounded group dark:hover:text-whiteColor dark:hover:bg-whiteColor-dark"
                         >
-                          Log in
+                          Se connecter
                         </button>
                       </div>
                     </form>

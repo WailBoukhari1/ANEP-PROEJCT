@@ -38,7 +38,7 @@ function UserManagement() {
         }));
         setUsers(formattedData);
       } catch (error) {
-        console.error("Failed to fetch users:", error);
+        console.error("Échec de la récupération des utilisateurs:", error);
       }
     };
 
@@ -47,42 +47,42 @@ function UserManagement() {
 
   const columns = [
     { field: "email", headerName: "Email", width: 200 },
-    { field: "name", headerName: "Name", width: 150 },
-    { field: "roles", headerName: "Roles", width: 120 },
+    { field: "name", headerName: "Nom", width: 150 },
+    { field: "roles", headerName: "Rôles", width: 120 },
     { field: "PPR", headerName: "PPR", width: 100 },
     { field: "CIN", headerName: "CIN", width: 100 },
     {
       field: "DATE_NAISSANCE",
-      headerName: "Date of Birth",
+      headerName: "Date de Naissance",
       width: 120,
       type: "date",
     },
     { field: "SITUATION", headerName: "Situation", width: 130 },
-    { field: "SEXE", headerName: "Sex", width: 100 },
-    { field: "SIT_F_AG", headerName: "Financial Situation", width: 180 },
+    { field: "SEXE", headerName: "Sexe", width: 100 },
+    { field: "SIT_F_AG", headerName: "Situation Financière", width: 180 },
     {
       field: "DATE_RECRUTEMENT",
-      headerName: "Date of Recruitment",
+      headerName: "Date de Recrutement",
       width: 150,
       type: "date",
     },
-    { field: "GRADE_fonction", headerName: "Grade/Function", width: 150 },
-    { field: "AFFECTATION", headerName: "Assignment", width: 150 },
+    { field: "GRADE_fonction", headerName: "Grade/Fonction", width: 150 },
+    { field: "AFFECTATION", headerName: "Affectation", width: 150 },
     {
       field: "DEPARTEMENT_DIVISION",
-      headerName: "Department/Division",
+      headerName: "Département/Division",
       width: 180,
     },
     { field: "SERVICE", headerName: "Service", width: 150 },
-    { field: "Localite", headerName: "Locality", width: 150 },
-    { field: "FONCTION", headerName: "Function", width: 150 },
+    { field: "Localite", headerName: "Localité", width: 150 },
+    { field: "FONCTION", headerName: "Fonction", width: 150 },
     {
       field: "actions",
       headerName: "Actions",
       sortable: false,
       renderCell: (params) => (
         <Box sx={{ display: "flex", justifyContent: "center", gap: 1 }}>
-          <Tooltip title="Edit">
+          <Tooltip title="Éditer">
             <IconButton
               component={Link}
               to={`/EditUser/${params.row._id}/`}
@@ -91,7 +91,7 @@ function UserManagement() {
               <EditIcon />
             </IconButton>
           </Tooltip>
-          <Tooltip title="Delete">
+          <Tooltip title="Supprimer">
             <IconButton
               onClick={() => handleDeleteUser(params.row._id)}
               color="secondary"
@@ -110,15 +110,15 @@ function UserManagement() {
       await useApiAxios.delete(`users/${id}`);
       setUsers(users.filter((user) => user._id !== id));
     } catch (error) {
-      console.error("Failed to delete user:", error);
+      console.error("Échec de la suppression de l'utilisateur:", error);
     }
   };
 
   const handleExport = () => {
     const ws = XLSX.utils.json_to_sheet(users);
     const wb = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(wb, ws, "Users");
-    const exportFileName = "users.xlsx";
+    XLSX.utils.book_append_sheet(wb, ws, "Utilisateurs");
+    const exportFileName = "utilisateurs.xlsx";
     XLSX.writeFile(wb, exportFileName);
   };
 
@@ -153,7 +153,7 @@ function UserManagement() {
           component="div"
           sx={{ mb: 3, color: "text.primary" }}
         >
-          User Management
+          Gestion des Utilisateurs
         </Typography>
         <Box sx={{ display: "flex", gap: 2, mb: 3 }}>
           <Button
@@ -164,7 +164,7 @@ function UserManagement() {
             to="/CreateUser"
             sx={{ textTransform: "none" }}
           >
-            Create New User
+            Créer un Nouvel Utilisateur
           </Button>
           {/* <Button
             variant="contained"
@@ -173,7 +173,7 @@ function UserManagement() {
             startIcon={<FileUploadIcon />}
             sx={{ textTransform: "none" }}
           >
-            Import from Excel
+            Importer depuis Excel
             <input
               type="file"
               hidden
@@ -188,7 +188,7 @@ function UserManagement() {
             startIcon={<ImportExportIcon />}
             sx={{ textTransform: "none" }}
           >
-            Export to Excel
+            Exporter vers Excel
           </Button>
         </Box>
         <Paper

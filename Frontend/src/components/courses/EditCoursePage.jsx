@@ -47,6 +47,12 @@ function EditCoursePage() {
         endTime: "",
         instructorType: "",
         instructor: "",
+        instructorName: "",
+        externalInstructorDetails: {
+          phone: "",
+          position: "",
+          cv: null,
+        },
       },
     ],
     image: null,
@@ -63,7 +69,6 @@ function EditCoursePage() {
   );
 
   const [internalInstructors, setInternalInstructors] = useState([]);
-  const [externalInstructors, setExternalInstructors] = useState([]);
   const [filter, setFilter] = useState({
     fonction: null,
     localite: null,
@@ -73,8 +78,8 @@ function EditCoursePage() {
     gradeAssimile: null,
     gradeFonction: null,
   });
-  const [allCourses, setAllCourses] = useState([]); // State to store all courses
-const baseUrl = "http://localhost:5000";
+  const [allCourses, setAllCourses] = useState([]);
+  const baseUrl = "http://localhost:5000";
 
   useEffect(() => {
     const fetchUsersAndCourse = async () => {
@@ -85,7 +90,6 @@ const baseUrl = "http://localhost:5000";
 
         setUsers(usersResponse.data);
         setInternalInstructors(usersResponse.data);
-        setExternalInstructors(usersResponse.data);
         setAllCourses(allCoursesResponse.data); // Store all courses
 
         const courseData = courseResponse.data;
@@ -133,32 +137,58 @@ const baseUrl = "http://localhost:5000";
   const { getRootProps, getInputProps, isDragActive } = useDropzone({ onDrop });
 
   const handleChange = (event, index) => {
-    const { name, value } = event.target;
+    const { name, value, files } = event.target;
     const updatedTimes = [...course.times];
     if (name === "instructorType") {
       updatedTimes[index] = {
         ...updatedTimes[index],
         instructorType: value,
         instructor: "",
+        instructorName: "",
+        externalInstructorDetails: {
+          phone: "",
+          position: "",
+          cv: null,
+        },
       };
+    } else if (name === "instructor") {
+      updatedTimes[index][name] = value;
+    } else if (name === "cv") {
+      updatedTimes[index].externalInstructorDetails[name] = files[0]
+        ? files[0].name
+        : undefined; // Store file name instead of file object
+    } else if (name in updatedTimes[index].externalInstructorDetails) {
+      updatedTimes[index].externalInstructorDetails[name] = value;
     } else {
       updatedTimes[index][name] = value;
     }
     setCourse((prev) => ({ ...prev, times: updatedTimes }));
   };
 
-  const handleInstructorChange = (event, newValue, index) => {
-    const updatedTimes = [...course.times];
-    updatedTimes[index].instructor = newValue ? newValue._id : "";
-    setCourse((prev) => ({ ...prev, times: updatedTimes }));
-  };
+const handleInstructorChange = (event, newValue, index) => {
+  const updatedTimes = [...course.times];
+  updatedTimes[index].instructor = newValue ? newValue._id : "";
+  updatedTimes[index].instructorName = newValue ? newValue.name : "";
+  setCourse((prev) => ({ ...prev, times: updatedTimes }));
+};
 
   const handleAddSession = () => {
     setCourse((prev) => ({
       ...prev,
       times: [
         ...prev.times,
-        { startTime: "", endTime: "", instructorType: "", instructor: "" },
+        {
+          startTime: "",
+          endTime: "",
+          instructorType: "",
+          instructor: "",
+          instructorName: "",
+          externalInstructorDetails: {
+            phone: "",
+            position: "",
+            cv: null,
+          },
+        },
       ],
     }));
   };
@@ -401,18 +431,16 @@ const baseUrl = "http://localhost:5000";
           </Select>
         </FormControl>
         <FormControl fullWidth style={{ marginBottom: "16px" }}>
-          <FormControl fullWidth style={{ marginBottom: "16px" }}>
-            <ReactQuill
-              theme="snow"
-              value={course.description || ""}
-              onChange={(content) => {
-                setCourse((prev) => ({
-                  ...prev,
-                  description: content,
-                }));
-              }}
-            />
-          </FormControl>
+          <ReactQuill
+            theme="snow"
+            value={course.description || ""}
+            onChange={(content) => {
+              setCourse((prev) => ({
+                ...prev,
+                description: content,
+              }));
+            }}
+          />
         </FormControl>
         <FormControlLabel
           control={
@@ -506,36 +534,67 @@ const baseUrl = "http://localhost:5000";
                   </FormControl>
                 </Grid>
                 <Grid item xs={6}>
-                  <Autocomplete
-                    options={
-                      session.instructorType === "intern"
-                        ? internalInstructors
-                        : externalInstructors
-                    }
-                    getOptionLabel={(option) => option.name}
-                    value={
-                      (session.instructorType === "intern"
-                        ? internalInstructors
-                        : externalInstructors
-                      ).find(
-                        (instructor) =>
-                          instructor._id === session.instructor._id
-                      ) || null
-                    }
-                    onChange={(event, newValue) =>
-                      handleInstructorChange(event, newValue, index)
-                    }
-                    isOptionEqualToValue={(option, value) =>
-                      option._id === value._id
-                    }
-                    renderInput={(params) => (
+                  {session.instructorType === "intern" ? (
+                    <Autocomplete
+                      options={internalInstructors}
+                      getOptionLabel={(option) => option.name}
+                      value={
+                        internalInstructors.find(
+                          (instructor) => instructor._id === session.instructor
+                        ) || null
+                      }
+                      onChange={(event, newValue) =>
+                        handleInstructorChange(event, newValue, index)
+                      }
+                      isOptionEqualToValue={(option, value) =>
+                        option._id === value._id
+                      }
+                      renderInput={(params) => (
+                        <TextField
+                          {...params}
+                          label="Instructor Name"
+                          fullWidth
+                        />
+                      )}
+                    />
+                  ) : (
+                    <>
                       <TextField
-                        {...params}
                         label="Instructor Name"
+                        name="instructorName"
+                        value={session.instructorName}
+                        onChange={(e) => handleChange(e, index)}
                         fullWidth
+                        required
                       />
-                    )}
-                  />
+                      <TextField
+                        label="Phone"
+                        name="phone"
+                        value={session.externalInstructorDetails.phone}
+                        onChange={(e) => handleChange(e, index)}
+                        fullWidth
+                        style={{ marginTop: "16px" }}
+                        required
+                      />
+                      <TextField
+                        label="Position"
+                        name="position"
+                        value={session.externalInstructorDetails.position}
+                        onChange={(e) => handleChange(e, index)}
+                        fullWidth
+                        style={{ marginTop: "16px" }}
+                        required
+                      />
+                      <TextField
+                        type="file"
+                        name="cv"
+                        onChange={(e) => handleChange(e, index)}
+                        fullWidth
+                        style={{ marginTop: "16px" }}
+                        required
+                      />
+                    </>
+                  )}
                 </Grid>
               </Grid>
               <div
@@ -580,8 +639,9 @@ const baseUrl = "http://localhost:5000";
                 renderInput={(params) => (
                   <TextField {...params} label="Function" fullWidth />
                 )}
+                getOptionLabel={(option) => option.label || ""}
                 isOptionEqualToValue={(option, value) =>
-                  option.label === value.label
+                  option.label === value?.label
                 }
               />
             </Grid>
@@ -596,8 +656,9 @@ const baseUrl = "http://localhost:5000";
                   <TextField {...params} label="Localite" fullWidth />
                 )}
                 isOptionEqualToValue={(option, value) =>
-                  option.label === value.label
+                  option?.label === value?.label
                 }
+                getOptionLabel={(option) => option.label || ""}
               />
             </Grid>
             <Grid item xs={6} sm={1.5}>
@@ -611,8 +672,9 @@ const baseUrl = "http://localhost:5000";
                   <TextField {...params} label="Service" fullWidth />
                 )}
                 isOptionEqualToValue={(option, value) =>
-                  option.label === value.label
+                  option?.label === value?.label
                 }
+                getOptionLabel={(option) => option.label || ""}
               />
             </Grid>
             <Grid item xs={6} sm={1.5}>
@@ -630,8 +692,9 @@ const baseUrl = "http://localhost:5000";
                   />
                 )}
                 isOptionEqualToValue={(option, value) =>
-                  option.label === value.label
+                  option?.label === value?.label
                 }
+                getOptionLabel={(option) => option.label || ""}
               />
             </Grid>
             <Grid item xs={6} sm={1.5}>
@@ -644,6 +707,10 @@ const baseUrl = "http://localhost:5000";
                 renderInput={(params) => (
                   <TextField {...params} label="Affectation" fullWidth />
                 )}
+                isOptionEqualToValue={(option, value) =>
+                  option?.label === value?.label
+                }
+                getOptionLabel={(option) => option.label || ""}
               />
             </Grid>
             <Grid item xs={6} sm={1.5}>
@@ -657,8 +724,9 @@ const baseUrl = "http://localhost:5000";
                   <TextField {...params} label="Grade Assimile" fullWidth />
                 )}
                 isOptionEqualToValue={(option, value) =>
-                  option.label === value.label
+                  option?.label === value?.label
                 }
+                getOptionLabel={(option) => option.label || ""}
               />
             </Grid>
             <Grid item xs={6} sm={1.5}>
@@ -672,8 +740,9 @@ const baseUrl = "http://localhost:5000";
                   <TextField {...params} label="Grade Function" fullWidth />
                 )}
                 isOptionEqualToValue={(option, value) =>
-                  option.label === value.label
+                  option?.label === value?.label
                 }
+                getOptionLabel={(option) => option.label || ""}
               />
             </Grid>
           </Grid>
@@ -682,9 +751,9 @@ const baseUrl = "http://localhost:5000";
               multiple
               options={filteredUsers}
               getOptionLabel={(user) => user.name}
-              value={assignedUsers.filter((user) => user)} // Filter out undefined or invalid users before rendering
+              value={assignedUsers.filter((user) => user)}
               onChange={handleUserChange}
-              isOptionEqualToValue={(option, value) => option._id === value._id} // Custom equality check
+              isOptionEqualToValue={(option, value) => option._id === value._id}
               renderOption={(props, option) => {
                 const conflictCourse = checkConflicts(
                   option._id,

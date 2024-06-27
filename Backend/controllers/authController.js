@@ -1,9 +1,19 @@
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
+const { body, validationResult } = require('express-validator');
 const Users = require('../models/User');
 const { generateToken } = require('../utils/auth');
 
 const loginUser = async (req, res) => {
+    // Validate inputs
+    await body('email').isEmail().withMessage('Invalid email').run(req);
+    await body('password').isLength({ min: 6 }).withMessage('Password must be at least 6 characters').run(req);
+
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+        return res.status(400).json({ errors: errors.array() });
+    }
+
     try {
         const { email, password } = req.body;
         const user = await Users.findOne({ email });

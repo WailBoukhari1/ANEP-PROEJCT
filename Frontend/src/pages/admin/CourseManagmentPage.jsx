@@ -63,7 +63,7 @@ const PresenceMenu = ({
                   onChange={() => handlePresenceChange(user._id, "present")}
                 />
               }
-              label="Present"
+              label="Présent"
               labelPlacement="end"
               style={{ marginRight: 8 }}
             />
@@ -88,7 +88,7 @@ const PresenceMenu = ({
           variant="contained"
           style={{ marginTop: 10 }}
         >
-          Save
+          Sauvegarder
         </Button>
       </MenuItem>
     </Menu>
@@ -130,7 +130,7 @@ function CourseManagement() {
       );
       setUserPresence(response.data);
     } catch (error) {
-      console.error("Failed to fetch assigned users:", error);
+      console.error("Échec de la récupération des utilisateurs assignés:", error);
     }
   };
 
@@ -147,9 +147,9 @@ function CourseManagement() {
           presence: presenceData,
         }
       );
-      console.log("Presence updated successfully");
+      console.log("Présence mise à jour avec succès");
     } catch (error) {
-      console.error("Failed to update presence:", error);
+      console.error("Échec de la mise à jour de la présence:", error);
     }
   };
 
@@ -171,7 +171,7 @@ function CourseManagement() {
       const response = await useApiAxios.get("/courses");
       setCourses(response.data);
     } catch (error) {
-      console.error("Failed to fetch courses:", error);
+      console.error("Échec de la récupération des cours:", error);
     }
   };
 
@@ -180,7 +180,7 @@ function CourseManagement() {
       await useApiAxios.delete(`/courses/${id}`);
       setCourses(courses.filter((course) => course._id !== id));
     } catch (error) {
-      console.error("Failed to delete course:", error);
+      console.error("Échec de la suppression du cours:", error);
     }
   };
 
@@ -193,13 +193,13 @@ const handleNotify = async (course) => {
 
     socket.emit("notify", {
       userIds,
-      message: `Notification for course: ${course.title}`,
+      message: `Notification pour le cours: ${course.title}`,
       courseId: course._id,
     });
 
-    console.log("Notifying users for course:", course.title);
+    console.log("Notification des utilisateurs pour le cours:", course.title);
   } catch (error) {
-    console.error("Failed to fetch assigned users for notification:", error);
+    console.error("Échec de la récupération des utilisateurs assignés pour la notification:", error);
   }
 };
 
@@ -217,18 +217,25 @@ const handleDownloadEvaluations = async (courseId) => {
     link.setAttribute("download", "evaluations.xlsx");
     document.body.appendChild(link);
     link.click();
-    document.body.removeChild(link); // Clean up the DOM
-    window.URL.revokeObjectURL(url); // Clean up the URL object
+    document.body.removeChild(link); // Nettoyer le DOM
+    window.URL.revokeObjectURL(url); // Nettoyer l'objet URL
   } catch (error) {
-    console.error("Failed to download evaluations:", error);
+    console.error("Échec du téléchargement des évaluations:", error);
   }
 };
 
   const columns = [
-    { field: "title", headerName: "Course Title", width: 150 },
+    { field: "title", headerName: "Titre du cours", width: 150 },
     { field: "offline", headerName: "Mode", width: 100 },
-    { field: "description", headerName: "Description", width: 200 },
-    { field: "hidden", headerName: "Status", width: 100 },
+    {
+      field: "description",
+      headerName: "Description",
+      width: 200,
+      renderCell: (params) => (
+        <div dangerouslySetInnerHTML={{ __html: params.value }} />
+      ),
+    },
+    { field: "hidden", headerName: "Statut", width: 100 },
     { field: "budget", headerName: "Budget", width: 100 },
     {
       field: "actions",
@@ -237,7 +244,7 @@ const handleDownloadEvaluations = async (courseId) => {
       width: 250,
       renderCell: (params) => (
         <Box sx={{ display: "flex", justifyContent: "center", gap: 1 }}>
-          <Tooltip title="Edit">
+          <Tooltip title="Éditer">
             <IconButton
               component={Link}
               to={`/EditCourse/${params.row._id}`}
@@ -246,7 +253,7 @@ const handleDownloadEvaluations = async (courseId) => {
               <EditIcon />
             </IconButton>
           </Tooltip>
-          <Tooltip title="Delete">
+          <Tooltip title="Supprimer">
             <IconButton
               onClick={() => handleDelete(params.row._id)}
               color="secondary"
@@ -254,12 +261,12 @@ const handleDownloadEvaluations = async (courseId) => {
               <DeleteIcon />
             </IconButton>
           </Tooltip>
-          <Tooltip title="Notify User">
+          <Tooltip title="Notifier les utilisateurs">
             <IconButton onClick={() => handleNotify(params.row)} color="info">
               <Notifications />
             </IconButton>
           </Tooltip>
-          <Tooltip title="Manage Presence">
+          <Tooltip title="Gérer la présence">
             <IconButton
               onClick={(event) => handleMenuOpen(event, params.row)}
               color="default"
@@ -267,8 +274,11 @@ const handleDownloadEvaluations = async (courseId) => {
               <People />
             </IconButton>
           </Tooltip>
-          <Tooltip title="Download Evaluations">
-            <IconButton onClick={() => handleDownloadEvaluations(params.row._id)} color="primary">
+          <Tooltip title="Télécharger les évaluations">
+            <IconButton
+              onClick={() => handleDownloadEvaluations(params.row._id)}
+              color="primary"
+            >
               <FileUploadIcon />
             </IconButton>
           </Tooltip>
@@ -281,7 +291,7 @@ const handleDownloadEvaluations = async (courseId) => {
     <AdminLayout>
       <Paper sx={{ p: 2, margin: "auto", maxWidth: 12000, flexGrow: 1 }}>
         <Box sx={{ mb: 2, display: "flex", justifyContent: "space-between" }}>
-          <Typography variant="h6">Course Management</Typography>
+          <Typography variant="h6">Gestion des cours</Typography>
           <Button
             variant="contained"
             color="primary"
@@ -289,7 +299,7 @@ const handleDownloadEvaluations = async (courseId) => {
             component={Link}
             to={`/CreateCourse`}
           >
-            Create Course
+            Créer un cours
           </Button>
         </Box>
         <DataGrid

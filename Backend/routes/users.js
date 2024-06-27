@@ -18,15 +18,15 @@ router.post('/mark-notification-read', authenticateUser, userController.markNoti
 router.get('/', authenticateUser, userController.getAllUsers);
 
 // Get a single user by ID
-router.get('/:id', authenticateUser, userController.getUser);
+router.get('/:id', userController.getUser);
 
 // Create a new user
-router.post('/', authenticateUser, userController.createUser);
+router.post('/', userController.createUser);
 
 // Update a user
-router.put('/:id', authenticateUser, userController.updateUser);
+router.put('/:id', userController.updateUser);
 
 // Delete a user
-router.delete('/:id', authenticateUser, userController.deleteUser);
+router.delete('/:id', userController.deleteUser);
 
 module.exports = router;
