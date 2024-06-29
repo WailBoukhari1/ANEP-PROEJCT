@@ -2,6 +2,46 @@ import MainLayout from "../layout/MainLayout";
 import { useState, useEffect, useCallback } from "react";
 import { Link } from "react-router-dom";
 import useApiAxios from "../config/axios";
+import UserNeedForm from './UserNeedForm';
+
+const UserPage = () => {
+  const [showForm, setShowForm] = useState(false);
+
+  const handleButtonClick = () => {
+    setShowForm(true);
+  };
+
+  const handleFormSubmit = (message) => {
+    const user = {
+      name: user.name, 
+      email: user.email
+    
+    };
+
+    fetch('/api/user-needs', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ user, message })
+    })
+      .then(response => response.json())
+      .then(data => {
+        console.log('Success:', data);
+        setShowForm(false);
+      })
+      .catch(error => {
+        console.error('Error:', error);
+      });
+  };
+
+  return (
+    <div>
+      <button onClick={handleButtonClick}>Exprimer mon besoin</button>
+      {showForm && <UserNeedForm onSubmit={handleFormSubmit} />}
+    </div>
+  );
+};
 
 function Course() {
   const [courses, setCourses] = useState([]);
@@ -202,6 +242,13 @@ function Course() {
                         <i className="icofont-search-1 text-base" />
                       </button>
                     </form>
+                  </div>
+                  {/* bouton pour exprimer mon besoin */}
+                  <div
+                    className="pt-30px pr-15px pl-10px pb-23px 2xl:pt-10 2xl:pr-25px 2xl:pl-5 2xl:pb-33px mb-30px border border-borderColor dark:border-borderColor-dark"
+                    data-aos="fade-up"
+                  >
+                    <UserPage />
                   </div>
                 </div>
               </div>
