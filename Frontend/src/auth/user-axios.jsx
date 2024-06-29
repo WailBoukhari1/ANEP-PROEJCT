@@ -19,13 +19,16 @@ export const refreshUserQuery = async (setCurrentUser) => {
 
 export const logoutQuery = async (setCurrentUser) => {
   try {
-    const response = await useApiAxios.post("/logout");
-    console.log("Logout response:", response);
+    const response = await useApiAxios.post("/auth/logout");
+
+    if (response.status === 200) {
+      localStorage.removeItem("token");
+      window.location.href = "/auth";
+      console.log("ok");
+    } else {
+      console.error("logout failed:", response);
+    }
   } catch (error) {
     console.error("logout failed:", error);
   }
-
-  setCurrentUser(null);
-  localStorage.removeItem("token");
-  window.location.href = "/login";
 };
