@@ -1,9 +1,14 @@
 const express = require('express');
-const { createUserNeed, getUserNeeds } = require('../controllers/UserNeedController');
+const UserNeedController = require('../controllers/UserNeedController');
+const { authenticateUser } = require('../utils/auth');
 
 const router = express.Router();
 
-router.post('/user-needs', createUserNeed);
-router.get('/user-needs', getUserNeeds);
+// Route to create a user need
+router.post('/', authenticateUser, UserNeedController.createUserNeed);
+
+// Route to get user needs
+router.get('/', authenticateUser, UserNeedController.getUserNeeds);
+
 
 module.exports = router;

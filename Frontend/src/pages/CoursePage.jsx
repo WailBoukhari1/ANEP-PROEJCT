@@ -1,40 +1,31 @@
 import MainLayout from "../layout/MainLayout";
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useContext } from "react";
 import { Link } from "react-router-dom";
 import useApiAxios from "../config/axios";
 import UserNeedForm from './UserNeedForm';
-
+import UserContext from "../auth/user-context";
 const UserPage = () => {
   const [showForm, setShowForm] = useState(false);
-
+const [currentUser] = useContext(UserContext);
   const handleButtonClick = () => {
     setShowForm(true);
   };
 
   const handleFormSubmit = (message) => {
-    const user = {
-      name: user.name, 
-      email: user.email
-    
-    };
-
-    fetch('/api/user-needs', {
-      method: 'POST',
+    useApiAxios.post("/user-needs", {
       headers: {
-        'Content-Type': 'application/json'
+        "Content-Type": "application/json",
       },
-      body: JSON.stringify({ user, message })
+      data: { user: currentUser, message },
     })
-      .then(response => response.json())
-      .then(data => {
-        console.log('Success:', data);
+      .then((response) => {
+        console.log("Success:", response.data);
         setShowForm(false);
       })
-      .catch(error => {
-        console.error('Error:', error);
+      .catch((error) => {
+        console.error("Error:", error);
       });
   };
-
   return (
     <div>
       <button onClick={handleButtonClick}>Exprimer mon besoin</button>
