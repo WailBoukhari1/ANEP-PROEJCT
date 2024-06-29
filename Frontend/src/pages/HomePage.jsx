@@ -173,10 +173,16 @@ function HomePage() {
                                 <div>
                                   <Link
                                     to="#"
-                                    className="text-base font-bold font-hind flex items-center hover:text-primaryColor text-blackColor- hover:text-primaryColor"
+                                    className="text-sm font-inter mb-4 description-clamp text-blackColor"
                                   >
                                     <span className="flex">
-                                      <p>{card.description}</p>
+                                      <p>
+                                        <div
+                                          dangerouslySetInnerHTML={{
+                                            __html: card.description,
+                                          }}
+                                        />
+                                      </p>
                                     </span>
                                   </Link>
                                 </div>

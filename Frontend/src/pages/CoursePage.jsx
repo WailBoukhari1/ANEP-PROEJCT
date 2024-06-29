@@ -229,9 +229,12 @@ function Course() {
                               <Link to={`/CoursesDetails/${course._id}`}>
                                 {course.title}
                               </Link>
-                              <div className="text-sm font-inter mb-4 description-clamp ">
-                                {course.description}
-                              </div>
+                                <div
+                                  className="text-sm font-inter mb-4 description-clamp "
+                                  dangerouslySetInnerHTML={{
+                                    __html: course.description,
+                                  }}
+                                />
                               <div className="text-xs py-5 text-gray-500">
                                 Created on:{" "}
                                 <span className="font-semibold">
