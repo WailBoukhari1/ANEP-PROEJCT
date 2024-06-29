@@ -6,5 +6,8 @@ const { authenticateUser } = require('../utils/auth'); // Adjust the path if nec
 router.post('/login', authController.loginUser);
 router.post('/logout', authenticateUser, authController.logoutUser);
 router.get('/refreshUser', authenticateUser, authController.refreshUser);
+router.post('/emailverify', authController.emailVerify);
+router.get('/resetTokenVerification/:resetToken', authController.resetTokenVerify);
+router.post('/newpassword',authController.newpassword);
 
 module.exports = router;

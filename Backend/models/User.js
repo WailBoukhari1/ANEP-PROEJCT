@@ -8,7 +8,7 @@ const userSchema = new mongoose.Schema({
     },
     password: {
         type: String,
-        required: true,
+        // required: true,
     },
     roles: {
         type: [String],
@@ -53,7 +53,8 @@ const userSchema = new mongoose.Schema({
         commentSnippet: String,
         isNew: { type: Boolean, default: true },
         createdAt: { type: Date, default: Date.now }
-    }]
+    }],
+    resetToken: { type: String,}
 });
 
 const User = mongoose.model('User', userSchema);

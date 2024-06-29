@@ -3,6 +3,8 @@ import { Link, NavLink, useNavigate } from "react-router-dom";
 import { io } from "socket.io-client";
 import useApiAxios from "../config/axios";
 import UserContext from "../auth/user-context";
+import {logoutQuery} from "../auth/user-axios" // Import the logoutQuery function
+
 function Navbar() {
   const navigate = useNavigate();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -104,6 +106,10 @@ function Navbar() {
   const newNotificationsCount = notifications.filter(
     (notification) => notification.isNew
   ).length;
+
+  const handleLogout = () => {
+    logoutQuery(); // Call the logoutQuery function for logout
+  };
 
   return (
     <>
@@ -230,12 +236,12 @@ function Navbar() {
                     </Link>
                   </li>
                   <li className="hidden lg:block">
-                    <Link
-                      to="#"
-                      className="text-size-12 2xl:text-size-15 text-whiteColor bg-primaryColor block border-primaryColor border hover:text-primaryColor hover:bg-white px-15px py-2 rounded-standard dark:hover:bg-whiteColor-dark dark: dark:hover:text-whiteColor"
+                    <button
+                      className="text-size-12 2xl:text-size-15 text-whiteColor bg-primaryColor border-primaryColor border hover:text-primaryColor hover:bg-white px-15px py-2 rounded-standard dark:hover:bg-whiteColor-dark dark:hover:text-whiteColor"
+                      onClick={handleLogout}
                     >
                       Logout
-                    </Link>
+                    </button>
                   </li>
                   <li className="block lg:hidden">
                     <button
