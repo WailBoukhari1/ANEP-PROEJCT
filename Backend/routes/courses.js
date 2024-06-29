@@ -33,7 +33,7 @@ router.get('/latest-comments', authenticateUser, courseController.getLastestComm
 router.get('/', authenticateUser, courseController.getAllCourses);
 
 // Upload an image
-router.post('/uploadImage', authenticateUser, upload.single('image'), courseController.uploadImage);
+router.post('/uploadImage', upload.single('image'), courseController.uploadImage);
 
 // Get presence data for a course
 router.get('/:id/assignedUsers', authenticateUser, courseController.getAssignedUsers);

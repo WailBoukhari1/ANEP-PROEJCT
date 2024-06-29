@@ -8,8 +8,6 @@ import {
   InputLabel,
   Select,
   MenuItem,
-  Checkbox,
-  FormControlLabel,
   IconButton,
   Paper,
   Grid,
@@ -31,7 +29,6 @@ function CreateCoursePage() {
     title: "",
     offline: "",
     description: "",
-    notifyUsers: false,
     hidden: "",
     budget: "",
     times: [
@@ -41,13 +38,17 @@ function CreateCoursePage() {
         instructorType: "",
         instructor: "",
         instructorName: "",
+        externalInstructorDetails: {
+          phone: "",
+          position: "",
+          cv: null,
+        },
       },
     ],
     image: null,
   });
 
   const [internalInstructors, setInternalInstructors] = useState([]);
-  const [externalInstructors, setExternalInstructors] = useState([]);
 
   useEffect(() => {
     const fetchInstructors = async () => {
@@ -55,13 +56,6 @@ function CreateCoursePage() {
         const internalResponse = await useApiAxios.get("/users");
         setInternalInstructors(
           internalResponse.data.map((instructor) => ({
-            label: instructor.name,
-            id: instructor._id,
-          }))
-        );
-        const externalResponse = await useApiAxios.get("/external-instructors");
-        setExternalInstructors(
-          externalResponse.data.map((instructor) => ({
             label: instructor.name,
             id: instructor._id,
           }))
@@ -97,13 +91,19 @@ function CreateCoursePage() {
   };
 
   const handleSessionChange = (event, index, newValue = null) => {
-    const { name } = event.target;
+    const { name, value, files } = event.target;
     const updatedTimes = [...course.times];
     if (name === "instructor") {
-      updatedTimes[index][name] = newValue ? newValue.id : ""; // Store the ID
-      updatedTimes[index].instructorName = newValue ? newValue.label : ""; // Store the name for display
+      updatedTimes[index][name] = newValue ? newValue.id : undefined;
+      updatedTimes[index].instructorName = newValue ? newValue.label : "";
+    } else if (name === "cv") {
+      updatedTimes[index].externalInstructorDetails[name] = files[0]
+        ? files[0].name
+        : undefined; // Store file name instead of file object
+    } else if (name in updatedTimes[index].externalInstructorDetails) {
+      updatedTimes[index].externalInstructorDetails[name] = value;
     } else {
-      updatedTimes[index][name] = event.target.value;
+      updatedTimes[index][name] = value;
     }
     setCourse((prev) => ({
       ...prev,
@@ -122,6 +122,11 @@ function CreateCoursePage() {
           instructorType: "",
           instructor: "",
           instructorName: "",
+          externalInstructorDetails: {
+            phone: "",
+            position: "",
+            cv: null,
+          },
         },
       ],
     }));
@@ -163,7 +168,7 @@ function CreateCoursePage() {
     }
 
     for (const time of course.times) {
-      if (!time.startTime || !time.endTime || !time.instructor) {
+      if (!time.startTime || !time.endTime || !time.instructorName) {
         alert(
           "Please fill in all time slots with start time, end time, and instructor."
         );
@@ -173,6 +178,16 @@ function CreateCoursePage() {
 
     const formData = new FormData();
     formData.append("image", course.image);
+
+    // Append CV files to formData
+    course.times.forEach((session, index) => {
+      if (
+        session.externalInstructorDetails &&
+        session.externalInstructorDetails.cv
+      ) {
+        formData.append(`cv_${index}`, session.externalInstructorDetails.cv);
+      }
+    });
 
     try {
       const imageUploadResponse = await useApiAxios.post(
@@ -188,9 +203,20 @@ function CreateCoursePage() {
       if (imageUploadResponse.status === 200) {
         const imageUrl = imageUploadResponse.data.imageUrl;
 
+        // Prepare the course data, removing any empty instructor fields
         const finalCourseData = {
           ...course,
           imageUrl,
+          times: course.times.map((session) => ({
+            ...session,
+            instructor: session.instructor || undefined,
+            externalInstructorDetails: {
+              ...session.externalInstructorDetails,
+              cv: session.externalInstructorDetails.cv
+                ? session.externalInstructorDetails.cv.name
+                : undefined,
+            },
+          })),
         };
 
         const response = await useApiAxios.post("/courses", finalCourseData);
@@ -230,6 +256,7 @@ function CreateCoursePage() {
           onChange={handleInputChange}
           fullWidth
           style={{ marginBottom: "16px" }}
+          required
         />
         <div
           {...getRootProps()}
@@ -266,6 +293,7 @@ function CreateCoursePage() {
             value={course.offline}
             label="Offline/Online"
             onChange={handleInputChange}
+            required
           >
             <MenuItem value="online">Online</MenuItem>
             <MenuItem value="offline">Offline</MenuItem>
@@ -281,24 +309,9 @@ function CreateCoursePage() {
                 description: content,
               }));
             }}
+            required
           />
         </FormControl>
-        <FormControlLabel
-          control={
-            <Checkbox
-              checked={course.notifyUsers}
-              onChange={(e) =>
-                setCourse((prev) => ({
-                  ...prev,
-                  notifyUsers: e.target.checked,
-                }))
-              }
-              name="notifyUsers"
-            />
-          }
-          label="Notify Users"
-          style={{ marginBottom: "16px" }}
-        />
         <FormControl fullWidth style={{ marginBottom: "16px" }}>
           <InputLabel>Visibility</InputLabel>
           <Select
@@ -306,6 +319,7 @@ function CreateCoursePage() {
             value={course.hidden}
             label="Visibility"
             onChange={handleInputChange}
+            required
           >
             <MenuItem value="hidden">Hidden</MenuItem>
             <MenuItem value="visible">Visible</MenuItem>
@@ -319,6 +333,7 @@ function CreateCoursePage() {
           onChange={handleInputChange}
           fullWidth
           style={{ marginBottom: "16px" }}
+          required
         />
         <Typography variant="h6" gutterBottom>
           Sessions
@@ -343,6 +358,7 @@ function CreateCoursePage() {
                   onChange={(e) => handleSessionChange(e, index)}
                   fullWidth
                   InputLabelProps={{ shrink: true }}
+                  required
                 />
               </Grid>
               <Grid item xs={6}>
@@ -354,6 +370,7 @@ function CreateCoursePage() {
                   onChange={(e) => handleSessionChange(e, index)}
                   fullWidth
                   InputLabelProps={{ shrink: true }}
+                  required
                 />
               </Grid>
               <Grid item xs={6}>
@@ -363,6 +380,7 @@ function CreateCoursePage() {
                     name="instructorType"
                     value={session.instructorType}
                     onChange={(e) => handleSessionChange(e, index)}
+                    required
                   >
                     <MenuItem value="intern">Internal</MenuItem>
                     <MenuItem value="extern">External</MenuItem>
@@ -370,37 +388,70 @@ function CreateCoursePage() {
                 </FormControl>
               </Grid>
               <Grid item xs={6}>
-                <Autocomplete
-                  options={
-                    session.instructorType === "intern"
-                      ? internalInstructors
-                      : externalInstructors
-                  }
-                  getOptionLabel={(option) => option.label}
-                  value={
-                    (session.instructorType === "intern"
-                      ? internalInstructors
-                      : externalInstructors
-                    ).find(
-                      (instructor) => instructor.id === session.instructor
-                    ) || null
-                  }
-                  onChange={(event, newValue) =>
-                    handleSessionChange(
-                      {
-                        target: {
-                          name: "instructor",
+                {session.instructorType === "intern" ? (
+                  <Autocomplete
+                    options={internalInstructors}
+                    getOptionLabel={(option) => option.label}
+                    value={
+                      internalInstructors.find(
+                        (instructor) => instructor.id === session.instructor
+                      ) || null
+                    }
+                    onChange={(event, newValue) =>
+                      handleSessionChange(
+                        {
+                          target: {
+                            name: "instructor",
+                          },
                         },
-                      },
-                      index,
-                      newValue
-                    )
-                  }
-                  renderInput={(params) => (
-                    <TextField {...params} label="Instructor Name" />
-                  )}
-                  fullWidth
-                />
+                        index,
+                        newValue
+                      )
+                    }
+                    renderInput={(params) => (
+                      <TextField {...params} label="Instructor Name" />
+                    )}
+                    fullWidth
+                    required
+                  />
+                ) : (
+                  <>
+                    <TextField
+                      label="Instructor Name"
+                      name="instructorName"
+                      value={session.instructorName}
+                      onChange={(e) => handleSessionChange(e, index)}
+                      fullWidth
+                      required
+                    />
+                    <TextField
+                      label="Phone"
+                      name="phone"
+                      value={session.externalInstructorDetails.phone}
+                      onChange={(e) => handleSessionChange(e, index)}
+                      fullWidth
+                      style={{ marginTop: "16px" }}
+                      required
+                    />
+                    <TextField
+                      label="Position"
+                      name="position"
+                      value={session.externalInstructorDetails.position}
+                      onChange={(e) => handleSessionChange(e, index)}
+                      fullWidth
+                      style={{ marginTop: "16px" }}
+                      required
+                    />
+                    <TextField
+                      type="file"
+                      name="cv"
+                      onChange={(e) => handleSessionChange(e, index)}
+                      fullWidth
+                      style={{ marginTop: "16px" }}
+                      required
+                    />
+                  </>
+                )}
               </Grid>
             </Grid>
             <div

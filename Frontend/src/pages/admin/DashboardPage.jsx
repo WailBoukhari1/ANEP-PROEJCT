@@ -10,33 +10,33 @@ const Dashboard = () => {
   const [commentData, setCommentData] = useState([]);
 
   useEffect(() => {
-    // Fetch user data
+    // Récupérer les données des utilisateurs
     const fetchUserData = async () => {
       try {
         const response = await useApiAxios.get("/users");
         setUserData(response.data);
       } catch (error) {
-        console.error("Error fetching user data:", error);
+        console.error("Erreur lors de la récupération des données des utilisateurs:", error);
       }
     };
 
-    // Fetch course data
+    // Récupérer les données des cours
     const fetchCourseData = async () => {
       try {
         const response = await useApiAxios.get("/courses");
         setCourseData(response.data);
       } catch (error) {
-        console.error("Error fetching course data:", error);
+        console.error("Erreur lors de la récupération des données des cours:", error);
       }
     };
 
-    // Fetch comment data
+    // Récupérer les données des commentaires
     const fetchCommentData = async () => {
       try {
         const response = await useApiAxios.get("/courses/comments/");
         setCommentData(response.data);
       } catch (error) {
-        console.error("Error fetching comment data:", error);
+        console.error("Erreur lors de la récupération des données des commentaires:", error);
       }
     };
 
@@ -52,7 +52,7 @@ const Dashboard = () => {
 
   const userRolesData = [
     {
-      name: "User",
+      name: "Utilisateur",
       value: userData.filter((user) => user.roles.includes("user")).length,
     },
     {
@@ -67,18 +67,18 @@ const Dashboard = () => {
       value: courseData.filter((course) => course.hidden === "visible").length,
     },
     {
-      name: "Hidden",
+      name: "Caché",
       value: courseData.filter((course) => course.hidden === "hidden").length,
     },
   ];
 
   const commentReportData = [
     {
-      name: "Reported",
+      name: "Signalé",
       value: commentData.filter((comment) => comment.reported).length,
     },
     {
-      name: "Not Reported",
+      name: "Non Signalé",
       value: commentData.filter((comment) => !comment.reported).length,
     },
   ];
@@ -92,7 +92,7 @@ const Dashboard = () => {
           <Card>
             <CardContent>
               <Typography color="textSecondary" gutterBottom>
-                Total Users
+                Utilisateurs Totals
               </Typography>
               <Typography variant="h5" component="h2">
                 {userData.length}
@@ -104,7 +104,7 @@ const Dashboard = () => {
           <Card>
             <CardContent>
               <Typography color="textSecondary" gutterBottom>
-                Total Courses
+                Cours Totals
               </Typography>
               <Typography variant="h5" component="h2">
                 {courseData.length}
@@ -116,7 +116,7 @@ const Dashboard = () => {
           <Card>
             <CardContent>
               <Typography color="textSecondary" gutterBottom>
-                Total Comments
+                Commentaires Totals
               </Typography>
               <Typography variant="h5" component="h2">
                 {commentData.length}
@@ -128,7 +128,7 @@ const Dashboard = () => {
           <Card>
             <CardContent>
               <Typography color="textSecondary" gutterBottom>
-                Total Reported Comments
+                Commentaires Signalés Totals
               </Typography>
               <Typography variant="h5" component="h2">
                 {commentReportData[0].value}
@@ -141,7 +141,7 @@ const Dashboard = () => {
       <Grid container spacing={3} style={{ marginTop: "20px" }}>
         <Grid item xs={12} md={6}>
           <Typography variant="h6" gutterBottom>
-            Course Comments
+            Commentaires des Cours
           </Typography>
           <BarChart width={500} height={300} data={courseChartData}>
             <CartesianGrid strokeDasharray="3 3" />
@@ -157,7 +157,7 @@ const Dashboard = () => {
       <Grid container spacing={3} style={{ marginTop: "20px" }}>
         <Grid item xs={12} md={6}>
           <Typography variant="h6" gutterBottom>
-            User Roles
+            Rôles des Utilisateurs
           </Typography>
           <PieChart width={400} height={400}>
             <Pie
@@ -182,7 +182,7 @@ const Dashboard = () => {
         </Grid>
         <Grid item xs={12} md={6}>
           <Typography variant="h6" gutterBottom>
-            Course Visibility
+            Visibilité des Cours
           </Typography>
           <PieChart width={400} height={400}>
             <Pie
@@ -207,7 +207,7 @@ const Dashboard = () => {
         </Grid>
         <Grid item xs={12} md={6}>
           <Typography variant="h6" gutterBottom>
-            Comment Reporting Status
+            Statut de Signalement des Commentaires
           </Typography>
           <PieChart width={400} height={400}>
             <Pie
