@@ -2,7 +2,7 @@ import { useState } from "react";
 import useApiAxios from "../config/axios";
 
 function Auth() {
-  const [activeTab, setActiveTab] = useState("login"); // Onglet actif par défaut
+  const [activeTab, setActiveTab] = useState("login"); // Default active tab
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [activeEmail, setActiveEmail] = useState("");
@@ -75,7 +75,7 @@ function Auth() {
           <div className="container">
             <div className="text-center">
               <h1 className="text-3xl md:text-size-40 2xl:text-size-55 font-bold text-blackColor dark:text-blackColor-dark mb-7 md:mb-6 pt-3">
-                Connexion
+                Log In
               </h1>
               <ul className="flex gap-1 justify-center">
                 <li>
@@ -83,12 +83,12 @@ function Auth() {
                     href="index.html"
                     className="text-lg text-blackColor2 dark:text-blackColor2-dark"
                   >
-                    Accueil <i className="icofont-simple-right" />
+                    Home <i className="icofont-simple-right" />
                   </a>
                 </li>
                 <li>
                   <span className="text-lg text-blackColor2 dark:text-blackColor2-dark">
-                    Connexion
+                    Log In
                   </span>
                 </li>
               </ul>
@@ -96,11 +96,11 @@ function Auth() {
           </div>
         </div>
       </section>
-      {/* section formulaire */}
+      {/*form section */}
       <section className="relative">
         <div className="container py-100px">
           <div className="tab md:w-2/3 mx-auto">
-            {/* contrôleur d'onglet */}
+            {/* tab controller */}
             <div className="tab-links grid grid-cols-2 gap-11px text-blackColor text-lg lg:text-size-22 font-semibold font-hind mb-43px mt-30px md:mt-0">
               <button
                 className={`py-9px lg:py-6 ${
@@ -111,7 +111,7 @@ function Auth() {
                 onClick={() => setActiveTab("login")}
               >
                 <span className="absolute w-full h-1 bg-primaryColor top-0 left-0 group-hover/btn:w-full" />
-                Connexion
+                Login
               </button>
               <button
                 className={`py-9px lg:py-6 ${
@@ -125,16 +125,16 @@ function Auth() {
                 active account
               </button>
             </div>
-            {/* contenus des onglets */}
+            {/*  tab contents */}
             <div className="shadow-container bg-whiteColor dark:bg-whiteColor-dark pt-10px px-5 pb-10 md:p-50px md:pt-30px rounded-5px">
               <div className="tab-contents">
-                {/* formulaire de connexion */}
+                {/* login form*/}
                 {activeTab === "login" && (
                   <div className="block opacity-100 transition-opacity duration-150 ease-linear">
-                    {/* titre */}
+                    {/* heading   */}
                     <div className="text-center">
                       <h3 className="text-size-32 font-bold text-blackColor dark:text-blackColor-dark mb-2 leading-normal">
-                        Connexion
+                        Login
                       </h3>
                     </div>
                     <form className="pt-25px" data-aos="fade-up">
@@ -144,23 +144,21 @@ function Auth() {
                         </label>
                         <input
                           type="text"
-                          placeholder="Votre email"
+                          placeholder="Your  email"
                           onChange={(e) => setEmail(e.target.value)}
                           className="w-full h-52px leading-52px pl-5 bg-transparent text-sm focus:outline-none text-contentColor dark:text-contentColor-dark border border-borderColor dark:border-borderColor-dark placeholder:text-placeholder placeholder:opacity-80 font-medium rounded"
                         />
-                        {errors.email && <div className="text-red-500">{errors.email}</div>}
                       </div>
                       <div className="mb-25px">
                         <label className="text-contentColor dark:text-contentColor-dark mb-10px block">
-                          Mot de passe
+                          Password
                         </label>
                         <input
                           onChange={(e) => setPassword(e.target.value)}
                           type="password"
-                          placeholder="Mot de passe"
+                          placeholder="Password"
                           className="w-full h-52px leading-52px pl-5 bg-transparent text-sm focus:outline-none text-contentColor dark:text-contentColor-dark border border-borderColor dark:border-borderColor-dark placeholder:text-placeholder placeholder:opacity-80 font-medium rounded"
                         />
-                        {errors.password && <div className="text-red-500">{errors.password}</div>}
                       </div>
                       <div className="text-contentColor dark:text-contentColor-dark flex items-center justify-between">
                         <div className="flex items-center">
@@ -169,14 +167,14 @@ function Auth() {
                             id="remember"
                             className="w-18px h-18px mr-2 block box-content"
                           />
-                          <label htmlFor="remember"> Se souvenir de moi</label>
+                          <label htmlFor="remember"> Remember me</label>
                         </div>
                         <div>
                           <a
                             href="#"
                             className="hover:text-primaryColor relative after:absolute after:left-0 after:bottom-0.5 after:w-0 after:h-0.5 after:bg-primaryColor after:transition-all after:duration-300 hover:after:w-full"
                           >
-                            Mot de passe oublié ?
+                            Forgot your password?
                           </a>
                         </div>
                       </div>
@@ -186,16 +184,16 @@ function Auth() {
                           type="submit"
                           className="text-size-15 text-whiteColor bg-primaryColor px-25px py-10px w-full border border-primaryColor hover:text-primaryColor hover:bg-whiteColor inline-block rounded group dark:hover:text-whiteColor dark:hover:bg-whiteColor-dark"
                         >
-                          Se connecter
+                          Log in
                         </button>
                       </div>
                     </form>
                   </div>
                 )}
-                {/* formulaire d'inscription */}
+                {/* sign up form*/}
                 {activeTab === "signup" && (
                   <div className="block opacity-100 transition-opacity duration-150 ease-linear">
-                    {/* titre */}
+                    {/* heading   */}
                     <div className="text-center">
                       <h3 className="text-size-32 font-bold text-blackColor dark:text-blackColor-dark mb-2 leading-normal">
                       Active Account
