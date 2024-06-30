@@ -9,7 +9,7 @@ const UserNeedForm = ({ onSubmit }) => {
 
     // Envoyer le message à l'API backend
     try {
-      const response = await fetch('http://localhost:3000/messages', {
+      const response = await fetch('http://localhost:5000/messages', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
