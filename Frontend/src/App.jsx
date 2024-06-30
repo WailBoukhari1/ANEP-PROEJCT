@@ -26,8 +26,9 @@ const CreateUser = lazy(() => import("./components/users/CreateUserPage"));
 const EditUser = lazy(() => import("./components/users/EditUserPage"));
 const UserManagmentPage = lazy(() => import("./pages/admin/UserManagmentPage"));
 const Auth = lazy(() => import("./pages/AuthPage"));
-const NotFoundPage = lazy(() => import("./pages/NotFoundPage")); // Add this line
-const ResetPassword = lazy(()=>import("./pages/resetPassword"))
+const NotFoundPage = lazy(() => import("./pages/NotFoundPage"));
+const ResetPassword = lazy(() => import("./pages/resetPassword"));
+const UserNeedPage = lazy(() => import("./pages/admin/UserNeedPage")); // Import UserNeedPage
 
 function App() {
   const [isDataLoaded, setIsDataLoaded] = useState(false);
@@ -55,7 +56,7 @@ function App() {
             {isDataLoaded ? (
               <Routes>
                 <Route path="/Auth" element={<Auth />} />
-                <Route path="/resetPassword/:id" element={<ResetPassword/>}/>
+                <Route path="/resetPassword/:id" element={<ResetPassword />} />
                 <Route
                   path="/"
                   element={
@@ -145,10 +146,17 @@ function App() {
                   }
                 />
                 <Route
+                  path="/admin/user-needs"
+                  element={
+                    <PrivateRoute>
+                      <UserNeedPage />
+                    </PrivateRoute>
+                  }
+                />
+                <Route
                   path="*"
                   element={<NotFoundPage isDataLoaded={isDataLoaded} />}
-                />{" "}
-                {/* Pass isDataLoaded */}
+                />
               </Routes>
             ) : (
               <LoadingComponent />

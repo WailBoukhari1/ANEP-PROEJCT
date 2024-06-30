@@ -1,24 +1,26 @@
 const UserNeed = require('../models/UserNeed');
 
+// Créer un besoin utilisateur
 exports.createUserNeed = async (req, res) => {
   try {
-    const { user, message } = req.body;
-    const newUserNeed = new UserNeed({
-      user,
-      message
+    const { message } = req.body;
+    const userNeed = new UserNeed({
+      user: req.user.id,
+      message,
     });
-    await newUserNeed.save();
-    res.status(201).json(newUserNeed);
+    await userNeed.save();
+    res.status(201).json(userNeed);
   } catch (error) {
-    res.status(500).json({ error: 'Internal Server Error' });
+    res.status(500).json({ message: 'Erreur lors de la création du besoin utilisateur' });
   }
 };
 
+// Obtenir les besoins des utilisateurs
 exports.getUserNeeds = async (req, res) => {
   try {
-    const userNeeds = await UserNeed.find();
-    res.status(200).json(userNeeds);
+    const userNeeds = await UserNeed.find().populate('user');
+    res.json(userNeeds);
   } catch (error) {
-    res.status(500).json({ error: 'Internal Server Error' });
+    res.status(500).json({ message: 'Erreur lors de la récupération des besoins des utilisateurs' });
   }
 };
