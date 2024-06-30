@@ -3,10 +3,29 @@ import React, { useState } from 'react';
 const UserNeedForm = ({ onSubmit }) => {
   const [message, setMessage] = useState('');
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     onSubmit(message);
-    setMessage('');
+
+    // Envoyer le message à l'API backend
+    try {
+      const response = await fetch('http://localhost:3000/messages', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ message }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Erreur lors de l\'envoi du message');
+      }
+
+      // Réinitialiser le message après l'envoi réussi
+      setMessage('');
+    } catch (error) {
+      console.error('Erreur:', error);
+    }
   };
 
   return (
