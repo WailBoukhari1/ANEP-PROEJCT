@@ -72,10 +72,10 @@ const activeAccount = async (url) => {
                         </tr>
                         <tr>
                           <td style="padding:0 35px;">
-                            <h1 style="color:#1e1e2d; font-weight:500; margin:0;font-size:32px;font-family:'Rubik',sans-serif;">Vous avez demandé à activer votre compte</h1>
+                            <h1 style="color:#1e1e2d; font-weight:500; margin:0;font-size:32px;font-family:'Rubik',sans-serif;">Vous avez demandé d'activer votre compte</h1>
                             <span style="display:inline-block; vertical-align:middle; margin:29px 0 26px; border-bottom:1px solid #cecece; width:100px;"></span>
                             <p style="color:#455056; font-size:15px;line-height:24px; margin:0;">
-                              Nous ne pouvons pas simplement vous envoyer votre  mot de passe. Un lien unique pour réinitialiser votre mot de passe a été généré pour vous. Pour réinitialiser votre mot de passe, cliquez sur le lien suivant et suivez les instructions.
+                               Un lien unique pour créer/réinitialiser votre mot de passe a été généré pour vous. Cliquez sur le lien suivant et suivez les instructions.
                             </p>
                             <a href="${urlreset}" style="background:#20e277;text-decoration:none !important; font-weight:500; margin-top:35px; color:#fff;text-transform:uppercase; font-size:14px;padding:10px 24px;display:inline-block;border-radius:50px;">votre lien</a>
                           </td>

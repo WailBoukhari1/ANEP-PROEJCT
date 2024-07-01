@@ -69,6 +69,31 @@ const emailVerify = async (req, res) => {
         res.status(500).json({ message: 'Erreur interne du serveur' });
     }
 };
+const forgetPassword = async (req, res) => {
+    try {
+        const { email } = req.body;
+        const user = await Users.findOne({ email });
+
+        if (!user) {
+            return res.status(404).json({ message: 'Utilisateur non trouvé' });
+        }
+
+      
+            const resetToken = jwt.sign({ email: user.email }, process.env.JWT_SECRET_KEY, { expiresIn: '1h' });
+            const urlreset = `http://localhost:5173/resetPassword/${resetToken}`;
+            const emailTemplate = mailer.activeAccount(urlreset);
+            user.resetToken = resetToken;
+            await user.save();
+            // changer belhajmokhlis@gmail.com pare email
+            const emailResponse = await mailer.sendEmail('belhajmokhlis@gmail.com', 'your active url', emailTemplate);
+            return res.status(200).json(emailResponse);
+      
+    } catch (error) {
+        console.error('Erreur lors de la vérification du mot de passe :', error);
+        res.status(500).json({ message: 'Erreur interne du serveur' });
+    }
+};
+
 const resetTokenVerify = async (req, res) => {
     try {
         const resetToken = req.params.resetToken; // Extract resetToken from req.params
@@ -104,5 +129,6 @@ module.exports = {
     refreshUser,
     emailVerify,
     resetTokenVerify,
-    newpassword
+    newpassword,
+    forgetPassword
 };

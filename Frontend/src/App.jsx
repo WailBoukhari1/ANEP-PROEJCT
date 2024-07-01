@@ -28,6 +28,8 @@ const UserManagmentPage = lazy(() => import("./pages/admin/UserManagmentPage"));
 const Auth = lazy(() => import("./pages/AuthPage"));
 const NotFoundPage = lazy(() => import("./pages/NotFoundPage")); // Add this line
 const ResetPassword = lazy(()=>import("./pages/resetPassword"))
+const ForgetPassword = lazy(()=>import("./pages/ForgetPassword"))
+
 
 function App() {
   const [isDataLoaded, setIsDataLoaded] = useState(false);
@@ -55,6 +57,7 @@ function App() {
             {isDataLoaded ? (
               <Routes>
                 <Route path="/Auth" element={<Auth />} />
+                <Route path="Auth/ForgetPassword" element={<ForgetPassword />} />
                 <Route path="/resetPassword/:id" element={<ResetPassword/>}/>
                 <Route
                   path="/"

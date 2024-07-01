@@ -1,5 +1,6 @@
 import { useState } from "react";
 import useApiAxios from "../config/axios";
+import { Link } from "react-router-dom";
 
 function Auth() {
   const [activeTab, setActiveTab] = useState("login"); // Default active tab
@@ -170,12 +171,12 @@ function Auth() {
                           <label htmlFor="remember"> Remember me</label>
                         </div>
                         <div>
-                          <a
-                            href="#"
+                          <Link
+                            to='ForgetPassword'
                             className="hover:text-primaryColor relative after:absolute after:left-0 after:bottom-0.5 after:w-0 after:h-0.5 after:bg-primaryColor after:transition-all after:duration-300 hover:after:w-full"
                           >
                             Forgot your password?
-                          </a>
+                          </Link>
                         </div>
                       </div>
                       <div className="my-25px text-center">
