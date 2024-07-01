@@ -26,9 +26,12 @@ const CreateUser = lazy(() => import("./components/users/CreateUserPage"));
 const EditUser = lazy(() => import("./components/users/EditUserPage"));
 const UserManagmentPage = lazy(() => import("./pages/admin/UserManagmentPage"));
 const Auth = lazy(() => import("./pages/AuthPage"));
+
 const NotFoundPage = lazy(() => import("./pages/NotFoundPage")); // Add this line
 const ResetPassword = lazy(()=>import("./pages/resetPassword"))
 const ForgetPassword = lazy(()=>import("./pages/ForgetPassword"))
+
+const UserNeedPage = lazy(() => import("./pages/admin/UserNeedPage")); // Import UserNeedPage
 
 
 function App() {
@@ -148,10 +151,17 @@ function App() {
                   }
                 />
                 <Route
+                  path="/admin/user-needs"
+                  element={
+                    <PrivateRoute>
+                      <UserNeedPage />
+                    </PrivateRoute>
+                  }
+                />
+                <Route
                   path="*"
                   element={<NotFoundPage isDataLoaded={isDataLoaded} />}
-                />{" "}
-                {/* Pass isDataLoaded */}
+                />
               </Routes>
             ) : (
               <LoadingComponent />

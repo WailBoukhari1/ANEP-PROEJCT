@@ -3,6 +3,7 @@ const express = require('express');
 const http = require('http');
 const path = require('path');
 const cors = require('cors');
+const mongoose = require('mongoose'); // Ajout de mongoose
 
 const connectDB = require('./config/db');
 const userRoutes = require('./routes/users');
@@ -10,6 +11,7 @@ const courseRoutes = require('./routes/courses');
 const authRoutes = require('./routes/authontification');
 const setupSocket = require('./utils/socketManager');
 const evaluationsRoutes = require('./routes/evaluations');
+const userNeedRoutes = require('./routes/UserNeedRoutes');
 
 const app = express();
 const server = http.createServer(app);
@@ -27,10 +29,32 @@ app.use('/users', userRoutes);
 app.use('/courses', courseRoutes);
 app.use('/auth', authRoutes);
 app.use('/evaluations', evaluationsRoutes);
+app.use('/user-needs', userNeedRoutes);
+
+// Message Schema and Model
+const messageSchema = new mongoose.Schema({
+    content: String,
+});
+
+const Message = mongoose.model('Message', messageSchema);
+
+// Route to handle message submission
+app.post('/messages', async (req, res) => {
+    const { message } = req.body;
+
+    try {
+        const newMessage = new Message({ content: message });
+        await newMessage.save();
+        res.status(201).send('Message saved successfully');
+    } catch (error) {
+        res.status(500).send('Error saving message');
+    }
+});
 
 app.get('/', (req, res) => {
     res.send('Hello World!');
 });
+
 // Make io accessible to our router
 app.set('socketio', io);
 

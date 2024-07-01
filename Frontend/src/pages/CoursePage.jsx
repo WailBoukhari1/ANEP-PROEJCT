@@ -1,7 +1,38 @@
 import MainLayout from "../layout/MainLayout";
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useContext } from "react";
 import { Link } from "react-router-dom";
 import useApiAxios from "../config/axios";
+import UserNeedForm from './UserNeedForm';
+import UserContext from "../auth/user-context";
+const UserPage = () => {
+  const [showForm, setShowForm] = useState(false);
+const [currentUser] = useContext(UserContext);
+  const handleButtonClick = () => {
+    setShowForm(true);
+  };
+
+  const handleFormSubmit = (message) => {
+    useApiAxios.post("/user-needs", {
+      headers: {
+        "Content-Type": "application/json",
+      },
+      data: { user: currentUser, message },
+    })
+      .then((response) => {
+        console.log("Success:", response.data);
+        setShowForm(false);
+      })
+      .catch((error) => {
+        console.error("Error:", error);
+      });
+  };
+  return (
+    <div>
+      <button onClick={handleButtonClick}>Exprimer mon besoin</button>
+      {showForm && <UserNeedForm onSubmit={handleFormSubmit} />}
+    </div>
+  );
+};
 
 function Course() {
   const [courses, setCourses] = useState([]);
@@ -203,6 +234,13 @@ function Course() {
                       </button>
                     </form>
                   </div>
+                  {/* bouton pour exprimer mon besoin */}
+                  <div
+                    className="pt-30px pr-15px pl-10px pb-23px 2xl:pt-10 2xl:pr-25px 2xl:pl-5 2xl:pb-33px mb-30px border border-borderColor dark:border-borderColor-dark"
+                    data-aos="fade-up"
+                  >
+                    <UserPage />
+                  </div>
                 </div>
               </div>
               {/* courses main */}
@@ -229,9 +267,12 @@ function Course() {
                               <Link to={`/CoursesDetails/${course._id}`}>
                                 {course.title}
                               </Link>
-                              <div className="text-sm font-inter mb-4 description-clamp ">
-                                {course.description}
-                              </div>
+                                <div
+                                  className="text-sm font-inter mb-4 description-clamp "
+                                  dangerouslySetInnerHTML={{
+                                    __html: course.description,
+                                  }}
+                                />
                               <div className="text-xs py-5 text-gray-500">
                                 Created on:{" "}
                                 <span className="font-semibold">
