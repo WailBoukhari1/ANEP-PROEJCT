@@ -406,6 +406,7 @@ function CoursesDetails() {
                         )}
                         {activeTab === "upload" && (
                           <div>
+                            {currentUser.roles.includes('admin') &&
                             <div
                               {...getRootProps()}
                               className="dropzone p-6 border-2 border-dashed border-gray-300 rounded-md text-center cursor-pointer hover:border-gray-500"
@@ -416,6 +417,7 @@ function CoursesDetails() {
                                 click to select files
                               </p>
                             </div>
+}
                             <div className="file-list mt-4">
                               <h4 className="file-list-title text-lg font-semibold mb-2">
                                 Files:
@@ -489,6 +491,8 @@ function CoursesDetails() {
                       <div className="py-2">
                         <p className="text-lg font-semibold py-1">
                           Express you interset in joining
+                       
+                        
                         </p>
                         <button
                           type="submit"
@@ -498,6 +502,8 @@ function CoursesDetails() {
                           Request to join
                         </button>
                       </div>
+                      {course.assignedUsers.includes(currentUser._id)&&
+                        
                       <div className="py-2">
                         <p className="text-lg font-semibold py-1">
                           Did you finish the Course ? Leave you FeedBack
@@ -525,6 +531,7 @@ function CoursesDetails() {
                           </DialogActions>
                         </Dialog>
                       </div>
+                      }
                     </div>
                   </div>
                 </div>
