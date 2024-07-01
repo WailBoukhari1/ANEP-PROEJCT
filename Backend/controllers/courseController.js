@@ -6,7 +6,14 @@ const XLSX = require('xlsx');
 // Get all courses
 const getAllCourses = async (req, res) => {
     try {
-        const courses = await Course.find();
+        const { hidden } = req.query;
+        const query = {};
+
+        if (hidden) {
+            query.hidden = hidden;
+        }
+
+        const courses = await Course.find(query);
         res.status(200).json(courses);
     } catch (error) {
         res.status(500).json({ message: error.message });

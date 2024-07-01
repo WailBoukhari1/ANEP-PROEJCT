@@ -50,7 +50,7 @@ function Course() {
   useEffect(() => {
     async function fetchCourses() {
       try {
-        const response = await useApiAxios.get(`/courses`);
+        const response = await useApiAxios.get(`/courses?hidden=visible`);
         const data = response.data;
         setCourses(data);
         setFilteredCourses(data); // Initially, no filter applied

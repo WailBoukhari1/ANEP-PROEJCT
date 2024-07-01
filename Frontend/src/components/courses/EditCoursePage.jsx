@@ -165,12 +165,12 @@ function EditCoursePage() {
     setCourse((prev) => ({ ...prev, times: updatedTimes }));
   };
 
-const handleInstructorChange = (event, newValue, index) => {
-  const updatedTimes = [...course.times];
-  updatedTimes[index].instructor = newValue ? newValue._id : "";
-  updatedTimes[index].instructorName = newValue ? newValue.name : "";
-  setCourse((prev) => ({ ...prev, times: updatedTimes }));
-};
+  const handleInstructorChange = (event, newValue, index) => {
+    const updatedTimes = [...course.times];
+    updatedTimes[index].instructor = newValue ? newValue._id : "";
+    updatedTimes[index].instructorName = newValue ? newValue.name : "";
+    setCourse((prev) => ({ ...prev, times: updatedTimes }));
+  };
 
   const handleAddSession = () => {
     setCourse((prev) => ({
@@ -290,10 +290,14 @@ const handleInstructorChange = (event, newValue, index) => {
   );
 
   // Function to check for conflicts
+
   const checkConflicts = (userId, startTime, endTime) => {
+    const user = users.find((user) => user._id === userId);
+    if (!user) return null;
+
+    // Check for course conflicts
     for (const course of allCourses) {
       if (course._id !== id && course.assignedUsers.includes(userId)) {
-        // Check at the course level
         for (const time of course.times) {
           if (
             (new Date(startTime) >= new Date(time.startTime) &&
@@ -301,11 +305,24 @@ const handleInstructorChange = (event, newValue, index) => {
             (new Date(endTime) >= new Date(time.startTime) &&
               new Date(endTime) <= new Date(time.endTime))
           ) {
-            return course;
+            return { type: 'course', course };
           }
         }
       }
     }
+
+    // Check for vacation conflicts
+    for (const vacation of user.vacations) {
+      if (
+        (new Date(startTime) >= new Date(vacation.start) &&
+          new Date(startTime) <= new Date(vacation.end)) ||
+        (new Date(endTime) >= new Date(vacation.start) &&
+          new Date(endTime) <= new Date(vacation.end))
+      ) {
+        return { type: 'vacation', vacation };
+      }
+    }
+
     return null;
   };
 
@@ -755,20 +772,28 @@ const handleInstructorChange = (event, newValue, index) => {
               onChange={handleUserChange}
               isOptionEqualToValue={(option, value) => option._id === value._id}
               renderOption={(props, option) => {
-                const conflictCourse = checkConflicts(
+                const conflict = checkConflicts(
                   option._id,
                   course.times[0].startTime,
                   course.times[0].endTime
                 );
+                const conflictStyle = conflict
+                  ? conflict.type === 'course'
+                    ? { color: "red" }
+                    : { color: "yellow" }
+                  : {};
+
                 return (
-                  <li
-                    {...props}
-                    style={{ color: conflictCourse ? "red" : "inherit" }}
-                  >
+                  <li {...props} style={conflictStyle}>
                     {option.name}
-                    {conflictCourse && (
+                    {conflict && conflict.type === 'course' && (
                       <span style={{ marginLeft: "10px", color: "red" }}>
-                        (Conflict with: {conflictCourse.title})
+                        (Conflict with: {conflict.course.title})
+                      </span>
+                    )}
+                    {conflict && conflict.type === 'vacation' && (
+                      <span style={{ marginLeft: "10px", color: "yellow" }}>
+                        (On vacation)
                       </span>
                     )}
                   </li>

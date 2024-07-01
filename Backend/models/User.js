@@ -20,8 +20,8 @@ const userSchema = new mongoose.Schema({
         default: null,
     },
     name: { type: String, required: true },
-    PPR: { type: Number, },
-    CIN: { type: String, },
+    PPR: { type: Number },
+    CIN: { type: String },
     DATE_NAISSANCE: { type: Date },
     SITUATION: { type: String },
     SEXE: { type: String },
@@ -54,7 +54,11 @@ const userSchema = new mongoose.Schema({
         isNew: { type: Boolean, default: true },
         createdAt: { type: Date, default: Date.now }
     }],
-    resetToken: { type: String,}
+    resetToken: { type: String },
+    vacations: [{
+        start: { type: Date, required: true },
+        end: { type: Date, required: true }
+    }]
 });
 
 const User = mongoose.model('User', userSchema);

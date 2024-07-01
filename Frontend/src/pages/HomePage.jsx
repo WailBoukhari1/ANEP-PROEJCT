@@ -15,7 +15,7 @@ function HomePage() {
   useEffect(() => {
     async function fetchCards() {
       try {
-        const response = await useApiAxios.get(`/courses`);
+        const response = await useApiAxios.get(`/courses?hidden=visible`);
         const data = response.data;
         const sortedCourses = data
           .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))

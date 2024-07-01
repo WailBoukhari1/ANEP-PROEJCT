@@ -50,6 +50,8 @@ const CreateUser = () => {
     FONCTION: "",
     LIBELLE_SST: "",
     DAT_S_ST: null,
+    vacations: [{ start: null, end: null }],
+
   });
 
   const handleChange = (event) => {
@@ -58,6 +60,14 @@ const CreateUser = () => {
       ...prev,
       [name]: type === "checkbox" ? value === "on" : value,
     }));
+  };
+
+  const handleVacationChange = (index, field, value) => {
+    setUser((prev) => {
+      const updatedVacations = [...prev.vacations];
+      updatedVacations[index][field] = value;
+      return { ...prev, vacations: updatedVacations };
+    });
   };
 
   const handleSubmit = async (event) => {
@@ -73,7 +83,12 @@ const CreateUser = () => {
       console.error("Error creating user:", error);
     }
   };
-
+  const handleRemoveVacation = (index) => {
+    setUser((prev) => {
+      const updatedVacations = prev.vacations.filter((_, i) => i !== index);
+      return { ...prev, vacations: updatedVacations };
+    });
+  };
   return (
     <AdminLayout>
       <Paper
@@ -434,6 +449,72 @@ const CreateUser = () => {
                 margin="normal"
               />
             </Grid>
+            <Grid item xs={12}>
+              <Typography variant="h6" component="h2" gutterBottom>
+                Vacations
+              </Typography>
+              {user.vacations.map((vacation, index) => (
+                <Paper key={index} elevation={3} style={{ padding: "16px", marginBottom: "16px" }}>
+                  <Grid container spacing={2}>
+                    <Grid item xs={12} sm={6}>
+                      <TextField
+                        label="Vacation Start"
+                        type="date"
+                        name={`vacation_start_${index}`}
+                        value={vacation.start || ""}
+                        onChange={(e) => handleVacationChange(index, "start", e.target.value)}
+                        InputLabelProps={{
+                          shrink: true,
+                        }}
+                        fullWidth
+                        margin="normal"
+                      />
+                    </Grid>
+                    <Grid item xs={12} sm={6}>
+                      <TextField
+                        label="Vacation End"
+                        type="date"
+                        name={`vacation_end_${index}`}
+                        value={vacation.end || ""}
+                        onChange={(e) => handleVacationChange(index, "end", e.target.value)}
+                        InputLabelProps={{
+                          shrink: true,
+                        }}
+                        fullWidth
+                        margin="normal"
+                      />
+                    </Grid>
+                    <Grid item xs={12} style={{ textAlign: 'right' }}>
+                      <Button
+                        onClick={() => handleRemoveVacation(index)}
+                        variant="contained"
+                        color="secondary"
+                        style={{ marginTop: "16px" }}
+                      >
+                        Remove Vacation
+                      </Button>
+                    </Grid>
+                  </Grid>
+                </Paper>
+              ))}
+              <Button
+                onClick={() =>
+                  setUser((prev) => ({
+                    ...prev,
+                    vacations: [...prev.vacations, { start: null, end: null }],
+                  }))
+                }
+                variant="contained"
+                color="primary"
+
+                fullWidth
+                style={{ marginTop: "16px" }}
+              >
+                Add Vacation
+              </Button>
+            </Grid>
+
+
             <Grid item xs={12}>
               <Button
                 type="submit"
