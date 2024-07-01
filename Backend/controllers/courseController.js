@@ -18,11 +18,6 @@ const getCourseById = async (req, res) => {
     try {
         const course = await Course.findById(req.params.id)
             .populate('interestedUsers', '_id name')
-            .populate({
-                path: 'times.instructor',
-                model: 'User',
-                select: 'name'
-            })
             .exec();
 
         if (!course) {

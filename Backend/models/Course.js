@@ -36,7 +36,13 @@ const timeSchema = new mongoose.Schema({
         required: true,
         enum: ['intern', 'extern']
     },
-    instructor: { type: mongoose.Schema.Types.ObjectId, ref: 'Personnel', required: true }
+    instructor: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: false },
+    instructorName: { type: String, required: false },
+    externalInstructorDetails: {
+        phone: { type: String },
+        position: { type: String },
+        cv: { type: String }
+    }
 });
 
 const courseSchema = new mongoose.Schema({
