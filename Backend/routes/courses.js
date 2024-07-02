@@ -18,38 +18,9 @@ const storage = multer.diskStorage({
 });
 
 const upload = multer({ storage: storage });
-router.get('/:courseId/assignedUsers/download', async (req, res) => {
-    try {
-        const courseId = req.params.courseId;
-        const course = await Course.findById(courseId).populate('assignedUsers');
 
-        if (!course) {
-            return res.status(404).send('Course not found');
-        }
+router.get('/:courseId/assignedUsers/download', courseController.userAssignedDownload);
 
-        const usersData = course.assignedUsers.map(user => ({
-            Name: user.name,
-            Email: user.email,
-            // Add more fields as necessary
-        }));
-
-        const worksheet = XLSX.utils.json_to_sheet(usersData);
-        const workbook = XLSX.utils.book_new();
-        XLSX.utils.book_append_sheet(workbook, worksheet, 'Assigned Users');
-
-        const buffer = XLSX.write(workbook, { type: 'buffer', bookType: 'xlsx' });
-
-        res.setHeader(
-            'Content-Disposition',
-            'attachment; filename=assigned_users.xlsx'
-        );
-        res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
-        res.send(buffer);
-    } catch (error) {
-        console.error('Error downloading assigned users:', error);
-        res.status(500).send('Server error');
-    }
-});
 // ---- Specific routes ---- //
 // get all comments
 router.get('/comments', courseController.getAllComments);

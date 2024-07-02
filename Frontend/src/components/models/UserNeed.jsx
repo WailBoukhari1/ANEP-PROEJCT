@@ -34,7 +34,7 @@ const UserPage = () => {
 
   return (
     <div>
-      <button onClick={handleButtonClick}>Exprimer mon besoin</button>
+      <button className="text-size-12 2xl:text-size-15 text-whiteColor bg-primaryColor border-primaryColor border hover:text-primaryColor hover:bg-white px-15px py-2 rounded-standard dark:hover:bg-whiteColor-dark dark:hover:text-whiteColor" onClick={handleButtonClick}>Exprimer mon besoin</button>
       {showForm && (
         <div className="popup">
           <div className="popup-inner">
