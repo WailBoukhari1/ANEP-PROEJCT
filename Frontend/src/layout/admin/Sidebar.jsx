@@ -54,7 +54,7 @@ const Sidebar = ({ open, handleClose, drawerWidth, isMobile }) => {
     {
       text: "Users Needs",
       icon: <PersonOutlineIcon />,
-      path: "/UserNeed",
+      path: "/UserNeedAdmin",
     },
   ];
 

@@ -8,7 +8,7 @@ function Auth() {
   const [password, setPassword] = useState("");
   const [activeEmail, setActiveEmail] = useState("");
   
-  const handleSubmit = async () => {
+  const handleSubmit = async (event) => {
     event.preventDefault();
 
     useApiAxios
@@ -39,8 +39,6 @@ function Auth() {
       })
       .catch((error) => {
         console.error(error);
-      
-
       });
   };
 
@@ -76,7 +74,7 @@ function Auth() {
           <div className="container">
             <div className="text-center">
               <h1 className="text-3xl md:text-size-40 2xl:text-size-55 font-bold text-blackColor dark:text-blackColor-dark mb-7 md:mb-6 pt-3">
-              Se Connecter
+                Se Connecter
               </h1>
               <ul className="flex gap-1 justify-center">
                 <li>
@@ -89,7 +87,7 @@ function Auth() {
                 </li>
                 <li>
                   <span className="text-lg text-blackColor2 dark:text-blackColor2-dark">
-                  Se Connecter
+                    Se Connecter
                   </span>
                 </li>
               </ul>
@@ -99,7 +97,10 @@ function Auth() {
       </section>
       {/*form section */}
       <section className="relative">
-        <div className="container py-100px">
+        <div className="container py-100px flex">
+          <div className="hidden md:block w-1/3">
+            <img src="assets/images/login-image.png" alt="Login Image" className="w-full" />
+          </div>
           <div className="tab md:w-2/3 mx-auto">
             {/* tab controller */}
             <div className="tab-links grid grid-cols-2 gap-11px text-blackColor text-lg lg:text-size-22 font-semibold font-hind mb-43px mt-30px md:mt-0">
@@ -111,12 +112,15 @@ function Auth() {
                 } relative group/btn shadow-bottom hover:shadow-bottom dark:shadow-standard-dark disabled:cursor-pointer rounded-standard`}
                 onClick={() => setActiveTab("login")}
               >
-              <span className={` // Added backticks for string interpolation
-                  ${activeTab === "login" ? "absolute w-full h-1 bg-primaryColor top-0 left-0" : "absolute w-0 h-1 bg-primaryColor top-0 left-0 group-hover/btn:w-full"}
-                `}
+                <span
+                  className={` // Added backticks for string interpolation
+                  ${
+                    activeTab === "login"
+                      ? "absolute w-full h-1 bg-primaryColor top-0 left-0"
+                      : "absolute w-0 h-1 bg-primaryColor top-0 left-0 group-hover/btn:w-full"
+                  }`}
                 />
                 Se Connecter
-
               </button>
               <button
                 className={`py-9px lg:py-6 ${
@@ -126,9 +130,13 @@ function Auth() {
                 } relative group/btn hover:shadow-bottom dark:shadow-standard-dark disabled:cursor-pointer rounded-standard`}
                 onClick={() => setActiveTab("signup")}
               >
-                <span className={` // Added backticks for string interpolation
-                  ${activeTab === "signup" ? "absolute w-full h-1 bg-primaryColor top-0 left-0" : "absolute w-0 h-1 bg-primaryColor top-0 left-0 group-hover/btn:w-full"}
-                `}
+                <span
+                  className={` // Added backticks for string interpolation
+                  ${
+                    activeTab === "signup"
+                      ? "absolute w-full h-1 bg-primaryColor top-0 left-0"
+                      : "absolute w-0 h-1 bg-primaryColor top-0 left-0 group-hover/btn:w-full"
+                  }`}
                 />
                 activez votre compte
               </button>
@@ -141,8 +149,9 @@ function Auth() {
                   <div className="block opacity-100 transition-opacity duration-150 ease-linear">
                     {/* heading   */}
                     <div className="text-center">
+                      <img src="assets/images/logo.png" alt="Logo" className="mx-auto mb-4" />
                       <h3 className="text-size-32 font-bold text-blackColor dark:text-blackColor-dark mb-2 leading-normal">
-                      Se Connecter
+                        Se Connecter
                       </h3>
                     </div>
                     <form className="pt-25px" data-aos="fade-up">
@@ -159,7 +168,7 @@ function Auth() {
                       </div>
                       <div className="mb-25px">
                         <label className="text-contentColor dark:text-contentColor-dark mb-10px block">
-                        Mot de passe
+                          Mot de passe
                         </label>
                         <input
                           onChange={(e) => setPassword(e.target.value)}
@@ -169,15 +178,13 @@ function Auth() {
                         />
                       </div>
                       <div className="text-contentColor dark:text-contentColor-dark flex items-center justify-between">
-                        <div className="flex items-center">
-                        
-                        </div>
+                        <div className="flex items-center"></div>
                         <div>
                           <Link
-                            to='ForgetPassword'
+                            to="ForgetPassword"
                             className="hover:text-primaryColor relative after:absolute after:left-0 after:bottom-0.5 after:w-0 after:h-0.5 after:bg-primaryColor after:transition-all after:duration-300 hover:after:w-full"
                           >
-                             Vous avez oublié votre mot de passe ?
+                            Vous avez oublié votre mot de passe ?
                           </Link>
                         </div>
                       </div>
@@ -187,8 +194,8 @@ function Auth() {
                           type="submit"
                           className="text-size-15 text-whiteColor bg-primaryColor px-25px py-10px w-full border border-primaryColor hover:text-primaryColor hover:bg-whiteColor inline-block rounded group dark:hover:text-whiteColor dark:hover:bg-whiteColor-dark"
                         >
-                  Se Connecter
-                  </button>
+                          Se Connecter
+                        </button>
                       </div>
                     </form>
                   </div>
@@ -198,10 +205,10 @@ function Auth() {
                   <div className="block opacity-100 transition-opacity duration-150 ease-linear">
                     {/* heading   */}
                     <div className="text-center">
+                      <img src="assets/images/logo.png" alt="Logo" className="mx-auto mb-4" />
                       <h3 className="text-size-32 font-bold text-blackColor dark:text-blackColor-dark mb-2 leading-normal">
-                      activez votre compte
+                        activez votre compte
                       </h3>
-                    
                     </div>
                     <form className="pt-25px" data-aos="fade-up" onSubmit={handleEmailVerification}>
                       <div className="grid grid-cols-1 lg:grid-cols-1 lg:gap-x-30px gap-y-25px mb-25px">

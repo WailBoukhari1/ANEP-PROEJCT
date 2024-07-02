@@ -1,5 +1,19 @@
 const mongoose = require('mongoose');
 
+const vacationSchema = new mongoose.Schema({
+    start: { type: Date, required: true },
+    end: { type: Date, required: true }
+});
+
+const notificationSchema = new mongoose.Schema({
+    message: String,
+    date: { type: Date, default: Date.now },
+    courseId: { type: mongoose.Schema.Types.ObjectId, ref: 'Course' },
+    commentSnippet: String,
+    isNew: { type: Boolean, default: true },
+    createdAt: { type: Date, default: Date.now }
+});
+
 const userSchema = new mongoose.Schema({
     email: {
         type: String,
@@ -46,19 +60,9 @@ const userSchema = new mongoose.Schema({
     FONCTION: { type: String },
     LIBELLE_SST: { type: String },
     DAT_S_ST: { type: Date },
-    notifications: [{
-        message: String,
-        date: { type: Date, default: Date.now },
-        courseId: { type: mongoose.Schema.Types.ObjectId, ref: 'Course' },
-        commentSnippet: String,
-        isNew: { type: Boolean, default: true },
-        createdAt: { type: Date, default: Date.now }
-    }],
+    notifications: [notificationSchema],
     resetToken: { type: String },
-    vacations: [{
-        start: { type: Date, required: true },
-        end: { type: Date, required: true }
-    }]
+    vacations: [vacationSchema]
 });
 
 const User = mongoose.model('User', userSchema);
