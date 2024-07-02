@@ -9629,13 +9629,13 @@ video {
     cursor: pointer;
   }
   
-  button[type="submit"] {
-    background-color: #4CAF50;
+  .popup-inner button[type="submit"] {
+    background-color: rgb(8 113 181);
     color: white;
   }
   
-  button[type="button"] {
-    background-color: #f44336;
+  .popup-inner button[type="button"] {
+    background-color: var(--secondaryColor);
     color: white;
   }
   
