@@ -1,11 +1,20 @@
 const express = require('express');
 const router = express.Router();
-// const { authenticateUser } = require('../utils/auth');
 const courseController = require('../controllers/courseController');
 
-// Route to handle evaluation submissions
-router.post('/:courseId/', courseController.createEvaluation);
-// Route to get all evaluations for a course (for dashboard)
-router.get('/:courseId/download', courseController.downloadEvaluations);
+// Route groups
+const evaluationRoutes = [
+    { method: 'post', path: '/:courseId/', handler: courseController.createEvaluation },
+    { method: 'get', path: '/:courseId/download', handler: courseController.downloadEvaluations },
+];
+
+// Apply routes
+const applyRoutes = (routes) => {
+    routes.forEach(({ method, path, middleware = [], handler }) => {
+        router[method](path, ...middleware, handler);
+    });
+};
+
+applyRoutes(evaluationRoutes);
 
 module.exports = router;

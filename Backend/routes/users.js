@@ -1,32 +1,32 @@
 const express = require('express');
 const router = express.Router();
-const userController = require('../controllers/userController'); // Adjust the path as necessary
-const { authenticateUser } = require('../utils/auth'); // Adjust the path as necessary
+const userController = require('../controllers/userController');
+const { authenticateUser } = require('../utils/auth');
 
-// ---- Specific routes ---- //
-// Route to get notifications for users
-router.get('/notifications', authenticateUser, userController.getNotifications);
+// Specific routes
+const specificRoutes = [
+    { method: 'get', path: '/notifications', middleware: [authenticateUser], handler: userController.getNotifications },
+    { method: 'get', path: '/admin/notifications', middleware: [authenticateUser], handler: userController.getAdminNotifications },
+    { method: 'post', path: '/mark-notification-read', handler: userController.markNotificationRead },
+];
 
-// Route to get notifications for an admin
-router.get('/admin/notifications', authenticateUser, userController.getAdminNotifications);
+// Generic routes
+const genericRoutes = [
+    { method: 'get', path: '/', middleware: [authenticateUser], handler: userController.getAllUsers },
+    { method: 'get', path: '/:id', middleware: [authenticateUser], handler: userController.getUser },
+    { method: 'post', path: '/', handler: userController.createUser },
+    { method: 'put', path: '/:id',handler: userController.updateUser },
+    { method: 'delete', path: '/:id',handler: userController.deleteUser },
+];
 
-// Route to mark a notification as read
-router.post('/mark-notification-read', authenticateUser, userController.markNotificationRead);
+// Apply specific routes
+specificRoutes.forEach(({ method, path, middleware = [], handler }) => {
+    router[method](path, ...middleware, handler);
+});
 
-// ---- Generic routes ---- //
-// Get all users
-router.get('/', authenticateUser, userController.getAllUsers);
-
-// Get a single user by ID
-router.get('/:id', authenticateUser, userController.getUser);
-
-// Create a new user
-router.post('/', authenticateUser, userController.createUser);
-
-// Update a user
-router.put('/:id', authenticateUser, userController.updateUser);
-
-// Delete a user
-router.delete('/:id', authenticateUser, userController.deleteUser);
+// Apply generic routes
+genericRoutes.forEach(({ method, path, middleware = [], handler }) => {
+    router[method](path, ...middleware, handler);
+});
 
 module.exports = router;

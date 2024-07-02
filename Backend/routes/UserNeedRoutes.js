@@ -1,17 +1,22 @@
 const express = require('express');
+const router = express.Router();
 const UserNeedController = require('../controllers/UserNeedController');
 const { authenticateUser } = require('../utils/auth');
-const router = express.Router();
 
-// Route to create a user need
-router.post('/', authenticateUser, UserNeedController.createUserNeed);
+// Route groups
+const userNeedRoutes = [
+    { method: 'post', path: '/', handler: UserNeedController.createUserNeed },
+    { method: 'get', path: '/', middleware: [authenticateUser], handler: UserNeedController.getUserNeeds },
+    { method: 'delete', path: '/:id', middleware: [authenticateUser], handler: UserNeedController.deleteUserNeeds }, // Changed 'get' to 'delete' for deletion
+];
 
-// Route to get user needs
-router.get('/', authenticateUser, UserNeedController.getUserNeeds);
+// Apply routes
+const applyRoutes = (routes) => {
+    routes.forEach(({ method, path, middleware = [], handler }) => {
+        router[method](path, ...middleware, handler);
+    });
+};
 
-// Delete user needs
-router.get('/:id', authenticateUser, UserNeedController.deleteUserNeeds);
-  
+applyRoutes(userNeedRoutes);
 
-  
 module.exports = router;
