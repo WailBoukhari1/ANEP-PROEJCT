@@ -341,14 +341,14 @@ function CoursesDetails() {
                                         {comment.text}{" "}
                                         {/* Display the text of the comment */}
                                       </p>
-                                      <div className="flex space-x-2">
+                                      <div className="flex space-x-2 py-2">
                                         <button
                                           onClick={() =>
                                             handleReportComment(comment._id)
                                           }
                                           className="bg-report-comment text-white px-4 py-2 rounded transition duration-300 flex items-center space-x-2"
                                         >
-                                          <i className="fas fa-flag"></i>
+                                          Report
                                         </button>
                                         <button
                                           onClick={() =>
@@ -356,7 +356,7 @@ function CoursesDetails() {
                                           }
                                           className="bg-delete-comment text-white px-4 py-2 rounded transition duration-300 flex items-center space-x-2"
                                         >
-                                          <i className="fas fa-trash-alt"></i>
+                                          Delete
                                         </button>
                                       </div>
                                     </div>

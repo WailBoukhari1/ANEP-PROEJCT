@@ -79,7 +79,7 @@ function EditCoursePage() {
     gradeFonction: null,
   });
   const [allCourses, setAllCourses] = useState([]);
-  const baseUrl = "https://anep-proejct.onrender.com/";
+  const baseUrl = "https://anep-proejct.onrender.com";
   useEffect(() => {
     const fetchUsersAndCourse = async () => {
       try {
