@@ -33,7 +33,8 @@ function Navbar() {
 
   // Effet pour initialiser la connexion du socket
   useEffect(() => {
-    socket.current = io("http://localhost:5000");
+    // Initialize socket connection
+    socket.current = io("https://anep-proejct.onrender.com/");
 
     socket.current.emit("register", userId);
 
@@ -53,7 +54,7 @@ function Navbar() {
   // Fonction pour récupérer les notifications
   const fetchNotifications = () => {
     useApiAxios
-      .get(`http://localhost:5000/users/notifications`)
+      .get(`/users/notifications`)
       .then((response) => {
         const sortedNotifications = response.data.notifications.sort(
           (a, b) => new Date(b.createdAt) - new Date(a.createdAt)

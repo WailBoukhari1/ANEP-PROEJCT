@@ -24,3 +24,15 @@ exports.getUserNeeds = async (req, res) => {
   }
 };
 
+// Delete User Need
+exports.deleteUserNeeds = async (req, res) => {
+  try {
+    const need = await UserNeed.findByIdAndDelete(req.params.id);
+    if (!need) {
+      return res.status(404).json({ message: 'User need not found' });
+    }
+    res.status(204).end();
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};

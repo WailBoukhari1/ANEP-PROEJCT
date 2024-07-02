@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Container, Typography, Card, CardContent, CardActions, Button, Grid } from '@mui/material';
+import { Container, Typography, Card, CardContent, CardActions, Button, Grid, CircularProgress, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle } from '@mui/material';
 import { styled } from '@mui/material/styles';
 import useApiAxios from "../../config/axios";
 import AdminLayout from "../../layout/admin/AdminLayout";
@@ -9,18 +9,23 @@ const RootContainer = styled(Container)(({ theme }) => ({
 }));
 
 const CustomCard = styled(Card)(({ theme }) => ({
-  minHeight: 150,
   display: 'flex',
   flexDirection: 'column',
   justifyContent: 'space-between',
+  height: '100%',
+  boxShadow: theme.shadows[3],
+  transition: 'box-shadow 0.3s ease',
+  '&:hover': {
+    boxShadow: theme.shadows[6],
+  },
 }));
 
 const CustomCardContent = styled(CardContent)(({ theme }) => ({
-  paddingBottom: theme.spacing(1),
+  paddingBottom: theme.spacing(2),
+  flexGrow: 1,
 }));
 
 const CustomCardActions = styled(CardActions)(({ theme }) => ({
-  display: 'flex',
   justifyContent: 'flex-end',
 }));
 
@@ -30,6 +35,9 @@ const DeleteButton = styled(Button)(({ theme }) => ({
 
 function AdminUserNeeds() {
   const [userNeeds, setUserNeeds] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [openDialog, setOpenDialog] = useState(false);
+  const [selectedNeedId, setSelectedNeedId] = useState(null);
 
   useEffect(() => {
     async function fetchUserNeeds() {
@@ -44,14 +52,34 @@ function AdminUserNeeds() {
     fetchUserNeeds();
   }, []);
 
-  const handleDelete = async (id) => {
+  const handleDelete = async () => {
     try {
-      await useApiAxios.delete(`/user-needs/${id}`);
-      setUserNeeds((prevNeeds) => prevNeeds.filter((need) => need._id !== id));
+      await useApiAxios.delete(`/user-needs/${selectedNeedId}`);
+      setUserNeeds((prevNeeds) => prevNeeds.filter((need) => need._id !== selectedNeedId));
     } catch (error) {
       console.error('Erreur lors de la suppression du besoin utilisateur:', error);
     }
   };
+
+  const handleOpenDialog = (id) => {
+    setSelectedNeedId(id);
+    setOpenDialog(true);
+  };
+
+  const handleCloseDialog = () => {
+    setOpenDialog(false);
+    setSelectedNeedId(null);
+  };
+
+  if (loading) {
+    return (
+      <AdminLayout>
+        <RootContainer>
+          <CircularProgress />
+        </RootContainer>
+      </AdminLayout>
+    );
+  }
 
   return (
     <AdminLayout>
@@ -64,7 +92,7 @@ function AdminUserNeeds() {
             <Grid item key={need._id} xs={12} sm={6} md={4}>
               <CustomCard>
                 <CustomCardContent>
-                  <Typography variant="body2" color="textSecondary">
+                  <Typography variant="body1" gutterBottom>
                     {need.message}
                   </Typography>
                   <Typography variant="body2" color="textSecondary">
@@ -80,6 +108,20 @@ function AdminUserNeeds() {
             </Grid>
           ))}
         </Grid>
+        <Dialog open={openDialog} onClose={handleCloseDialog}>
+          <DialogTitle>Confirm Delete</DialogTitle>
+          <DialogContent>
+            <DialogContentText>Are you sure you want to delete this user need?</DialogContentText>
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={handleCloseDialog} color="primary">
+              Cancel
+            </Button>
+            <Button onClick={handleDelete} color="secondary">
+              Delete
+            </Button>
+          </DialogActions>
+        </Dialog>
       </RootContainer>
     </AdminLayout>
   );
