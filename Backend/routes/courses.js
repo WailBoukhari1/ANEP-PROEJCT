@@ -4,84 +4,62 @@ const courseController = require('../controllers/courseController');
 const multer = require('multer');
 const path = require('path');
 const { authenticateUser } = require('../utils/auth');
-const Course = require('../models/Course'); // Ensure the correct path to the Course model
-const XLSX = require('xlsx');
-// Setup multer as shown in courseController.js
+
+// Multer configuration
 const storage = multer.diskStorage({
-    destination: function (req, file, cb) {
-        cb(null, 'uploads/')
-    },
-    filename: function (req, file, cb) {
-        const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
-        cb(null, file.fieldname + '-' + uniqueSuffix + path.extname(file.originalname))
+    destination: (req, file, cb) => cb(null, 'uploads/'),
+    filename: (req, file, cb) => {
+        const uniqueSuffix = `${Date.now()}-${Math.round(Math.random() * 1E9)}`;
+        cb(null, `${file.fieldname}-${uniqueSuffix}${path.extname(file.originalname)}`);
     }
 });
 
-const upload = multer({ storage: storage });
+const upload = multer({ storage });
 
-router.get('/:courseId/assignedUsers/download', courseController.userAssignedDownload);
+// Route groups
+const commentRoutes = [
+    { method: 'get', path: '/comments', handler: courseController.getAllComments },
+    { method: 'post', path: '/:id/comments', handler: courseController.handleComments },
+    { method: 'get', path: '/latest-comments', handler: courseController.getLastestComments },
+    { method: 'delete', path: '/:id/comments/:commentId', handler: courseController.deleteComment },
+    { method: 'post', path: '/:id/comments/:commentId/report', handler: courseController.reportComment },
+];
 
-// ---- Specific routes ---- //
-// get all comments
-router.get('/comments', courseController.getAllComments);
+const courseRoutes = [
+    { method: 'get', path: '/', handler: courseController.getAllCourses },
+    { method: 'get', path: '/latest-courses', handler: courseController.getLastestComments },
+    { method: 'post', path: '/', handler: courseController.createCourse },
+    { method: 'get', path: '/:id', middleware: [authenticateUser], handler: courseController.getCourseById },
+    { method: 'put', path: '/:id', handler: courseController.updateCourse },
+    { method: 'delete', path: '/:id', handler: courseController.deleteCourse },
+    { method: 'get', path: '/user/:userId', handler: courseController.getCoursesByUserId },
+];
 
-// Add a comment
-router.post('/:id/comments', courseController.handleComments);
+const fileRoutes = [
+    { method: 'post', path: '/uploadImage', middleware: [upload.single('image')], handler: courseController.uploadImage },
+    { method: 'get', path: '/:id/resources', handler: courseController.fetchFiles },
+    { method: 'post', path: '/:id/resources', middleware: [upload.single('file')], handler: courseController.filesUpload },
+];
 
-// Get the latest 6 comments
-router.get('/latest-comments', courseController.getLastestComments);
+const userRoutes = [
+    { method: 'get', path: '/:courseId/assignedUsers/download', handler: courseController.userAssignedDownload },
+    { method: 'get', path: '/:id/assignedUsers', handler: courseController.getAssignedUsers },
+    { method: 'post', path: '/:id/updatePresence', handler: courseController.updateCoursePresence },
+    { method: 'post', path: '/:id/request-join', handler: courseController.requestJoin },
+    { method: 'post', path: '/:id/assign-interseted-user', handler: courseController.assignIntersetedUser },
+];
 
-// Get all courses
-router.get('/', courseController.getAllCourses);
+const notificationRoutes = [
+    { method: 'post', path: '/:id/notify', handler: courseController.sendCourseNotification },
+];
 
-// Upload an image
-router.post('/uploadImage', upload.single('image'), courseController.uploadImage);
+// Apply routes
+const applyRoutes = (routes) => {
+    routes.forEach(({ method, path, middleware = [], handler }) => {
+        router[method](path, ...middleware, handler);
+    });
+};
 
-// Get presence data for a course
-router.get('/:id/assignedUsers', courseController.getAssignedUsers);
-
-// Endpoint to update presence data for a course
-router.post('/:id/updatePresence', courseController.updateCoursePresence);
-
-// Get the latest 6 courses
-router.get('/latest-courses', courseController.getLastestComments);
-
-// Get all files
-router.get('/:id/resources', courseController.fetchFiles);
-// Upload a file
-
-router.post('/:id/resources', upload.single('file'), courseController.filesUpload);
-
-// Request to join a course
-router.post('/:id/request-join', courseController.requestJoin);
-
-// Assign a user to a course
-router.post('/:id/assign-interseted-user', courseController.assignIntersetedUser);
-
-// Send course notification
-router.post('/:id/notify', courseController.sendCourseNotification);
-
-// Delete a comment
-router.delete('/:id/comments/:commentId', courseController.deleteComment);
-
-// Report a comment
-router.post('/:id/comments/:commentId/report', courseController.reportComment);
-
-// Get courses by user id
-router.get('/user/:userId', courseController.getCoursesByUserId);
-// ---- Generic routes ---- //
-// Get a single course by ID
-router.get('/:id', authenticateUser, courseController.getCourseById);
-
-// Create a new course
-router.post('/', courseController.createCourse);
-
-// Update an existing course
-router.put('/:id', courseController.updateCourse);
-
-// Delete a course
-router.delete('/:id', courseController.deleteCourse);
-
-
+[commentRoutes, courseRoutes, fileRoutes, userRoutes, notificationRoutes].forEach(applyRoutes);
 
 module.exports = router;
