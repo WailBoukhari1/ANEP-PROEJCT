@@ -19,7 +19,13 @@ const { io, broadcastMessage } = setupSocket(server);
 
 // Middleware
 app.use(express.json());
-app.use(cors());
+app.use(cors(
+    {
+        origin:[""],
+        method:["POST","GET"],
+        credentials:true
+    }
+));
 
 // Static files
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
