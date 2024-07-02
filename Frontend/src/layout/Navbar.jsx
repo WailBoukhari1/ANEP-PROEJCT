@@ -30,7 +30,7 @@ function Navbar() {
 
   useEffect(() => {
     // Initialize socket connection
-    socket.current = io("http://localhost:5000");
+    socket.current = io("https://anep-proejct-1.onrender.com");
 
     // Register the user ID with the socket
     socket.current.emit("register", userId);
@@ -50,7 +50,7 @@ function Navbar() {
 
   const fetchNotifications = () => {
     useApiAxios
-      .get(`http://localhost:5000/users/notifications`)
+      .get(`https://anep-proejct-1.onrender.com/users/notifications`)
       .then((response) => {
         const sortedNotifications = response.data.notifications.sort(
           (a, b) => new Date(b.createdAt) - new Date(a.createdAt)

@@ -28,7 +28,7 @@ function CoursesDetails() {
   const [currentUser] = useContext(UserContext); // Ensure currentUser is declared and initialized before use
   const userId = currentUser._id;
   const baseURL = "https://anep-proejct-1.onrender.com";
-  const socket = io("http://localhost:5000");
+  const socket = io("https://anep-proejct-1.onrender.com");
   const [hasSubmittedFeedback, setHasSubmittedFeedback] = useState(false);
 
   useEffect(() => {
@@ -56,7 +56,7 @@ function CoursesDetails() {
   useEffect(() => {
     // Fetch whether the user has already submitted feedback
     useApiAxios
-      .get(`http://localhost:5000/courses/${id}/feedback/${userId}`)
+      .get(`https://anep-proejct-1.onrender.com/courses/${id}/feedback/${userId}`)
       .then((response) => {
         setHasSubmittedFeedback(response.data.hasSubmitted);
       })
@@ -81,7 +81,7 @@ function CoursesDetails() {
     }
 
     useApiAxios
-      .post(`http://localhost:5000/courses/${id}/request-join`, {
+      .post(`https://anep-proejct-1.onrender.com/courses/${id}/request-join`, {
         userId: currentUser._id,
       })
       .then((response) => {
@@ -100,7 +100,7 @@ function CoursesDetails() {
       formData.append("file", acceptedFiles[0]); // Assuming single file upload
 
       useApiAxios
-        .post(`http://localhost:5000/courses/${id}/resources`, formData)
+        .post(`https://anep-proejct-1.onrender.com/courses/${id}/resources`, formData)
         .then((response) => {
           setFiles(response.data); // Assuming the backend returns the updated list of files
         })
@@ -110,7 +110,7 @@ function CoursesDetails() {
 
   useEffect(() => {
     useApiAxios
-      .get(`http://localhost:5000/courses/${id}/resources`)
+      .get(`https://anep-proejct-1.onrender.com/courses/${id}/resources`)
       .then((response) => {
         setFiles(response.data);
       })
@@ -121,7 +121,7 @@ function CoursesDetails() {
     event.preventDefault();
     if (newComment.trim()) {
       useApiAxios
-        .post(`http://localhost:5000/courses/${id}/comments`, {
+        .post(`https://anep-proejct-1.onrender.com/courses/${id}/comments`, {
           userName: currentUser.name, // Use the name of the logged-in user
           text: newComment,
         })
@@ -144,7 +144,7 @@ function CoursesDetails() {
 
   const handleDeleteComment = (commentId) => {
     useApiAxios
-      .delete(`http://localhost:5000/courses/${id}/comments/${commentId}`)
+      .delete(`https://anep-proejct-1.onrender.com/courses/${id}/comments/${commentId}`)
       .then((response) => {
         setComments(response.data); // Assuming the backend returns the updated list of comments
         setFeedbackMessage("Comment deleted successfully!");
@@ -165,7 +165,7 @@ function CoursesDetails() {
 
     useApiAxios
       .post(
-        `http://localhost:5000/courses/${id}/comments/${commentId}/report`,
+        `https://anep-proejct-1.onrender.com/courses/${id}/comments/${commentId}/report`,
         {
           userId: currentUser._id,
         }
