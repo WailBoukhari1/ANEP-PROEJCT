@@ -1,7 +1,7 @@
 import axios from "axios";
 
 const useApiAxios = axios.create({
-  baseURL: "http://localhost:5000/",
+  baseURL: "https://anep-proejct-1.onrender.com/",
   withCredentials: false,
 });
 
