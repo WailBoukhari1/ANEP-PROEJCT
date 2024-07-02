@@ -47,7 +47,7 @@
 
     const courseSchema = new mongoose.Schema({
         title: { type: String, required: true },
-        locations: { type: String, required: true },
+        location: { type: String, required: true },
         imageUrl: { type: String, required: true },
         offline: {
             type: String,
