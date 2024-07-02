@@ -1,5 +1,5 @@
 import MainLayout from "../layout/MainLayout";
-import { useEffect, useState, useContext, useCallback, useMemo } from "react";
+import { useEffect, useState, useContext } from "react";
 import { useDropzone } from "react-dropzone";
 import { useParams } from "react-router-dom";
 import { io } from "socket.io-client";
@@ -16,157 +16,187 @@ import {
 
 function CoursesDetails() {
   const { id } = useParams();
-  const [courseData, setCourseData] = useState({ course: null, comments: [], files: [] });
+  const [course, setCourse] = useState(null);
   const [activeTab, setActiveTab] = useState("description");
+  const [files, setFiles] = useState([]);
   const [showEvaluationModal, setShowEvaluationModal] = useState(false);
+  const [comments, setComments] = useState([]);
   const [newComment, setNewComment] = useState("");
   const [feedbackMessage, setFeedbackMessage] = useState("");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [currentUser] = useContext(UserContext);
-  const userId = currentUser?._id;
+  const [currentUser] = useContext(UserContext); // Ensure currentUser is declared and initialized before use
+  const userId = currentUser._id;
   const baseURL = "https://anep-proejct.onrender.com";
-  const socket = useMemo(() => io(baseURL), [baseURL]);
+  const socket = io("https://anep-proejct.onrender.com/");
   const [hasSubmittedFeedback, setHasSubmittedFeedback] = useState(false);
 
-  const fetchCourseData = useCallback(async () => {
-    try {
-      const [courseResponse, commentsResponse, filesResponse, feedbackResponse] = await Promise.all([
-        useApiAxios.get(`/courses/${id}`),
-        useApiAxios.get(`/courses/${id}/comments`),
-        useApiAxios.get(`/courses/${id}/resources`),
-        useApiAxios.get(`/courses/${id}/feedback/${userId}`)
-      ]);
-
-      setCourseData({
-        course: courseResponse.data,
-        comments: commentsResponse.data,
-        files: filesResponse.data
+  useEffect(() => {
+    useApiAxios
+      .get(`/courses/${id}`)
+      .then((response) => {
+        if (response.status !== 200) {
+          throw new Error(
+            `Échec de l'extraction des détails du cours. Code d'état : ${response.status}`
+          );
+        }
+        return response.data;
+      })
+      .then((data) => {
+        setCourse(data);
+        setLoading(false);
+      })
+      .catch((error) => {
+        console.error("Erreur dans l'extraction des détails du cours :", error);
+        setError(error.message);
+        setLoading(false);
       });
-      setHasSubmittedFeedback(feedbackResponse.data.hasSubmitted);
-      setLoading(false);
-    } catch (error) {
-      console.error("Error fetching course data:", error);
-      setError("Failed to load course data. Please try again later.");
-      setLoading(false);
-    }
-  }, [id, userId]);
+  }, [id]);
 
   useEffect(() => {
-    fetchCourseData();
-  }, [fetchCourseData]);
+    // Fetch whether the user has already submitted feedback
+    useApiAxios
+      .get(`/courses/${id}/feedback/${userId}`)
+      .then((response) => {
+        setHasSubmittedFeedback(response.data.hasSubmitted);
+      })
+      .catch((error) => {
+        console.error("Vérification des erreurs lors de la soumission du retour d'information :", error);
+      });
+  }, [id, userId]);
 
-  const handleTabClick = useCallback((tab) => {
+  const handleTabClick = (tab) => {
     setActiveTab(tab);
-  }, []);
+  };
 
-  const handleShowEvaluationModal = useCallback(() => {
+  const handleShowEvaluationModal = () => {
     if (!hasSubmittedFeedback) {
       setShowEvaluationModal(true);
     }
-  }, [hasSubmittedFeedback]);
-
-  const handleJoinRequest = useCallback(() => {
-    if (!userId) {
-      alert("User is not logged in.");
+  };
+  const handleJoinRequest = () => {
+    if (!currentUser || !currentUser._id) {
+      alert("L'utilisateur n'est pas connecté.");
       return;
     }
 
-    useApiAxios.post(`/courses/${id}/request-join`, { userId })
-      .then(() => alert("Join request sent successfully!"))
-      .catch((error) => {
-        console.error("Error sending join request:", error);
-        alert("Failed to send join request.");
-      });
-  }, [id, userId]);
-
-  const onDrop = useCallback((acceptedFiles) => {
-    const formData = new FormData();
-    formData.append("file", acceptedFiles[0]);
-
-    useApiAxios.post(`/courses/${id}/resources`, formData)
-      .then((response) => {
-        setCourseData(prev => ({ ...prev, files: response.data }));
+    useApiAxios
+      .post(`/courses/${id}/request-join`, {
+        userId: currentUser._id,
       })
-      .catch((error) => console.error("Error uploading file:", error));
+      .then((response) => {
+        alert("Demande d'adhésion envoyée avec succès !");
+        console.log(response.data);
+      })
+      .catch((error) => {
+        console.error("Erreur dans l'envoi de la demande d'adhésion :", error);
+        alert("Échec de l'envoi de la demande d'adhésion.");
+      });
+  };
+
+  const { getRootProps, getInputProps } = useDropzone({
+    onDrop: (acceptedFiles) => {
+      const formData = new FormData();
+      formData.append("file", acceptedFiles[0]); // Assuming single file upload
+
+      useApiAxios
+        .post(`/courses/${id}/resources`, formData)
+        .then((response) => {
+          setFiles(response.data); // Assuming the backend returns the updated list of files
+        })
+        .catch((error) => console.error("Erreur lors du téléchargement du fichier :", error));
+    },
+  });
+
+  useEffect(() => {
+    useApiAxios
+      .get(`/courses/${id}/resources`)
+      .then((response) => {
+        setFiles(response.data);
+      })
+      .catch((error) => console.error("Échec du chargement des fichiers :", error));
   }, [id]);
 
-  const { getRootProps, getInputProps } = useDropzone({ onDrop });
-
-  const handleCommentSubmit = useCallback((event) => {
+  const handleCommentSubmit = (event) => {
     event.preventDefault();
     if (newComment.trim()) {
-      useApiAxios.post(`/courses/${id}/comments`, {
-        userName: currentUser.name,
-        text: newComment,
-      })
+      useApiAxios
+        .post(`/courses/${id}/comments`, {
+          userName: currentUser.name, // Use the name of the logged-in user
+          text: newComment,
+        })
         .then((response) => {
-          setCourseData(prev => ({
-            ...prev,
-            comments: [...prev.comments, response.data]
-          }));
+          setComments(response.data);
           setNewComment("");
-          setFeedbackMessage("Comment added successfully!");
+          setFeedbackMessage("Commentaire ajouté avec succès !");
           setTimeout(() => setFeedbackMessage(""), 3000);
         })
         .catch((error) => {
-          console.error("Failed to submit comment:", error);
-          setFeedbackMessage("Failed to submit comment.");
+          console.error("Le commentaire n'a pas été soumis :", error);
+          setFeedbackMessage("Le commentaire n'a pas été soumis.");
           setTimeout(() => setFeedbackMessage(""), 3000);
         });
     } else {
-      setFeedbackMessage("Please enter a valid comment.");
+      setFeedbackMessage("Veuillez saisir un commentaire valide.");
       setTimeout(() => setFeedbackMessage(""), 3000);
     }
-  }, [id, newComment, currentUser.name]);
+  };
 
-  const handleDeleteComment = useCallback((commentId) => {
-    useApiAxios.delete(`/courses/${id}/comments/${commentId}`)
+  const handleDeleteComment = (commentId) => {
+    useApiAxios
+      .delete(`/courses/${id}/comments/${commentId}`)
       .then((response) => {
-        setCourseData(prev => ({
-          ...prev,
-          comments: response.data
-        }));
-        setFeedbackMessage("Comment deleted successfully!");
+        setComments(response.data); // Assuming the backend returns the updated list of comments
+        setFeedbackMessage("Commentaire supprimé avec succès !");
         setTimeout(() => setFeedbackMessage(""), 3000);
       })
       .catch((error) => {
-        console.error("Failed to delete comment:", error);
-        setFeedbackMessage("Failed to delete comment.");
+        console.error("Échec de la suppression du commentaire :", error);
+        setFeedbackMessage("Échec de la suppression du commentaire.");
         setTimeout(() => setFeedbackMessage(""), 3000);
       });
-  }, [id]);
+  };
 
-  const handleReportComment = useCallback((commentId) => {
-    if (!userId) {
-      alert("User not logged in.");
+  const handleReportComment = (commentId) => {
+    if (!currentUser || !currentUser._id) {
+      alert("Utilisateur non connecté.");
       return;
     }
 
-    useApiAxios.post(`/courses/${id}/comments/${commentId}/report`, { userId })
+    useApiAxios
+      .post(
+        `/courses/${id}/comments/${commentId}/report`,
+        {
+          userId: currentUser._id,
+        }
+      )
       .then(() => {
-        alert("Comment reported successfully!");
+        alert("Commentaire signalé avec succès !");
         socket.emit("commentReported", {
           courseId: id,
           commentId,
-          courseName: courseData.course.title,
-          commentText: courseData.comments.find(comment => comment._id === commentId)?.text,
+          courseName: course.title,
+          commentText: comments.find((comment) => comment._id === commentId)
+            .text,
         });
       })
       .catch((error) => {
-        if (error.response?.status === 400 && error.response?.data.message === "You have already reported this comment") {
-          alert("You have already reported this comment.");
+        if (
+          error.response &&
+          error.response.status === 400 &&
+          error.response.data.message ===
+            "Vous avez déjà signalé ce commentaire"
+        ) {
+          alert("Vous avez déjà signalé ce commentaire.");
         } else {
-          console.error("Failed to report comment:", error);
-          alert("Failed to report comment.");
+          console.error("Le commentaire n'a pas été signalé :", error);
+          alert("Le commentaire n'a pas été signalé .");
         }
       });
-  }, [id, userId, socket, courseData]);
+  };
 
   if (loading) return <MainLayout>Loading...</MainLayout>;
   if (error) return <MainLayout>Error: {error}</MainLayout>;
-
-  const { course, comments, files } = courseData;
   return (
     <MainLayout>
       <>
