@@ -27,7 +27,7 @@ function CoursesDetails() {
   const [error, setError] = useState(null);
   const [currentUser] = useContext(UserContext); // Ensure currentUser is declared and initialized before use
   const userId = currentUser._id;
-  const baseURL = "http://localhost:5000";
+  const baseURL = "https://anep-proejct-1.onrender.com";
   const socket = io("http://localhost:5000");
   const [hasSubmittedFeedback, setHasSubmittedFeedback] = useState(false);
 
