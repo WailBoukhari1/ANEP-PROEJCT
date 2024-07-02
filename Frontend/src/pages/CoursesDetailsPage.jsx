@@ -121,7 +121,7 @@ function CoursesDetails() {
     event.preventDefault();
     if (newComment.trim()) {
       useApiAxios
-        .post(`https://anep-proejct.onrender.com//courses/${id}/comments`, {
+        .post(`https://anep-proejct.onrender.com/courses/${id}/comments`, {
           userName: currentUser.name, // Use the name of the logged-in user
           text: newComment,
         })
@@ -144,7 +144,7 @@ function CoursesDetails() {
 
   const handleDeleteComment = (commentId) => {
     useApiAxios
-      .delete(`https://anep-proejct.onrender.com//courses/${id}/comments/${commentId}`)
+      .delete(`https://anep-proejct.onrender.com/courses/${id}/comments/${commentId}`)
       .then((response) => {
         setComments(response.data); // Assuming the backend returns the updated list of comments
         setFeedbackMessage("Commentaire supprimé avec succès !");
@@ -437,7 +437,7 @@ function CoursesDetails() {
                                       </span>
                                     </div>
                                     <a
-                                      href={`${baseURL}${file.link}`}
+                                      href={`${baseURL}/${file.link}`}
                                       target="_blank"
                                       rel="noopener noreferrer"
                                       className="download-button bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
