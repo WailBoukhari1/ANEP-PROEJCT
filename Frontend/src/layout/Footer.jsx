@@ -1,9 +1,8 @@
-
 function Footer() {
   return (
       <footer className="bg-darkblack">
         <div className="container pt-65px pb-5 lg:pb-10">
-          {/* footer copyright  */}
+          {/* droits d'auteur du pied de page  */}
           <div>
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 lg:gap-30px pt-10 items-center">
               <div className="lg:col-start-1 lg:col-span-3">
@@ -13,8 +12,8 @@ function Footer() {
               </div>
               <div className="lg:col-start-4 lg:col-span-6">
                 <p className="text-whiteColor">
-                  Copyright © <span className="text-primaryColor">2024 </span>{" "}
-                  by ANEP. All Rights Reserved.
+                © Droits d'auteur  <span className="text-primaryColor">2024 </span>{" "}
+                  par ANEP. Tous droits réservés.
                 </p>
               </div>
               <div className="lg:col-start-10 lg:col-span-3">

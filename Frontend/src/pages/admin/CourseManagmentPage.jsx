@@ -12,7 +12,6 @@ import {
   Checkbox,
   FormControlLabel,
   useTheme,
-  
 } from "@mui/material";
 import { DataGrid } from "@mui/x-data-grid";
 import { Link } from "react-router-dom";
@@ -25,10 +24,11 @@ import Notifications from "@mui/icons-material/Notifications";
 import People from "@mui/icons-material/People";
 import AdminLayout from "../../layout/admin/AdminLayout";
 import FileUploadIcon from "@mui/icons-material/FileUpload";
-import DownloadIcon from "@mui/icons-material/Download"; // Add this import
+import DownloadIcon from "@mui/icons-material/Download"; // Importation ajoutée
 
 const socket = io("http://localhost:5000");
 
+// Composant pour le menu de présence
 const PresenceMenu = ({
   anchorEl,
   userPresence,
@@ -104,12 +104,14 @@ PresenceMenu.propTypes = {
   handleSavePresence: PropTypes.func.isRequired,
 };
 
+// Fonction principale de gestion des cours
 function CourseManagement() {
   const [courses, setCourses] = useState([]);
   const [anchorEl, setAnchorEl] = useState(null);
   const [selectedCourse, setSelectedCourse] = useState(null);
   const [userPresence, setUserPresence] = useState([]);
 
+  // Effet pour charger les cours et gérer les notifications
   useEffect(() => {
     fetchCourses();
 
@@ -122,6 +124,7 @@ function CourseManagement() {
     };
   }, []);
 
+  // Fonction pour ouvrir le menu de présence
   const handleMenuOpen = async (event, course) => {
     setAnchorEl(event.currentTarget);
     setSelectedCourse(course);
@@ -135,6 +138,7 @@ function CourseManagement() {
     }
   };
 
+  // Fonction pour sauvegarder la présence
   const handleSavePresence = async () => {
     const presenceData = userPresence.map((user) => ({
       userId: user._id,
@@ -154,11 +158,13 @@ function CourseManagement() {
     }
   };
 
+  // Fonction pour fermer le menu
   const handleMenuClose = () => {
     setAnchorEl(null);
     setSelectedCourse(null);
   };
 
+  // Fonction pour changer la présence d'un utilisateur
   const handlePresenceChange = (userId, status) => {
     setUserPresence(
       userPresence.map((user) =>
@@ -167,6 +173,7 @@ function CourseManagement() {
     );
   };
 
+  // Fonction pour récupérer les cours
   const fetchCourses = async () => {
     try {
       const response = await useApiAxios.get("/courses");
@@ -176,6 +183,7 @@ function CourseManagement() {
     }
   };
 
+  // Fonction pour supprimer un cours
   const handleDelete = async (id) => {
     try {
       await useApiAxios.delete(`/courses/${id}`);
@@ -184,6 +192,8 @@ function CourseManagement() {
       console.error("Échec de la suppression du cours:", error);
     }
   };
+
+  // Fonction pour télécharger la liste des utilisateurs assignés à un cours
   const handleDownloadAssignedUsers = async (courseId) => {
     try {
       const response = await useApiAxios.get(
@@ -198,51 +208,53 @@ function CourseManagement() {
       link.setAttribute("download", "assigned_users.xlsx");
       document.body.appendChild(link);
       link.click();
-      document.body.removeChild(link); // Clean up the DOM
-      window.URL.revokeObjectURL(url); // Clean up the URL object
+      document.body.removeChild(link); // Nettoyer le DOM
+      window.URL.revokeObjectURL(url); // Nettoyer l'objet URL
     } catch (error) {
       console.error("Échec du téléchargement des utilisateurs assignés:", error);
     }
   };
-const handleNotify = async (course) => {
-  try {
-    const response = await useApiAxios.get(
-      `/courses/${course._id}/assignedUsers`
-    );
-    const userIds = response.data.map((user) => user._id);
 
-    socket.emit("notify", {
-      userIds,
-      message: `Notification pour le cours: ${course.title}`,
-      courseId: course._id,
-    });
+  // Fonction pour notifier les utilisateurs d'un cours
+  const handleNotify = async (course) => {
+    try {
+      const response = await useApiAxios.get(
+        `/courses/${course._id}/assignedUsers`
+      );
+      const userIds = response.data.map((user) => user._id);
 
-    console.log("Notification des utilisateurs pour le cours:", course.title);
-  } catch (error) {
-    console.error("Échec de la récupération des utilisateurs assignés pour la notification:", error);
-  }
-};
+      socket.emit("notify", {
+        userIds,
+        message: `Notification pour le cours: ${course.title}`,
+        courseId: course._id,
+      });
 
-const handleDownloadEvaluations = async (courseId) => {
-  try {
-    const response = await useApiAxios.get(
-      `/evaluations/${courseId}/download`,
-      {
-        responseType: "blob",
-      }
-    );
-    const url = window.URL.createObjectURL(new Blob([response.data]));
-    const link = document.createElement("a");
-    link.href = url;
-    link.setAttribute("download", "evaluations.xlsx");
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link); // Nettoyer le DOM
-    window.URL.revokeObjectURL(url); // Nettoyer l'objet URL
-  } catch (error) {
-    console.error("Échec du téléchargement des évaluations:", error);
-  }
-};
+      console.log("Notification des utilisateurs pour le cours:", course.title);
+    } catch (error) {
+      console.error("Échec de la récupération des utilisateurs assignés pour la notification:", error);
+    }
+  };
+
+  const handleDownloadEvaluations = async (courseId) => {
+    try {
+      const response = await useApiAxios.get(
+        `/evaluations/${courseId}/download`,
+        {
+          responseType: "blob",
+        }
+      );
+      const url = window.URL.createObjectURL(new Blob([response.data]));
+      const link = document.createElement("a");
+      link.href = url;
+      link.setAttribute("download", "evaluations.xlsx");
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link); // Nettoyer le DOM
+      window.URL.revokeObjectURL(url); // Nettoyer l'objet URL
+    } catch (error) {
+      console.error("Échec du téléchargement des évaluations:", error);
+    }
+  };
 
   const columns = [
     { field: "title", headerName: "Titre du cours", width: 150 },
@@ -303,10 +315,10 @@ const handleDownloadEvaluations = async (courseId) => {
             </IconButton>
           </Tooltip>
           <Tooltip title="Télécharger les utilisateurs assignés">
-          <IconButton
-            onClick={() => handleDownloadAssignedUsers(params.row._id)}
-            color="primary"
-          >
+            <IconButton
+              onClick={() => handleDownloadAssignedUsers(params.row._id)}
+              color="primary"
+            >
               <DownloadIcon />
             </IconButton>
           </Tooltip>

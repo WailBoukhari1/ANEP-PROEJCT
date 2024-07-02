@@ -33,7 +33,7 @@ const UserNeedForm = ({ onSubmit }) => {
       <textarea
         value={message}
         onChange={(e) => setMessage(e.target.value)}
-        placeholder="Exprimer votre besoin"
+        placeholder="Exprimez votre besoin"
       />
       <button type="submit">Envoyer</button>
     </form>

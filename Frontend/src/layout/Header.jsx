@@ -2,25 +2,30 @@ import Navbar from "./Navbar";
 function Header() {
   return (
     <header>
-      {/* header top start */}
+      {/* début de l'en-tête */}
       <div className="bg-primaryColor dark:bg-lightGrey10-dark hidden lg:block">
         <div className="container 3xl:container-secondary-lg 4xl:container mx-auto text-whiteColor text-size-12 xl:text-sm py-5px xl:py-9px">
           <div className="flex justify-between items-center">
-            <div>
-              <p>Call Us: +1 800 123 456 789 - Mail Us: Itcroc@mail.com</p>
+            <div className="flex  items-center">
+            <i class="icofont-phone  text-size-15 mr-5px"></i>
+              <p>Appelez-nous : +1 800 123 456 789 </p>
+            </div>
+            <div className="flex     items-center">
+            <i class="icofont-ui-email  text-size-15 mr-5px"></i>
+              <p>Envoyez-nous un e-mail : Itcroc@mail.com</p>
             </div>
             <div className="flex gap-37px items-center">
               <div>
                 <p>
-                  <i className="icofont-location-pin text-primaryColor text-size-15 mr-5px" />
-                  <span>684 West College St. Sun City, USA</span>
+                  <i className="icofont-location-pin  text-size-15 mr-5px" />
+                  <span>Rue Bani Abid, Av Mohamed Ben Hassan Alouazzani, Rabat.</span>
                 </p>
               </div>
             </div>
           </div>
         </div>
       </div>
-      {/* header top end */}
+      {/* fin de l'en-tête */}
       <Navbar />
     </header>
   );

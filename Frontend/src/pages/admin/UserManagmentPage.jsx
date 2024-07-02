@@ -19,7 +19,7 @@ import ImportExportIcon from "@mui/icons-material/ImportExport";
 // import FileUploadIcon from "@mui/icons-material/FileUpload";
 import useApiAxios from "../../config/axios";
 
-function UserManagement() {
+function GestionUtilisateurs() {
   const theme = useTheme();
   const [users, setUsers] = useState([]);
 
@@ -216,4 +216,4 @@ function UserManagement() {
   );
 }
 
-export default UserManagement;
+export default GestionUtilisateurs;

@@ -3,7 +3,7 @@ import { Link, NavLink, useNavigate } from "react-router-dom";
 import { io } from "socket.io-client";
 import useApiAxios from "../config/axios";
 import UserContext from "../auth/user-context";
-import {logoutQuery} from "../auth/user-axios" // Import the logoutQuery function
+import {logoutQuery} from "../auth/user-axios" // Importer la fonction logoutQuery
 
 function Navbar() {
   const navigate = useNavigate();
@@ -16,38 +16,41 @@ function Navbar() {
   const [currentUser] = useContext(UserContext);
   const userId = currentUser._id;
 
+  // Fonction pour basculer le menu mobile
   const toggleMobileMenu = () => {
     setIsMobileMenuOpen(!isMobileMenuOpen);
   };
 
+  // Fonction pour basculer le menu de notifications
   const toggleNotificationMenu = () => {
     setIsNotificationMenuOpen(!isNotificationMenuOpen);
   };
 
+  // Fonction pour basculer le menu utilisateur
   const toggleUserMenu = () => {
     setIsUserMenuOpen(!isUserMenuOpen);
   };
 
+  // Effet pour initialiser la connexion du socket
   useEffect(() => {
-    // Initialize socket connection
     socket.current = io("http://localhost:5000");
 
-    // Register the user ID with the socket
     socket.current.emit("register", userId);
 
-    // Listen for new notifications
-   socket.current.on("notification", (notification) => {
-     setNotifications((prevNotifications) => [
-       { ...notification, isNew: true },
-       ...prevNotifications,
-     ]);
-   });
+    socket.current.on("notification", (notification) => {
+      setNotifications((prevNotifications) => [
+        { ...notification, isNew: true },
+        ...prevNotifications,
+      ]);
+    });
+
     return () => {
       socket.current.off("notification");
       socket.current.disconnect();
     };
   }, []);
 
+  // Fonction pour récupérer les notifications
   const fetchNotifications = () => {
     useApiAxios
       .get(`http://localhost:5000/users/notifications`)
@@ -57,36 +60,35 @@ function Navbar() {
         );
         setNotifications(sortedNotifications);
       })
-      .catch((error) => console.error("Failed to load notifications:", error));
+      .catch((error) => console.error("Échec du chargement des notifications :", error));
   };
 
   useEffect(() => {
     fetchNotifications();
   }, []);
 
+  // Fonction pour gérer le clic sur une notification
   const handleNotificationClick = (notificationId, courseId) => {
-    
-      useApiAxios
-        .post(`/users/mark-notification-read`, {
-          userId: userId,
-          notificationId,
-          courseId,
-        })
-        .then(() => {
-          setNotifications(
-            notifications.map((notif) =>
-              notif._id === notificationId ? { ...notif, isNew: false } : notif
-            )
-          );
-        })
-        .catch((error) =>
-          console.error("Failed to mark notification as read:", error)
+    useApiAxios
+      .post(`/users/mark-notification-read`, {
+        userId: userId,
+        notificationId,
+        courseId,
+      })
+      .then(() => {
+        setNotifications(
+          notifications.map((notif) =>
+            notif._id === notificationId ? { ...notif, isNew: false } : notif
+          )
         );
-      navigate(`/CoursesDetails/${courseId}`);
-    
+      })
+      .catch((error) =>
+        console.error("Échec de marquer la notification comme lue :", error)
+      );
+    navigate(`/CoursesDetails/${courseId}`);
   };
 
-  // Close notification menu when clicking outside
+  // Effet pour fermer le menu de notifications en cliquant à l'extérieur
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (
@@ -103,12 +105,14 @@ function Navbar() {
     };
   }, []);
 
+  // Calcul du nombre de nouvelles notifications
   const newNotificationsCount = notifications.filter(
     (notification) => notification.isNew
   ).length;
 
+  // Fonction pour gérer la déconnexion
   const handleLogout = () => {
-    logoutQuery(); // Call the logoutQuery function for logout
+    logoutQuery(); // Appeler la fonction logoutQuery pour se déconnecter
   };
 
   return (
@@ -140,7 +144,7 @@ function Navbar() {
                           : "nav-link text-gray-700 hover:text-blue-700 transition duration-300 px-4 py-3 rounded-lg font-semibold hover:bg-blue-100"
                       }
                     >
-                      Home 
+                      Accueil
                     </NavLink>
                   </li>
                   <li className="nav-item">
@@ -152,7 +156,7 @@ function Navbar() {
                           : "nav-link text-gray-700 hover:text-blue-700 transition duration-300 px-4 py-3 rounded-lg font-semibold hover:bg-blue-100"
                       }
                     >
-                      Courses
+                      Cours
                     </NavLink>
                   </li>
                   {currentUser.roles.includes('admin') &&
@@ -165,22 +169,11 @@ function Navbar() {
                       : "nav-link text-gray-700 hover:text-blue-700 transition duration-300 px-4 py-3 rounded-lg font-semibold hover:bg-blue-100"
                     }
                     >
-                      Dashboard
+                      Tableau de bord
                     </NavLink>
                   </li>
                     }
-                  <li className="nav-item">
-                    <NavLink
-                      to="/Auth"
-                      className={({ isActive }) =>
-                        isActive
-                          ? "text-primaryColor font-extrabold border-b-4 border-primaryColor px-4 py-3"
-                          : "nav-link text-gray-700 hover:text-blue-700 transition duration-300 px-4 py-3 rounded-lg font-semibold hover:bg-blue-100"
-                      }
-                    >
-                      Auth
-                    </NavLink>
-                  </li>
+                
                 </ul>
               </div>
               {/* navbar right */}
@@ -217,7 +210,7 @@ function Navbar() {
                               {notification.message}
                               {notification.isNew && (
                                 <span className="ml-2 text-sm text-secondaryColor font-bold flash">
-                                  NEW
+                                  NOUVEAU
                                 </span>
                               )}
                             </button>
@@ -242,7 +235,7 @@ function Navbar() {
                       className="text-size-12 2xl:text-size-15 text-whiteColor bg-primaryColor border-primaryColor border hover:text-primaryColor hover:bg-white px-15px py-2 rounded-standard dark:hover:bg-whiteColor-dark dark:hover:text-whiteColor"
                       onClick={handleLogout}
                     >
-                      Logout
+                      Déconnexion
                     </button>
                   </li>
                   <li className="block lg:hidden">
@@ -283,9 +276,9 @@ function Navbar() {
                     ? "text-primaryColor font-extrabold"
                     : "text-darkdeep1 hover:text-secondaryColor"
                 }
-                onClick={toggleMobileMenu} // Close mobile menu on link click
+                onClick={toggleMobileMenu} // Fermer le menu mobile en cliquant sur le lien
               >
-                Home
+                Accueil
               </NavLink>
             </li>
             <li>
@@ -296,9 +289,9 @@ function Navbar() {
                     ? "text-primaryColor font-extrabold"
                     : "text-darkdeep1 hover:text-secondaryColor"
                 }
-                onClick={toggleMobileMenu} // Close mobile menu on link click
+                onClick={toggleMobileMenu} // Fermer le menu mobile en cliquant sur le lien
               >
-                Courses
+                Cours
               </NavLink>
             </li>
             <li>
@@ -309,9 +302,9 @@ function Navbar() {
                     ? "text-primaryColor font-extrabold"
                     : "text-darkdeep1 hover:text-secondaryColor"
                 }
-                onClick={toggleMobileMenu} // Close mobile menu on link click
+                onClick={toggleMobileMenu} // Fermer le menu mobile en cliquant sur le lien
               >
-                Dashboard
+                Tableau de bord
               </NavLink>
             </li>
             <li>
@@ -322,9 +315,9 @@ function Navbar() {
                     ? "text-primaryColor font-extrabold"
                     : "text-darkdeep1 hover:text-secondaryColor"
                 }
-                onClick={toggleMobileMenu} // Close mobile menu on link click
+                onClick={toggleMobileMenu} // Fermer le menu mobile en cliquant sur le lien
               >
-                Profile
+                Profil
               </NavLink>
             </li>
             <li>
@@ -335,9 +328,9 @@ function Navbar() {
                     ? "text-primaryColor font-extrabold"
                     : "text-darkdeep1 hover:text-secondaryColor"
                 }
-                onClick={toggleMobileMenu} // Close mobile menu on link click
+                onClick={toggleMobileMenu} // Fermer le menu mobile en cliquant sur le lien
               >
-                Logout
+                Déconnexion
               </NavLink>
             </li>
           </ul>

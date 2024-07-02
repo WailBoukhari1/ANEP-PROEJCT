@@ -12,6 +12,7 @@ function HomePage() {
 
   const baseURL = "http://localhost:5000";
 
+  // Effectuer une requête pour récupérer les cours
   useEffect(() => {
     async function fetchCards() {
       try {
@@ -23,13 +24,14 @@ function HomePage() {
 
         setCards(sortedCourses);
       } catch (error) {
-        console.error("Failed to fetch cards:", error);
+        console.error("Échec de la récupération des cours :", error);
       }
     }
 
     fetchCards();
   }, []);
 
+  // Effectuer une requête pour récupérer les commentaires
   useEffect(() => {
     async function fetchComments() {
       try {
@@ -38,95 +40,93 @@ function HomePage() {
         const lastSixComments = data.slice(-6);
         setComments(lastSixComments);
       } catch (error) {
-        console.error("Failed to fetch comments:", error);
+        console.error("Échec de la récupération des commentaires :", error);
       }
     }
 
     fetchComments();
   }, []);
 
-    const settings = {
-      dots: true,
-      infinite: true,
-      speed: 500,
-      slidesToShow: 1,
-      slidesToScroll: 1,
-      autoplay: true,
-      autoplaySpeed: 3000,
-      cssEase: "linear",
-      arrows: true,
-    };
+  // Paramètres du carrousel
+  const settings = {
+    dots: true,
+    infinite: true,
+    speed: 500,
+    slidesToShow: 1,
+    slidesToScroll: 1,
+    autoplay: true,
+    autoplaySpeed: 3000,
+    cssEase: "linear",
+    arrows: true,
+  };
 
   return (
     <MainLayout>
       <>
         <>
+          {/* Section de la bannière */}
           <section>
             <>
-              {/* banner section */}
               <div className="hero bg-lightGrey11 relative z-0 overflow-hidden py-50px">
                 <div className="container 2xl:container-secondary-md relative">
                   <div className="grid grid-cols-1 md:grid-cols-12 items-center gap-30px">
-                    {/* banner Left */}
+                    {/* Partie gauche de la bannière */}
                     <div
                       data-aos="fade-up"
                       className="md:col-start-1 md:col-span-12 lg:col-start-1 lg:col-span-8"
                     >
                       <div className="3xl:pr-135px">
                         <h3 className="uppercase text-secondaryColor text-size-15 mb-5px md:mb-15px font-inter tracking-[4px] font-semibold">
-                          EDUCATION SOLUTION
+                          SOLUTION ÉDUCATIVE
                         </h3>
+                          
                         <h1 className="text-size-35 md:text-size-65 lg:text-5xl 2xl:text-size-65 leading-42px md:leading-18 lg:leading-15 2xl:leading-18 text-whiteColor md:tracking-half lg:tracking-normal 2xl:tracking-half font-bold mb-15px">
-                          Ignite Your{" "}
-                          <span className="text-secondaryColor">Career</span>{" "}
-                          with Learning the Largest{" "}
-                          <span className="text-secondaryColor"> Online </span>{" "}
-                          Platform.
+                        C'est ce que nous pensons déjà{" "}
+                          <span className="text-secondaryColor">connaître</span>{" "}
+                          qui nous empêche souvent{" "}
+                          <span className="text-secondaryColor"> d'apprendre</span>.
                         </h1>
                         <p className="text-size-15 md:text-lg text-whiteColor  font-medium">
-                          Lorem Ipsum is simply dummy text of the printing
-                          <br />
-                          typesetting industry. Lorem Ipsum has been
-                        </p>
+                        Claude Bernard                        </p>
                         <div className="mt-30px">
                           <Link
                             to="/courses"
                             className="text-sm md:text-size-15 text-whiteColor bg-primaryColor border border-primaryColor px-25px py-15px hover:text-primaryColor hover:bg-whiteColor rounded inline-block mr-6px md:mr-30px hover:bg-whiteColor- hover:text-primaryColor"
                           >
-                            View Courses
+                            Voir les cours
                           </Link>
                         </div>
                       </div>
                     </div>
-                    {/* banner right */}
+                    {/* Partie droite de la bannière */}
                   </div>
                 </div>
               </div>
             </>
           </section>
-          {/* courses section */}
+          {/* Section des cours */}
           <section>
             <div className="pt-50px pb-10 md:pt-70px md:pb-50px lg:pt-20 2xl:pt-100px 2xl:pb-70px bg-whiteColor bg-whiteColor-">
               <div className="filter-container container">
                 <div className="flex gap-15px lg:gap-30px flex-wrap lg:flex-nowrap items-center">
-                  {/* courses Left */}
+                  {/* Partie gauche des cours */}
                   <div
                     className="basis-full lg:basis-[500px]"
                     data-aos="fade-up"
                   >
                     <span className="text-sm font-semibold text-primaryColor bg-whitegrey3 px-6 py-5px mb-5 rounded-full inline-block">
-                      Course List
+                      Liste des cours
                     </span>
                     <h3
                       className="text-3xl md:text-[35px] lg:text-size-42 leading-[45px] 2xl:leading-[45px] md:leading-[50px] font-bold text-blackColor text-blackColor-"
                       data-aos="fade-up"
                     >
-                      Lastest Course Added Just For You
+                      Derniers cours ajoutés juste pour vous
                     </h3>
                   </div>
-                  {/* courses right */}
+                  {/* Partie droite des cours */}
                 </div>
-                {/* course cards */}
+                {/* Cartes de cours */}
                 <div
                   className="container p-0 filter-contents flex flex-wrap sm:-mx-15px mt-7 lg:mt-10"
                   data-aos="fade-up"
@@ -139,7 +139,7 @@ function HomePage() {
                       >
                         <div className="tab-content-wrapper sm:px-15px mb-30px">
                           <div className="p-15px bg-whiteColor shadow-brand">
-                            {/* card image */}
+                            {/* Image de la carte */}
                             <div className="relative mb-4">
                               <Link
                                 to={`/CoursesDetails/${card._id}`}
@@ -147,7 +147,7 @@ function HomePage() {
                               >
                                 <img
                                   src={`${baseURL}${card.imageUrl}`}
-                                  alt={card.title || "Course Image"}
+                                  alt={card.title || "Image du cours"}
                                   className="w-full transition-all duration-300 group-hover:scale-110"
                                 />
                               </Link>
@@ -160,7 +160,7 @@ function HomePage() {
                                 </Link>
                               </div>
                             </div>
-                            {/* card content */}
+                            {/* Contenu de la carte */}
                             <div>
                               <Link
                                 to={`/CoursesDetails/${card._id}`}
@@ -168,7 +168,7 @@ function HomePage() {
                               >
                                 {card.title}
                               </Link>
-                              {/* author and rating */}
+                              {/* Auteur et notation */}
                               <div className="grid grid-cols-1 md:grid-cols-2 pt-15px border-t border-borderColor">
                                 <div>
                                   <Link
@@ -193,24 +193,24 @@ function HomePage() {
                       </div>
                     ))
                   ) : (
-                    <div>No cards available.</div>
+                    <div>Aucune carte disponible.</div>
                   )}
                 </div>
               </div>
             </div>
           </section>
-          {/* testimonial section */}
+          {/* Section des témoignages */}
           <section>
             <div className="bg-lightGrey10 bg-lightGrey10- relative z-0 overflow-hidden">
               <div className="container py-50px md:py-70px lg:py-20 2xl:pt-145px 2xl:pb-154px">
                 <div className="grid grid-cols-1 lg:grid-cols-2 items-center gap-30px lg:gap-0">
-                  {/* testimonial Left */}
+                  {/* Partie gauche des témoignages */}
                   <div data-aos="fade-up">
                     <h3 className="uppercase text-secondaryColor text-size-15 mb-5px md:mb-15px font-inter tracking-[4px] font-semibold">
-                      EDUCATION SOLUTION
+                      SOLUTION ÉDUCATIVE
                     </h3>
                     <h1 className="text-3xl text-blackColor md:text-size-35 lg:text-size-42 2xl:text-size-47 leading-10 md:leading-45px lg:leading-12 2xl:leading-50px text-blackColor- font-bold mb-15px">
-                      Client Testimonial About Our Lms Agency
+                      Témoignage des clients sur notre agence LMS
                     </h1>
                     <Slider {...settings}>
                       {comments.map((comment, index) => (
@@ -234,13 +234,13 @@ function HomePage() {
                       ))}
                     </Slider>
                   </div>
-                  {/* testimonial right */}
+                  {/* Partie droite des témoignages */}
                   <div data-aos="fade-up">
                     <div className="tilt pl-0 md:pl-70px">
                       <img
                         className="w-full"
                         src="/assets/images/testimonial/testi__group__1.png"
-                        alt="Testimonial"
+                        alt="Témoignage"
                       />
                     </div>
                   </div>

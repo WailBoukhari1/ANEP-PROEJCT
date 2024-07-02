@@ -37,7 +37,7 @@ function AdminUserNeeds() {
         const response = await useApiAxios.get('/user-needs');
         setUserNeeds(response.data);
       } catch (error) {
-        console.error('Error fetching user needs:', error);
+        console.error('Erreur lors de la récupération des besoins des utilisateurs:', error);
       }
     }
 
@@ -49,7 +49,7 @@ function AdminUserNeeds() {
       await useApiAxios.delete(`/user-needs/${id}`);
       setUserNeeds((prevNeeds) => prevNeeds.filter((need) => need._id !== id));
     } catch (error) {
-      console.error('Error deleting user need:', error);
+      console.error('Erreur lors de la suppression du besoin utilisateur:', error);
     }
   };
 
@@ -57,7 +57,7 @@ function AdminUserNeeds() {
     <AdminLayout>
       <RootContainer>
         <Typography variant="h4" gutterBottom>
-          User Needs
+          Besoins des Utilisateurs
         </Typography>
         <Grid container spacing={3}>
           {userNeeds.map((need) => (
@@ -73,7 +73,7 @@ function AdminUserNeeds() {
                 </CustomCardContent>
                 <CustomCardActions>
                   <DeleteButton size="small" onClick={() => handleDelete(need._id)}>
-                    Delete
+                    Supprimer
                   </DeleteButton>
                 </CustomCardActions>
               </CustomCard>

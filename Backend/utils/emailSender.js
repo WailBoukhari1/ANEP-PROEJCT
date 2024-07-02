@@ -12,6 +12,16 @@ const transporter = nodemailer.createTransport({
     }
 });
 
+// const transporter = nodemailer.createTransport({
+//   host: 'smtp.office365.com',
+//   port: 587,
+//   secure: false, // use TLS
+//   auth: {
+//     user: 'your-email@outlook.com',
+//     pass: 'your-email-password'
+//   }
+// });
+
 const sendEmail = async (to, subject, text) => {
     const mailOptions = {
         from: process.env.EMAIL_USERNAME,

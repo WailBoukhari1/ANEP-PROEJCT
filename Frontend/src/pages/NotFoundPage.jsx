@@ -24,10 +24,10 @@ const NotFoundPage = () => {
           404
         </Typography>
         <Typography variant="h4" component="h2" gutterBottom>
-          Page Not Found
+          Page Non Trouvée
         </Typography>
         <Typography variant="body1" gutterBottom>
-          The page you are looking for does not exist.
+          La page que vous recherchez n'existe pas.
         </Typography>
         <Button
           variant="contained"
@@ -35,7 +35,7 @@ const NotFoundPage = () => {
           onClick={handleGoHome}
           sx={{ mt: 3 }}
         >
-          Go to Home
+          Retour à l'accueil
         </Button>
       </Box>
     </Container>

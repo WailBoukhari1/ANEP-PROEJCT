@@ -25,9 +25,9 @@ function Course() {
         const response = await useApiAxios.get(`/courses?hidden=visible`);
         const data = response.data;
         setCourses(data);
-        setFilteredCourses(data); // Initially, no filter applied
+        setFilteredCourses(data); // Au début, aucun filtre appliqué
       } catch (error) {
-        console.error("Error fetching courses:", error);
+        console.error("Erreur lors de la récupération des cours :", error);
       }
     }
 
@@ -79,7 +79,7 @@ function Course() {
     const { value } = event.target;
     setSearchTerm(value);
     filterCourses(value);
-    setCurrentPage(1); // Reset to first page on search
+    setCurrentPage(1); // Réinitialiser à la première page lors de la recherche
   };
 
   const handleSortChange = (event) => {
@@ -90,15 +90,15 @@ function Course() {
     setCurrentPage(newPage);
   };
 
-  // Calculate the number of pages
+  // Calcul du nombre de pages
   const pageCount = Math.ceil(filteredCourses.length / itemsPerPage);
-  // Get current page of items
+  // Obtenir la page actuelle des éléments
   const currentItems = filteredCourses.slice(
     (currentPage - 1) * itemsPerPage,
     currentPage * itemsPerPage
   );
 
-  // Calculate the indices for displayed results
+  // Calcul des indices pour les résultats affichés
   const startIndex = (currentPage - 1) * itemsPerPage + 1;
   const endIndex = startIndex + currentItems.length - 1;
   const totalResults = filteredCourses.length;
@@ -106,13 +106,13 @@ function Course() {
   return (
     <MainLayout>
       <>
-        {/* banner section */}
+        {/* section de la bannière */}
         <section>
           <div className="bg-lightGrey10 dark:bg-lightGrey10-dark relative z-0 overflow-y-visible py-50px md:py-20 lg:py-100px 2xl:pb-150px 2xl:pt-40.5">
             <div className="container">
               <div className="text-center">
                 <h1 className="text-3xl md:text-size-40 2xl:text-size-55 font-bold text-blackColor dark:text-blackColor-dark mb-7 md:mb-6 pt-3">
-                  All Courses
+                  Tous les cours
                 </h1>
                 <ul className="flex gap-1 justify-center">
                   <li>
@@ -120,12 +120,12 @@ function Course() {
                       href="index.html"
                       className="text-lg text-blackColor2 dark:text-blackColor2-dark"
                     >
-                      Home <i className="icofont-simple-right" />
+                      Accueil <i className="icofont-simple-right" />
                     </a>
                   </li>
                   <li>
                     <span className="text-lg text-blackColor2 dark:text-blackColor2-dark">
-                      All Courses
+                      Tous les cours
                     </span>
                   </li>
                 </ul>
@@ -133,17 +133,17 @@ function Course() {
             </div>
           </div>
         </section>
-        {/* courses section */}
+        {/* section des cours */}
         <div>
           <div className="container tab py-10 md:py-50px lg:py-60px 2xl:py-100px">
-            {/* courses header */}
+            {/* en-tête des cours */}
             <div
               className="courses-header flex justify-between items-center flex-wrap px-13px py-10px border border-borderColor dark:border-borderColor-dark mb-30px gap-y-5"
               data-aos="fade-up"
             >
               <div>
                 <p className="text-blackColor dark:text-blackColor-dark">
-                  Showing {startIndex}–{endIndex} of {totalResults} Results
+                  Affichage de {startIndex}–{endIndex} sur {totalResults} résultats
                 </p>
               </div>
               <div className="flex items-center">
@@ -173,30 +173,30 @@ function Course() {
                     value={sortOrder}
                     onChange={handleSortChange}
                   >
-                    <option value="dateDesc">Date (Newest First)</option>
-                    <option value="dateAsc">Date (Oldest First)</option>
-                    <option value="titleAsc">Title (A-Z)</option>
-                    <option value="titleDesc">Title (Z-A)</option>
+                    <option value="dateDesc">Date (Le plus récent en premier)</option>
+                    <option value="dateAsc">Date (Le plus ancien en premier)</option>
+                    <option value="titleAsc">Titre (A-Z)</option>
+                    <option value="titleDesc">Titre (Z-A)</option>
                   </select>
                 </div>
               </div>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-12 gap-30px">
-              {/* courses sidebar */}
+              {/* barre latérale des cours */}
               <div className="md:col-start-1 md:col-span-4 lg:col-span-3">
                 <div className="flex flex-col">
-                  {/* search input */}
+                  {/* champ de recherche */}
                   <div
                     className="pt-30px pr-15px pl-10px pb-23px 2xl:pt-10 2xl:pr-25px 2xl:pl-5 2xl:pb-33px mb-30px border border-borderColor dark:border-borderColor-dark"
                     data-aos="fade-up"
                   >
                     <h4 className="text-size-22 text-blackColor dark:text-blackColor-dark font-bold leading-30px mb-25px">
-                      Search here
+                      Rechercher ici
                     </h4>
                     <form className="w-full px-4 py-15px text-sm text-contentColor bg-lightGrey10 dark:bg-lightGrey10-dark dark:text-contentColor-dark flex justify-center items-center leading-26px">
                       <input
                         type="text"
-                        placeholder="Search Produce"
+                        placeholder="Rechercher un cours"
                         className="placeholder:text-placeholder bg-transparent focus:outline-none placeholder:opacity-80 w-full"
                         value={searchTerm}
                         onChange={handleSearchChange}
@@ -215,16 +215,16 @@ function Course() {
                   </div>
                 </div>
               </div>
-              {/* courses main */}
+              {/* cours principaux */}
               <div className="md:col-start-5 md:col-span-8 lg:col-start-4 lg:col-span-9 space-y-[30px]">
                 <div className="tab-contents">
-                  {/* grid ordered cards */}
+                  {/* grille de cartes ordonnées */}
                   <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-30px">
                     {currentItems.map((course, index) => (
                       <div key={index} className="group">
                         <div className="tab-content-wrapper" data-aos="fade-up">
                           <div className="p-15px bg-whiteColor shadow-brand dark:bg-darkdeep3-dark dark:shadow-brand-dark">
-                            {/* card image */}
+                            {/* image de la carte */}
                             <div className="relative mb-4">
                               <Link to={`/CoursesDetails/${course._id}`}>
                                 <img
@@ -234,7 +234,7 @@ function Course() {
                                 />
                               </Link>
                             </div>
-                            {/* card content */}
+                            {/* contenu de la carte */}
                             <div>
                               <Link to={`/CoursesDetails/${course._id}`}>
                                 {course.title}
@@ -246,7 +246,7 @@ function Course() {
                                   }}
                                 />
                               <div className="text-xs py-5 text-gray-500">
-                                Created on:{" "}
+                                Créé le:{" "}
                                 <span className="font-semibold">
                                   {course.createdAt}
                                 </span>

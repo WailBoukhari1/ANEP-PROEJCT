@@ -61,7 +61,7 @@ function CreateCoursePage() {
           }))
         );
       } catch (error) {
-        console.error("Failed to fetch instructors:", error);
+        console.error("Échec de la récupération des instructeurs:", error);
       }
     };
 
@@ -152,7 +152,7 @@ function CreateCoursePage() {
 
     // Validate required fields
     if (!course.image) {
-      alert("Please upload an image.");
+      alert("Veuillez télécharger une image.");
       return;
     }
 
@@ -163,14 +163,14 @@ function CreateCoursePage() {
       course.budget === "" ||
       !course.times.length
     ) {
-      alert("Please fill in all required fields.");
+      alert("Veuillez remplir tous les champs obligatoires.");
       return;
     }
 
     for (const time of course.times) {
       if (!time.startTime || !time.endTime || !time.instructorName) {
         alert(
-          "Please fill in all time slots with start time, end time, and instructor."
+          "Veuillez remplir tous les créneaux horaires avec l'heure de début, l'heure de fin et le nom de l'instructeur."
         );
         return;
       }
@@ -222,19 +222,19 @@ function CreateCoursePage() {
         const response = await useApiAxios.post("/courses", finalCourseData);
 
         if (response.status === 201) {
-          console.log("Course created successfully!");
+          console.log("Cours créé avec succès!");
           navigate("/CoursesManagement");
         } else {
-          alert(`Failed to create course: ${response.status} ${response.data}`);
+          alert(`Échec de la création du cours: ${response.status} ${response.data}`);
         }
       } else {
         alert(
-          `Image upload failed: ${imageUploadResponse.status} ${imageUploadResponse.data}`
+          `Échec du téléchargement de l'image: ${imageUploadResponse.status} ${imageUploadResponse.data}`
         );
       }
     } catch (error) {
-      console.error("Error creating course:", error);
-      alert("Error creating course: " + error.message);
+      console.error("Erreur lors de la création du cours:", error);
+      alert("Erreur lors de la création du cours: " + error.message);
     }
   };
 
@@ -250,7 +250,7 @@ function CreateCoursePage() {
         }}
       >
         <TextField
-          label="Title"
+          label="Titre"
           name="title"
           value={course.title}
           onChange={handleInputChange}
@@ -270,33 +270,32 @@ function CreateCoursePage() {
           <input {...getInputProps()} />
           <Paper elevation={0} style={{ padding: "16px" }}>
             {isDragActive ? (
-              <p>Drop the image here...</p>
+              <p>Déposez l'image ici...</p>
             ) : (
               <p>
-                Drag &apos;n&apos; drop an image here, or click to select an
-                image
+                Glissez-déposez une image ici, ou cliquez pour sélectionner une image
               </p>
             )}
           </Paper>
           {course.image && (
             <img
               src={course.image.preview}
-              alt="Preview"
+              alt="Aperçu"
               style={{ marginTop: "16px", maxWidth: "100%", height: "auto" }}
             />
           )}
         </div>
         <FormControl fullWidth style={{ marginBottom: "16px" }}>
-          <InputLabel>Offline/Online</InputLabel>
+          <InputLabel>En ligne/Hors ligne</InputLabel>
           <Select
             name="offline"
             value={course.offline}
-            label="Offline/Online"
+            label="En ligne/Hors ligne"
             onChange={handleInputChange}
             required
           >
-            <MenuItem value="online">Online</MenuItem>
-            <MenuItem value="offline">Offline</MenuItem>
+            <MenuItem value="online">En ligne</MenuItem>
+            <MenuItem value="offline">Hors ligne</MenuItem>
           </Select>
         </FormControl>
         <FormControl fullWidth style={{ marginBottom: "16px" }}>
@@ -313,15 +312,15 @@ function CreateCoursePage() {
           />
         </FormControl>
         <FormControl fullWidth style={{ marginBottom: "16px" }}>
-          <InputLabel>Visibility</InputLabel>
+          <InputLabel>Visibilité</InputLabel>
           <Select
             name="hidden"
             value={course.hidden}
-            label="Visibility"
+            label="Visibilité"
             onChange={handleInputChange}
             required
           >
-            <MenuItem value="hidden">Hidden</MenuItem>
+            <MenuItem value="hidden">Caché</MenuItem>
             <MenuItem value="visible">Visible</MenuItem>
           </Select>
         </FormControl>
@@ -351,7 +350,7 @@ function CreateCoursePage() {
             <Grid container spacing={2}>
               <Grid item xs={6}>
                 <TextField
-                  label="Start Time"
+                  label="Heure de début"
                   name="startTime"
                   type="datetime-local"
                   value={session.startTime}
@@ -363,7 +362,7 @@ function CreateCoursePage() {
               </Grid>
               <Grid item xs={6}>
                 <TextField
-                  label="End Time"
+                  label="Heure de fin"
                   name="endTime"
                   type="datetime-local"
                   value={session.endTime}
@@ -375,15 +374,15 @@ function CreateCoursePage() {
               </Grid>
               <Grid item xs={6}>
                 <FormControl fullWidth>
-                  <InputLabel>Instructor Type</InputLabel>
+                  <InputLabel>Type d'instructeur</InputLabel>
                   <Select
                     name="instructorType"
                     value={session.instructorType}
                     onChange={(e) => handleSessionChange(e, index)}
                     required
                   >
-                    <MenuItem value="intern">Internal</MenuItem>
-                    <MenuItem value="extern">External</MenuItem>
+                    <MenuItem value="intern" >Interne</MenuItem>
+                    <MenuItem value="extern">Externe</MenuItem>
                   </Select>
                 </FormControl>
               </Grid>
@@ -409,7 +408,7 @@ function CreateCoursePage() {
                       )
                     }
                     renderInput={(params) => (
-                      <TextField {...params} label="Instructor Name" />
+                      <TextField {...params} label="Nom de l'instructeur" />
                     )}
                     fullWidth
                     required
@@ -417,7 +416,7 @@ function CreateCoursePage() {
                 ) : (
                   <>
                     <TextField
-                      label="Instructor Name"
+                      label="Nom de l'instructeur"
                       name="instructorName"
                       value={session.instructorName}
                       onChange={(e) => handleSessionChange(e, index)}
@@ -425,7 +424,7 @@ function CreateCoursePage() {
                       required
                     />
                     <TextField
-                      label="Phone"
+                      label="Téléphone"
                       name="phone"
                       value={session.externalInstructorDetails.phone}
                       onChange={(e) => handleSessionChange(e, index)}
@@ -434,7 +433,7 @@ function CreateCoursePage() {
                       required
                     />
                     <TextField
-                      label="Position"
+                      label="Poste"
                       name="position"
                       value={session.externalInstructorDetails.position}
                       onChange={(e) => handleSessionChange(e, index)}
@@ -461,13 +460,13 @@ function CreateCoursePage() {
                 justifyContent: "space-between",
               }}
             >
-              <Tooltip title="Remove Session">
+              <Tooltip title="Supprimer la session">
                 <IconButton onClick={() => handleRemoveSession(index)}>
                   <RemoveCircleOutlineIcon color="error" />
                 </IconButton>
               </Tooltip>
-              <Tooltip title="Duplicate Session">
-                <IconButton onClick={handleDuplicateSession}>
+              <Tooltip title="Dupliquer la session">
+                <IconButton onClick={() => handleDuplicateSession(index)}>
                   <FileCopyIcon color="primary" />
                 </IconButton>
               </Tooltip>
@@ -482,10 +481,10 @@ function CreateCoursePage() {
           fullWidth
           style={{ marginBottom: "16px" }}
         >
-          Add Session
+          Ajouter une session
         </Button>
         <Button variant="contained" color="primary" type="submit" fullWidth>
-          Create Course
+          Créer le cours
         </Button>
       </form>
     </AdminLayout>

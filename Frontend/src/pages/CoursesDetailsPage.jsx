@@ -37,7 +37,7 @@ function CoursesDetails() {
       .then((response) => {
         if (response.status !== 200) {
           throw new Error(
-            `Failed to fetch course details. Status code: ${response.status}`
+            `Échec de l'extraction des détails du cours. Code d'état : ${response.status}`
           );
         }
         return response.data;
@@ -47,7 +47,7 @@ function CoursesDetails() {
         setLoading(false);
       })
       .catch((error) => {
-        console.error("Error fetching course details:", error);
+        console.error("Erreur dans l'extraction des détails du cours :", error);
         setError(error.message);
         setLoading(false);
       });
@@ -61,7 +61,7 @@ function CoursesDetails() {
         setHasSubmittedFeedback(response.data.hasSubmitted);
       })
       .catch((error) => {
-        console.error("Error checking feedback submission:", error);
+        console.error("Vérification des erreurs lors de la soumission du retour d'information :", error);
       });
   }, [id, userId]);
 
@@ -76,7 +76,7 @@ function CoursesDetails() {
   };
   const handleJoinRequest = () => {
     if (!currentUser || !currentUser._id) {
-      alert("User not logged in.");
+      alert("L'utilisateur n'est pas connecté.");
       return;
     }
 
@@ -85,12 +85,12 @@ function CoursesDetails() {
         userId: currentUser._id,
       })
       .then((response) => {
-        alert("Request to join sent successfully!");
+        alert("Demande d'adhésion envoyée avec succès !");
         console.log(response.data);
       })
       .catch((error) => {
-        console.error("Error sending join request:", error);
-        alert("Failed to send join request.");
+        console.error("Erreur dans l'envoi de la demande d'adhésion :", error);
+        alert("Échec de l'envoi de la demande d'adhésion.");
       });
   };
 
@@ -104,7 +104,7 @@ function CoursesDetails() {
         .then((response) => {
           setFiles(response.data); // Assuming the backend returns the updated list of files
         })
-        .catch((error) => console.error("Error uploading file:", error));
+        .catch((error) => console.error("Erreur lors du téléchargement du fichier :", error));
     },
   });
 
@@ -114,7 +114,7 @@ function CoursesDetails() {
       .then((response) => {
         setFiles(response.data);
       })
-      .catch((error) => console.error("Failed to load files:", error));
+      .catch((error) => console.error("Échec du chargement des fichiers :", error));
   }, [id]);
 
   const handleCommentSubmit = (event) => {
@@ -128,16 +128,16 @@ function CoursesDetails() {
         .then((response) => {
           setComments(response.data);
           setNewComment("");
-          setFeedbackMessage("Comment added successfully!");
+          setFeedbackMessage("Commentaire ajouté avec succès !");
           setTimeout(() => setFeedbackMessage(""), 3000);
         })
         .catch((error) => {
-          console.error("Failed to submit comment:", error);
-          setFeedbackMessage("Failed to submit comment.");
+          console.error("Le commentaire n'a pas été soumis :", error);
+          setFeedbackMessage("Le commentaire n'a pas été soumis.");
           setTimeout(() => setFeedbackMessage(""), 3000);
         });
     } else {
-      setFeedbackMessage("Please enter a valid comment.");
+      setFeedbackMessage("Veuillez saisir un commentaire valide.");
       setTimeout(() => setFeedbackMessage(""), 3000);
     }
   };
@@ -147,19 +147,19 @@ function CoursesDetails() {
       .delete(`http://localhost:5000/courses/${id}/comments/${commentId}`)
       .then((response) => {
         setComments(response.data); // Assuming the backend returns the updated list of comments
-        setFeedbackMessage("Comment deleted successfully!");
+        setFeedbackMessage("Commentaire supprimé avec succès !");
         setTimeout(() => setFeedbackMessage(""), 3000);
       })
       .catch((error) => {
-        console.error("Failed to delete comment:", error);
-        setFeedbackMessage("Failed to delete comment.");
+        console.error("Échec de la suppression du commentaire :", error);
+        setFeedbackMessage("Échec de la suppression du commentaire.");
         setTimeout(() => setFeedbackMessage(""), 3000);
       });
   };
 
   const handleReportComment = (commentId) => {
     if (!currentUser || !currentUser._id) {
-      alert("User not logged in.");
+      alert("Utilisateur non connecté.");
       return;
     }
 
@@ -171,7 +171,7 @@ function CoursesDetails() {
         }
       )
       .then(() => {
-        alert("Comment reported successfully!");
+        alert("Commentaire signalé avec succès !");
         socket.emit("commentReported", {
           courseId: id,
           commentId,
@@ -185,12 +185,12 @@ function CoursesDetails() {
           error.response &&
           error.response.status === 400 &&
           error.response.data.message ===
-            "You have already reported this comment"
+            "Vous avez déjà signalé ce commentaire"
         ) {
-          alert("You have already reported this comment.");
+          alert("Vous avez déjà signalé ce commentaire.");
         } else {
-          console.error("Failed to report comment:", error);
-          alert("Failed to report comment.");
+          console.error("Le commentaire n'a pas été signalé :", error);
+          alert("Le commentaire n'a pas été signalé .");
         }
       });
   };
@@ -206,7 +206,7 @@ function CoursesDetails() {
             <div className="container">
               <div className="text-center">
                 <h1 className="text-3xl md:text-size-40 2xl:text-size-55 font-bold text-blackColor dark:text-blackColor-dark mb-7 md:mb-6 pt-3">
-                  Course-Details
+                Détails du cours
                 </h1>
                 <ul className="flex gap-1 justify-center">
                   <li>
@@ -214,12 +214,12 @@ function CoursesDetails() {
                       href="index.html"
                       className="text-lg text-blackColor2 dark:text-blackColor2-dark"
                     >
-                      Home <i className="icofont-simple-right" />
+                      Accueil <i className="icofont-simple-right" />
                     </a>
                   </li>
                   <li>
                     <span className="text-lg text-blackColor2 dark:text-blackColor2-dark">
-                      Course-Details
+                    Détails du cours
                     </span>
                   </li>
                 </ul>
@@ -250,7 +250,7 @@ function CoursesDetails() {
                     >
                       <div>
                         <p className="text-sm text-contentColor dark:text-contentColor-dark font-medium">
-                          Last Update:{" "}
+                        Dernière mise à jour :{" "}
                           <span className="text-blackColor dark:text-blackColor-dark">
                             {course.updatedAt}
                           </span>
@@ -285,7 +285,7 @@ function CoursesDetails() {
                               : ""
                           }`}
                         >
-                          <i className="icofont-star mr-2" /> Reviews
+                          <i className="icofont-star mr-2" /> Commentaires
                         </button>
                         <button
                           onClick={() => handleTabClick("upload")}
@@ -295,7 +295,7 @@ function CoursesDetails() {
                               : ""
                           }`}
                         >
-                          <i className="icofont-upload mr-2" /> Upload
+                          <i className="icofont-upload mr-2" /> Télécharger
                         </button>
                       </div>
                       <div className="tab-content">
@@ -307,7 +307,7 @@ function CoursesDetails() {
                             {/* client reviews */}
                             <div className="mt-60px mb-10">
                               <h4 className="text-lg text-blackColor dark:text-blackColor-dark font-bold pl-2 before:w-0.5 relative before:h-[21px] before:bg-secondaryColor before:absolute before:bottom-[5px] before:left-0 leading-1.2 mb-25px">
-                                Users Reviews
+                              Avis des utilisateurs
                               </h4>
                               <ul>
                                 {comments.map((comment, index) => (
@@ -370,7 +370,7 @@ function CoursesDetails() {
                                 className="text-2xl font-bold text-blackColor dark:text-blackColor-dark mb-15px !leading-1.2"
                                 data-aos="fade-up"
                               >
-                                Add a Review
+                                Ajouter un commentaire
                               </h4>
                               <form
                                 className="pt-5"
@@ -392,7 +392,7 @@ function CoursesDetails() {
                                     type="submit"
                                     className="text-size-15 text-whiteColor bg-primaryColor px-25px py-10px border border-primaryColor hover:text-primaryColor hover:bg-whiteColor inline-block rounded group dark:hover:text-whiteColor dark:hover:bg-whiteColor-dark"
                                   >
-                                    Submit
+                                    Soumettre
                                   </button>
                                 </div>
                                 {feedbackMessage && (
@@ -413,14 +413,14 @@ function CoursesDetails() {
                             >
                               <input {...getInputProps()} />
                               <p className="text-gray-700">
-                                Drag &apos;n&apos; drop some files here, or
-                                click to select files
+                              Traînée & déposer des fichiers ici, ou
+                                cliquer pour sélectionner des fichiers
                               </p>
                             </div>
 }
                             <div className="file-list mt-4">
                               <h4 className="file-list-title text-lg font-semibold mb-2">
-                                Files:
+                              Fichiers :
                               </h4>
                               <ul>
                                 {files.map((file, index) => (
@@ -442,7 +442,7 @@ function CoursesDetails() {
                                       rel="noopener noreferrer"
                                       className="download-button bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
                                     >
-                                      Download
+                                      Télécharger
                                     </a>
                                   </li>
                                 ))}
@@ -490,7 +490,7 @@ function CoursesDetails() {
                     <div className="mb-5" data-aos="fade-up">
                       <div className="py-2">
                         <p className="text-lg font-semibold py-1">
-                          Express you interset in joining
+                        Exprimez votre intérêt pour l'adhésion
                        
                         
                         </p>
@@ -499,26 +499,26 @@ function CoursesDetails() {
                           onClick={handleJoinRequest}
                           className="w-full text-size-15 text-whiteColor bg-primaryColor px-25px py-10px border mb-10px leading-1.8 border-primaryColor hover:text-primaryColor hover:bg-whiteColor inline-block  group dark:hover:text-whiteColor dark:hover:bg-whiteColor-dark"
                         >
-                          Request to join
+                          Demande d'adhésion
                         </button>
                       </div>
                       {course.assignedUsers.includes(currentUser._id)&&
                         
                       <div className="py-2">
                         <p className="text-lg font-semibold py-1">
-                          Did you finish the Course ? Leave you FeedBack
+                        Avez-vous terminé le cours ? Laissez votre feed-back
                         </p>
                         <button
                           onClick={handleShowEvaluationModal}
                           className="w-full text-size-15 text-whiteColor bg-secondaryColor px-25px py-10px mb-10px leading-1.8 border border-secondaryColor hover:text-secondaryColor hover:bg-whiteColor inline-block group dark:hover:text-secondaryColor dark:hover:bg-whiteColor-dark"
                         >
-                          Feedback
+                          Retour d'information
                         </button>
                         <Dialog
                           open={showEvaluationModal}
                           onClose={() => setShowEvaluationModal(false)}
                         >
-                          <DialogTitle>Evaluation</DialogTitle>
+                          <DialogTitle>L'évaluation</DialogTitle>
                           <DialogContent>
                             <FeedbackModal courseId={id} userId={userId} />
                           </DialogContent>

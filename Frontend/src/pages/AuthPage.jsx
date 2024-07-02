@@ -76,7 +76,7 @@ function Auth() {
           <div className="container">
             <div className="text-center">
               <h1 className="text-3xl md:text-size-40 2xl:text-size-55 font-bold text-blackColor dark:text-blackColor-dark mb-7 md:mb-6 pt-3">
-                Log In
+              Se Connecter
               </h1>
               <ul className="flex gap-1 justify-center">
                 <li>
@@ -89,7 +89,7 @@ function Auth() {
                 </li>
                 <li>
                   <span className="text-lg text-blackColor2 dark:text-blackColor2-dark">
-                    Log In
+                  Se Connecter
                   </span>
                 </li>
               </ul>
@@ -111,8 +111,12 @@ function Auth() {
                 } relative group/btn shadow-bottom hover:shadow-bottom dark:shadow-standard-dark disabled:cursor-pointer rounded-standard`}
                 onClick={() => setActiveTab("login")}
               >
-                <span className="absolute w-full h-1 bg-primaryColor top-0 left-0 group-hover/btn:w-full" />
-                Login
+              <span className={` // Added backticks for string interpolation
+                  ${activeTab === "login" ? "absolute w-full h-1 bg-primaryColor top-0 left-0" : "absolute w-0 h-1 bg-primaryColor top-0 left-0 group-hover/btn:w-full"}
+                `}
+                />
+                Se Connecter
+
               </button>
               <button
                 className={`py-9px lg:py-6 ${
@@ -122,8 +126,11 @@ function Auth() {
                 } relative group/btn hover:shadow-bottom dark:shadow-standard-dark disabled:cursor-pointer rounded-standard`}
                 onClick={() => setActiveTab("signup")}
               >
-                <span className="absolute w-0 h-1 bg-primaryColor top-0 left-0 group-hover/btn:w-full" />
-                active account
+                <span className={` // Added backticks for string interpolation
+                  ${activeTab === "signup" ? "absolute w-full h-1 bg-primaryColor top-0 left-0" : "absolute w-0 h-1 bg-primaryColor top-0 left-0 group-hover/btn:w-full"}
+                `}
+                />
+                activez votre compte
               </button>
             </div>
             {/*  tab contents */}
@@ -135,7 +142,7 @@ function Auth() {
                     {/* heading   */}
                     <div className="text-center">
                       <h3 className="text-size-32 font-bold text-blackColor dark:text-blackColor-dark mb-2 leading-normal">
-                        Login
+                      Se Connecter
                       </h3>
                     </div>
                     <form className="pt-25px" data-aos="fade-up">
@@ -145,14 +152,14 @@ function Auth() {
                         </label>
                         <input
                           type="text"
-                          placeholder="Your  email"
+                          placeholder="exemple : x.xxxxx@anep.ma"
                           onChange={(e) => setEmail(e.target.value)}
                           className="w-full h-52px leading-52px pl-5 bg-transparent text-sm focus:outline-none text-contentColor dark:text-contentColor-dark border border-borderColor dark:border-borderColor-dark placeholder:text-placeholder placeholder:opacity-80 font-medium rounded"
                         />
                       </div>
                       <div className="mb-25px">
                         <label className="text-contentColor dark:text-contentColor-dark mb-10px block">
-                          Password
+                        Mot de passe
                         </label>
                         <input
                           onChange={(e) => setPassword(e.target.value)}
@@ -163,19 +170,14 @@ function Auth() {
                       </div>
                       <div className="text-contentColor dark:text-contentColor-dark flex items-center justify-between">
                         <div className="flex items-center">
-                          <input
-                            type="checkbox"
-                            id="remember"
-                            className="w-18px h-18px mr-2 block box-content"
-                          />
-                          <label htmlFor="remember"> Remember me</label>
+                        
                         </div>
                         <div>
                           <Link
                             to='ForgetPassword'
                             className="hover:text-primaryColor relative after:absolute after:left-0 after:bottom-0.5 after:w-0 after:h-0.5 after:bg-primaryColor after:transition-all after:duration-300 hover:after:w-full"
                           >
-                            Forgot your password?
+                             Vous avez oublié votre mot de passe ?
                           </Link>
                         </div>
                       </div>
@@ -185,8 +187,8 @@ function Auth() {
                           type="submit"
                           className="text-size-15 text-whiteColor bg-primaryColor px-25px py-10px w-full border border-primaryColor hover:text-primaryColor hover:bg-whiteColor inline-block rounded group dark:hover:text-whiteColor dark:hover:bg-whiteColor-dark"
                         >
-                          Log in
-                        </button>
+                  Se Connecter
+                  </button>
                       </div>
                     </form>
                   </div>
@@ -197,7 +199,7 @@ function Auth() {
                     {/* heading   */}
                     <div className="text-center">
                       <h3 className="text-size-32 font-bold text-blackColor dark:text-blackColor-dark mb-2 leading-normal">
-                      Active Account
+                      activez votre compte
                       </h3>
                     
                     </div>
@@ -209,7 +211,7 @@ function Auth() {
                           </label>
                           <input
                             type="email"
-                            placeholder="Your Email"
+                            placeholder="exemple : x.xxxxx@anep.ma"
                             onChange={(e) => setActiveEmail(e.target.value)}
                             className="w-full h-52px leading-52px pl-5 bg-transparent text-sm focus:outline-none text-contentColor dark:text-contentColor-dark border border-borderColor dark:border-borderColor-dark placeholder:text-placeholder placeholder:opacity-80 font-medium rounded"
                           />
@@ -220,7 +222,7 @@ function Auth() {
                           type="submit"
                           className="text-size-15 text-whiteColor bg-primaryColor px-25px py-10px w-full border border-primaryColor hover:text-primaryColor hover:bg-whiteColor inline-block rounded group dark:hover:text-whiteColor dark:hover:bg-whiteColor-dark"
                         >
-                          Active
+                          Activer
                         </button>
                       </div>
                     </form>

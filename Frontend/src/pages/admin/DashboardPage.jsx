@@ -10,7 +10,7 @@ const Dashboard = () => {
   const [commentData, setCommentData] = useState([]);
 
   useEffect(() => {
-    // Récupérer les données des utilisateurs
+    // Obtenir les données des utilisateurs
     const fetchUserData = async () => {
       try {
         const response = await useApiAxios.get("/users");
@@ -20,7 +20,7 @@ const Dashboard = () => {
       }
     };
 
-    // Récupérer les données des cours
+    // Obtenir les données des cours
     const fetchCourseData = async () => {
       try {
         const response = await useApiAxios.get("/courses");
@@ -30,7 +30,7 @@ const Dashboard = () => {
       }
     };
 
-    // Récupérer les données des commentaires
+    // Obtenir les données des commentaires
     const fetchCommentData = async () => {
       try {
         const response = await useApiAxios.get("/courses/comments/");
@@ -92,7 +92,7 @@ const Dashboard = () => {
           <Card>
             <CardContent>
               <Typography color="textSecondary" gutterBottom>
-                Utilisateurs Totals
+                Total des Utilisateurs
               </Typography>
               <Typography variant="h5" component="h2">
                 {userData.length}
@@ -104,7 +104,7 @@ const Dashboard = () => {
           <Card>
             <CardContent>
               <Typography color="textSecondary" gutterBottom>
-                Cours Totals
+              Total des Cours
               </Typography>
               <Typography variant="h5" component="h2">
                 {courseData.length}
@@ -116,8 +116,8 @@ const Dashboard = () => {
           <Card>
             <CardContent>
               <Typography color="textSecondary" gutterBottom>
-                Commentaires Totals
-              </Typography>
+              Commentaires Totaux
+                            </Typography>
               <Typography variant="h5" component="h2">
                 {commentData.length}
               </Typography>
@@ -128,7 +128,7 @@ const Dashboard = () => {
           <Card>
             <CardContent>
               <Typography color="textSecondary" gutterBottom>
-                Commentaires Signalés Totals
+              Commentaires Signalés Totals
               </Typography>
               <Typography variant="h5" component="h2">
                 {commentReportData[0].value}
