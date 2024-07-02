@@ -36,6 +36,7 @@ const DeleteButton = styled(Button)(({ theme }) => ({
 function AdminUserNeeds() {
   const [userNeeds, setUserNeeds] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
   const [openDialog, setOpenDialog] = useState(false);
   const [selectedNeedId, setSelectedNeedId] = useState(null);
 
@@ -46,6 +47,9 @@ function AdminUserNeeds() {
         setUserNeeds(response.data);
       } catch (error) {
         console.error('Erreur lors de la récupération des besoins des utilisateurs:', error);
+        setError('Erreur lors de la récupération des besoins des utilisateurs.');
+      } finally {
+        setLoading(false);
       }
     }
 
@@ -56,6 +60,7 @@ function AdminUserNeeds() {
     try {
       await useApiAxios.delete(`/user-needs/${selectedNeedId}`);
       setUserNeeds((prevNeeds) => prevNeeds.filter((need) => need._id !== selectedNeedId));
+      handleCloseDialog();
     } catch (error) {
       console.error('Erreur lors de la suppression du besoin utilisateur:', error);
     }
@@ -81,44 +86,62 @@ function AdminUserNeeds() {
     );
   }
 
+  if (error) {
+    return (
+      <AdminLayout>
+        <RootContainer>
+          <Typography variant="h6" color="error">
+            {error}
+          </Typography>
+        </RootContainer>
+      </AdminLayout>
+    );
+  }
+
   return (
     <AdminLayout>
       <RootContainer>
         <Typography variant="h4" gutterBottom>
           Besoins des Utilisateurs
         </Typography>
-        <Grid container spacing={3}>
-          {userNeeds.map((need) => (
-            <Grid item key={need._id} xs={12} sm={6} md={4}>
-              <CustomCard>
-                <CustomCardContent>
-                  <Typography variant="body1" gutterBottom>
-                    {need.message}
-                  </Typography>
-                  <Typography variant="body2" color="textSecondary">
-                    {new Date(need.createdAt).toLocaleString()}
-                  </Typography>
-                </CustomCardContent>
-                <CustomCardActions>
-                  <DeleteButton size="small" onClick={() => handleDelete(need._id)}>
-                    Supprimer
-                  </DeleteButton>
-                </CustomCardActions>
-              </CustomCard>
-            </Grid>
-          ))}
-        </Grid>
+        {userNeeds.length === 0 ? (
+          <Typography variant="body1">
+            Aucun besoin utilisateur trouvé.
+          </Typography>
+        ) : (
+          <Grid container spacing={3}>
+            {userNeeds.map((need) => (
+              <Grid item key={need._id} xs={12} sm={6} md={4}>
+                <CustomCard>
+                  <CustomCardContent>
+                    <Typography variant="body1" gutterBottom>
+                      {need.message}
+                    </Typography>
+                    <Typography variant="body2" color="textSecondary">
+                      {new Date(need.createdAt).toLocaleString()}
+                    </Typography>
+                  </CustomCardContent>
+                  <CustomCardActions>
+                    <DeleteButton size="small" onClick={() => handleOpenDialog(need._id)}>
+                      Supprimer
+                    </DeleteButton>
+                  </CustomCardActions>
+                </CustomCard>
+              </Grid>
+            ))}
+          </Grid>
+        )}
         <Dialog open={openDialog} onClose={handleCloseDialog}>
-          <DialogTitle>Confirm Delete</DialogTitle>
+          <DialogTitle>Confirmer la suppression</DialogTitle>
           <DialogContent>
-            <DialogContentText>Are you sure you want to delete this user need?</DialogContentText>
+            <DialogContentText>Êtes-vous sûr de vouloir supprimer ce besoin utilisateur ?</DialogContentText>
           </DialogContent>
           <DialogActions>
             <Button onClick={handleCloseDialog} color="primary">
-              Cancel
+              Annuler
             </Button>
             <Button onClick={handleDelete} color="secondary">
-              Delete
+              Supprimer
             </Button>
           </DialogActions>
         </Dialog>
