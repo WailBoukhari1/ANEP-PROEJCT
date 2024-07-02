@@ -10,7 +10,7 @@ function HomePage() {
   const [cards, setCards] = useState([]);
   const [comments, setComments] = useState([]);
 
-  const baseURL = "https://anep-proejct-1.onrender.com";
+  const baseURL = "https://anep-proejct.onrender.com/";
 
   useEffect(() => {
     async function fetchCards() {
