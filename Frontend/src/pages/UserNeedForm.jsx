@@ -9,7 +9,7 @@ const UserNeedForm = ({ onSubmit }) => {
 
     // Envoyer le message à l'API backend
     try {
-      const response = await fetch('https://anep-proejct.onrender.com/messages', {
+      const response = await fetch('/messages', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

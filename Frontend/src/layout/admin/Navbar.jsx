@@ -19,7 +19,7 @@ import { io } from "socket.io-client";
 import useApiAxios from "../../config/axios";
 import UserContext from "../../auth/user-context";
 
-const socket = io("https://anep-proejct.onrender.com");
+const socket = io("https://anep-proejct.onrender.com/");
 
 const Navbar = ({ handleDrawerOpen, open, drawerWidth, isMobile }) => {
   const [anchorElNotif, setAnchorElNotif] = useState(null);
