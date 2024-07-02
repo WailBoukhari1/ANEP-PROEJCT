@@ -50,7 +50,7 @@ function Navbar() {
 
   const fetchNotifications = () => {
     useApiAxios
-      .get(`https://anep-proejct.onrender.com/users/notifications`)
+      .get(`/users/notifications`)
       .then((response) => {
         const sortedNotifications = response.data.notifications.sort(
           (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
