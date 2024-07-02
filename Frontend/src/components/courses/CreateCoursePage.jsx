@@ -27,17 +27,19 @@ function CreateCoursePage() {
   const navigate = useNavigate();
   const [course, setCourse] = useState({
     title: "",
+    location:"",
     offline: "",
     description: "",
     hidden: "",
     budget: "",
+    location: "",
     times: [
       {
         startTime: "",
         endTime: "",
-        instructorType: "",
         instructor: "",
         instructorName: "",
+        instructorType: "intern",
         externalInstructorDetails: {
           phone: "",
           position: "",
@@ -119,7 +121,6 @@ function CreateCoursePage() {
         {
           startTime: "",
           endTime: "",
-          instructorType: "",
           instructor: "",
           instructorName: "",
           externalInstructorDetails: {
@@ -161,6 +162,7 @@ function CreateCoursePage() {
       !course.offline ||
       !course.hidden ||
       course.budget === "" ||
+      !course.location || // Add location validation
       !course.times.length
     ) {
       alert("Veuillez remplir tous les champs obligatoires.");
@@ -238,6 +240,7 @@ function CreateCoursePage() {
     }
   };
 
+
   return (
     <AdminLayout>
       <form
@@ -253,6 +256,15 @@ function CreateCoursePage() {
           label="Titre"
           name="title"
           value={course.title}
+          onChange={handleInputChange}
+          fullWidth
+          style={{ marginBottom: "16px" }}
+          required
+        />
+                <TextField
+          label="Lieu"
+          name="location"
+          value={course.location}
           onChange={handleInputChange}
           fullWidth
           style={{ marginBottom: "16px" }}
@@ -290,12 +302,14 @@ function CreateCoursePage() {
           <Select
             name="offline"
             value={course.offline}
-            label="En ligne/Hors ligne"
+            label="En ligne/Hors ligne/Hybrid"
             onChange={handleInputChange}
             required
           >
             <MenuItem value="online">En ligne</MenuItem>
             <MenuItem value="offline">Hors ligne</MenuItem>
+            <MenuItem value="hybrid">hybrid</MenuItem>
+
           </Select>
         </FormControl>
         <FormControl fullWidth style={{ marginBottom: "16px" }}>

@@ -3,7 +3,6 @@ import { useState, useEffect, useCallback, useContext } from "react";
 import { Link } from "react-router-dom";
 import useApiAxios from "../config/axios";
 import UserContext from "../auth/user-context";
-import UserNeed from "../components/models/UserNeed";
 
 
 function Course() {
@@ -206,13 +205,6 @@ function Course() {
                       </button>
                     </form>
                   </div>
-                  {/* bouton pour exprimer mon besoin */}
-                  <div
-                    className="pt-30px pr-15px pl-10px pb-23px 2xl:pt-10 2xl:pr-25px 2xl:pl-5 2xl:pb-33px mb-30px border border-borderColor dark:border-borderColor-dark"
-                    data-aos="fade-up"
-                  >
-                    <UserNeed />
-                  </div>
                 </div>
               </div>
               {/* cours principaux */}
@@ -237,15 +229,16 @@ function Course() {
                             {/* contenu de la carte */}
                             <div>
                               <Link to={`/CoursesDetails/${course._id}`}>
+                              
                                 {course.title}
                               </Link>
                                 <div
-                                  className="text-sm font-inter mb-4 description-clamp "
+                                  className="text-md font-inter mb-4 description-clamp "
                                   dangerouslySetInnerHTML={{
                                     __html: course.description,
                                   }}
                                 />
-                              <div className="text-xs py-5 text-gray-500">
+                              <div className="text-xs text-gray-500">
                                 Créé le:{" "}
                                 <span className="font-semibold">
                                   {course.createdAt}

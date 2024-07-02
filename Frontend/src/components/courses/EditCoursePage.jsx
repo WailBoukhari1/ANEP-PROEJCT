@@ -34,6 +34,7 @@ function EditCoursePage() {
   const navigate = useNavigate();
   const [course, setCourse] = useState({
     title: "",
+    location:"",
     imageUrl: "",
     offline: "",
     description: "",
@@ -393,6 +394,20 @@ function EditCoursePage() {
           required
           fullWidth
           style={{ marginBottom: "16px" }}
+        />
+                 <TextField
+          label="Lieu"
+          name="location"
+          value={course.location}
+          onChange={(e) =>
+            setCourse((prev) => ({
+              ...prev,
+              location: e.target.value,
+            }))
+          }
+          fullWidth
+          style={{ marginBottom: "16px" }}
+          required
         />
         <div
           {...getRootProps()}

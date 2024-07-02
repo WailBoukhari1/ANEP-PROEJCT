@@ -47,11 +47,12 @@
 
     const courseSchema = new mongoose.Schema({
         title: { type: String, required: true },
+        locations: { type: String, required: true },
         imageUrl: { type: String, required: true },
         offline: {
             type: String,
             required: true,
-            enum: ['online', 'offline']
+            enum: ['online', 'offline' ,'hybrid']
         },
         description: { type: String },
         notifyUsers: { type: Boolean, default: false },

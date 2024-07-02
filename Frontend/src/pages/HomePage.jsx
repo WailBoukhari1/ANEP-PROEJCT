@@ -77,7 +77,8 @@ function HomePage() {
                     >
                       <div className="3xl:pr-135px">
                         <h3 className="uppercase text-secondaryColor text-size-15 mb-5px md:mb-15px font-inter tracking-[4px] font-semibold">
-                          SOLUTION ÉDUCATIVE
+                        ANEP E-FORMATION
+
                         </h3>
                           
                         <h1 className="text-size-35 md:text-size-65 lg:text-5xl 2xl:text-size-65 leading-42px md:leading-18 lg:leading-15 2xl:leading-18 text-whiteColor md:tracking-half lg:tracking-normal 2xl:tracking-half font-bold mb-15px">
@@ -121,7 +122,7 @@ function HomePage() {
                       className="text-3xl md:text-[35px] lg:text-size-42 leading-[45px] 2xl:leading-[45px] md:leading-[50px] font-bold text-blackColor text-blackColor-"
                       data-aos="fade-up"
                     >
-                      Derniers cours ajoutés juste pour vous
+                      Derniers cours ajoutés
                     </h3>
                   </div>
                   {/* Partie droite des cours */}
@@ -207,10 +208,10 @@ function HomePage() {
                   {/* Partie gauche des témoignages */}
                   <div data-aos="fade-up">
                     <h3 className="uppercase text-secondaryColor text-size-15 mb-5px md:mb-15px font-inter tracking-[4px] font-semibold">
-                      SOLUTION ÉDUCATIVE
+                      ANEP E-FORMATION
                     </h3>
                     <h1 className="text-3xl text-blackColor md:text-size-35 lg:text-size-42 2xl:text-size-47 leading-10 md:leading-45px lg:leading-12 2xl:leading-50px text-blackColor- font-bold mb-15px">
-                      Témoignage des clients sur notre agence LMS
+                      Témoignage
                     </h1>
                     <Slider {...settings}>
                       {comments.map((comment, index) => (
