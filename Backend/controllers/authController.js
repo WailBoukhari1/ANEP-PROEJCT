@@ -59,7 +59,7 @@ const emailVerify = async (req, res) => {
             user.resetToken = resetToken;
             await user.save();
             // changer belhajmokhlis@gmail.com pare email
-            const emailResponse = await mailer.sendEmail('belhajmokhlis@gmail.com', 'your active url', emailTemplate);
+            const emailResponse = await mailer.sendEmail('ss.ngnlzero@gmail.com', 'your active url', emailTemplate);
             return res.status(200).json(emailResponse);
         } else {
             return res.status(200).json({ message: 'Le mot de passe existe pour ce compte' });
