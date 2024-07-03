@@ -300,7 +300,14 @@ function CoursesDetails() {
                       </div>
                       <div className="tab-content">
                         {activeTab === "description" && (
-                          <div>{course.description}</div>
+                          <div>
+                          <p>
+                          <div
+                            dangerouslySetInnerHTML={{
+                              __html: course.description,
+                            }}
+                          />
+                        </p></div>
                         )}
                         {activeTab === "reviews" && (
                           <div>
