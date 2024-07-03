@@ -10,7 +10,8 @@ function HomePage() {
   const [cards, setCards] = useState([]);
   const [comments, setComments] = useState([]);
 
-  const baseURL = "https://anep-proejct.onrender.com";
+  const baseURL = "http://localhost:5000/";
+
 
   // Effectuer une requête pour récupérer les cours
   useEffect(() => {

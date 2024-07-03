@@ -26,7 +26,7 @@ import AdminLayout from "../../layout/admin/AdminLayout";
 import FileUploadIcon from "@mui/icons-material/FileUpload";
 import DownloadIcon from "@mui/icons-material/Download"; // Importation ajoutée
 
-const socket = io("https://anep-proejct.onrender.com/");
+const socket = io("http://localhost:5000");
 
 // Composant pour le menu de présence
 const PresenceMenu = ({

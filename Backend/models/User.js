@@ -1,8 +1,8 @@
 const mongoose = require('mongoose');
 
 const vacationSchema = new mongoose.Schema({
-    start: { type: Date, required: true },
-    end: { type: Date, required: true }
+    start: { type: Date, required: false },
+    end: { type: Date, required: false }
 });
 
 const notificationSchema = new mongoose.Schema({
@@ -10,19 +10,19 @@ const notificationSchema = new mongoose.Schema({
     date: { type: Date, default: Date.now },
     courseId: { type: mongoose.Schema.Types.ObjectId, ref: 'Course' },
     commentSnippet: String,
-    isNew: { type: Boolean, default: true },
+    isNew: { type: Boolean, default: false },
     createdAt: { type: Date, default: Date.now }
 });
 
 const userSchema = new mongoose.Schema({
     email: {
         type: String,
-        required: true,
-        unique: true
+        required: false,
+        unique: false
     },
     password: {
         type: String,
-        // required: true,
+        // required: false,
     },
     roles: {
         type: [String],
@@ -33,7 +33,7 @@ const userSchema = new mongoose.Schema({
         type: String,
         default: null,
     },
-    name: { type: String, required: true },
+    name: { type: String, required: false },
     PPR: { type: Number },
     CIN: { type: String },
     DATE_NAISSANCE: { type: Date },
