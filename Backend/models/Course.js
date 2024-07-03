@@ -85,7 +85,10 @@
             type: String,
             required: true,
         },
-        evaluations: [evaluationSchema]
+        evaluations: [evaluationSchema],
+        createdAt: { type: Date, default: Date.now }
+        // updatedAt: { type: Date },
+        // deletedAt: { type: Date },
     }, { timestamps: false });
 
     const Course = mongoose.model('Course', courseSchema);

@@ -490,14 +490,14 @@ function CoursesDetails() {
                     <div className="mb-5" data-aos="fade-up">
                       <div className="py-2">
                         <p className="text-lg font-semibold py-1">
-                        Exprimez votre intérêt pour l'adhésion
+                        Exprimez votre intérêt
                         </p>
                         <button
                           type="submit"
                           onClick={handleJoinRequest}
                           className="w-full text-size-15 text-whiteColor bg-primaryColor px-25px py-10px border mb-10px leading-1.8 border-primaryColor hover:text-primaryColor hover:bg-whiteColor inline-block  group dark:hover:text-whiteColor dark:hover:bg-whiteColor-dark"
                         >
-                          Demande d'adhésion
+                          Adhésion
                         </button>
                       </div>
                       {course.assignedUsers.includes(currentUser._id)&&

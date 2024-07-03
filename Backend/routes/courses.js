@@ -4,7 +4,7 @@ const courseController = require('../controllers/courseController');
 const multer = require('multer');
 const path = require('path');
 const { authenticateUser } = require('../utils/auth');
-
+const Course = require('../models/Course');
 // Multer configuration
 const storage = multer.diskStorage({
     destination: (req, file, cb) => cb(null, 'uploads/'),
@@ -52,6 +52,29 @@ const userRoutes = [
 const notificationRoutes = [
     { method: 'post', path: '/:id/notify', handler: courseController.sendCourseNotification },
 ];
+// Route to fetch statistics
+router.get('/statistics', async (req, res) => {
+    try {
+      const totalCourses = await Course.countDocuments();
+      const onlineCourses = await Course.countDocuments({ type: 'online' });
+      const offlineCourses = await Course.countDocuments({ type: 'offline' });
+      const hybridCourses = await Course.countDocuments({ type: 'hybrid' });
+  
+      // Example response structure
+      const statistics = {
+        totalCourses,
+        online: onlineCourses,
+        offline: offlineCourses,
+        hybrid: hybridCourses
+      };
+  
+      res.json(statistics);
+    } catch (err) {
+      console.error('Failed to fetch statistics:', err);
+      res.status(500).json({ message: 'Failed to fetch statistics' });
+    }
+  });
+  
 // Apply routes
 const applyRoutes = (routes) => {
     routes.forEach(({ method, path, middleware = [], handler }) => {

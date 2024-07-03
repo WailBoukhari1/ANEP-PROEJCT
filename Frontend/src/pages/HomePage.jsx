@@ -15,7 +15,7 @@ function HomePage() {
     hybrid: 0
   });
 
-  const baseURL = "http://localhost:5000/";
+  const baseURL = "http://localhost:5000";
 
   // Effectuer une requête pour récupérer les cours
   useEffect(() => {
@@ -190,70 +190,70 @@ function HomePage() {
               </div>
             </div>
           </section>
-          {/* Section des statistiques */}
-          <section className="py-50px bg-lightGrey">
-            <div className="container">
-              <h2 className="text-3xl font-bold mb-10px">Statistiques du site</h2>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-10px">
-                <div className="bg-white p-20px shadow-md rounded text-center">
-                  <h3 className="text-xl font-semibold">Total de cours</h3>
-                  <CountUp
-                    start={0}
-                    end={statistics.totalCourses}
-                    duration={2.5}
-                    separator=","
-                    suffix="+"
-                  >
-                    {({ countUpRef }) => (
-                      <div className="text-2xl" ref={countUpRef} />
-                    )}
-                  </CountUp>
-                </div>
-                <div className="bg-white p-20px shadow-md rounded text-center">
-                  <h3 className="text-xl font-semibold">Cours en ligne</h3>
-                  <CountUp
-                    start={0}
-                    end={statistics.online}
-                    duration={2.5}
-                    separator=","
-                    suffix="+"
-                  >
-                    {({ countUpRef }) => (
-                      <div className="text-2xl" ref={countUpRef} />
-                    )}
-                  </CountUp>
-                </div>
-                <div className="bg-white p-20px shadow-md rounded text-center">
-                  <h3 className="text-xl font-semibold">Cours hors ligne</h3>
-                  <CountUp
-                    start={0}
-                    end={statistics.offline}
-                    duration={2.5}
-                    separator=","
-                    suffix="+"
-                  >
-                    {({ countUpRef }) => (
-                      <div className="text-2xl" ref={countUpRef} />
-                    )}
-                  </CountUp>
-                </div>
-                <div className="bg-white p-20px shadow-md rounded text-center">
-                  <h3 className="text-xl font-semibold">Cours hybrides</h3>
-                  <CountUp
-                    start={0}
-                    end={statistics.hybrid}
-                    duration={2.5}
-                    separator=","
-                    suffix="+"
-                  >
-                    {({ countUpRef }) => (
-                      <div className="text-2xl" ref={countUpRef} />
-                    )}
-                  </CountUp>
-                </div>
+                {/* Section des statistiques */}
+                <section className="py-10 md:py-20 lg:py-50 bg-lightGrey">
+          <div className="container">
+            <h2 className="text-3xl font-bold mb-6 md:mb-10">Statistiques du site</h2>
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-6 md:gap-10">
+              <div className="bg-white p-6 md:p-8 shadow-md rounded-lg text-center">
+                <h3 className="text-xl md:text-2xl font-semibold text-primaryColor mb-2">Total de cours</h3>
+                <CountUp
+                  start={0}
+                  end={statistics.totalCourses}
+                  duration={2.5}
+                  separator=","
+                  suffix="+"
+                >
+                  {({ countUpRef }) => (
+                    <div className="text-2xl md:text-3xl font-bold text-blackColor" ref={countUpRef} />
+                  )}
+                </CountUp>
+              </div>
+              <div className="bg-white p-6 md:p-8 shadow-md rounded-lg text-center">
+                <h3 className="text-xl md:text-2xl font-semibold text-primaryColor mb-2">Cours en ligne</h3>
+                <CountUp
+                  start={0}
+                  end={statistics.online}
+                  duration={2.5}
+                  separator=","
+                  suffix="+"
+                >
+                  {({ countUpRef }) => (
+                    <div className="text-2xl md:text-3xl font-bold text-blackColor" ref={countUpRef} />
+                  )}
+                </CountUp>
+              </div>
+              <div className="bg-white p-6 md:p-8 shadow-md rounded-lg text-center">
+                <h3 className="text-xl md:text-2xl font-semibold text-primaryColor mb-2">Cours hors ligne</h3>
+                <CountUp
+                  start={0}
+                  end={statistics.offline}
+                  duration={2.5}
+                  separator=","
+                  suffix="+"
+                >
+                  {({ countUpRef }) => (
+                    <div className="text-2xl md:text-3xl font-bold text-blackColor" ref={countUpRef} />
+                  )}
+                </CountUp>
+              </div>
+              <div className="bg-white p-6 md:p-8 shadow-md rounded-lg text-center">
+                <h3 className="text-xl md:text-2xl font-semibold text-primaryColor mb-2">Cours hybrides</h3>
+                <CountUp
+                  start={0}
+                  end={statistics.hybrid}
+                  duration={2.5}
+                  separator=","
+                  suffix="+"
+                >
+                  {({ countUpRef }) => (
+                    <div className="text-2xl md:text-3xl font-bold text-blackColor" ref={countUpRef} />
+                  )}
+                </CountUp>
               </div>
             </div>
-          </section>
+          </div>
+        </section>
         </>
       </>
     </MainLayout>

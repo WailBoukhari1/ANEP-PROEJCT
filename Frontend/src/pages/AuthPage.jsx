@@ -87,7 +87,7 @@ function Auth() {
                       : "absolute w-0 h-1 bg-primaryColor top-0 left-0 group-hover/btn:w-full"
                   }`}
                 />
-                activez votre compte
+                Activez Votre Compte
               </button>
             </div>
             {/*  tab contents */}
