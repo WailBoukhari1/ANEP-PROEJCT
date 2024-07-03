@@ -16,7 +16,7 @@ function Course() {
 
   const categories = ["All", "online", "offline"];
 
-  const baseURL = "http://localhost:5000/";
+  const baseURL = "https://anep-proejct.onrender.com/";
 
   useEffect(() => {
     async function fetchCourses() {
