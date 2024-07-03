@@ -63,6 +63,7 @@ function AdminUserNeeds() {
       handleCloseDialog();
     } catch (error) {
       console.error('Erreur lors de la suppression du besoin utilisateur:', error);
+      // Display error to user (e.g., using a snackbar or another UI element)
     }
   };
 
@@ -80,6 +81,9 @@ function AdminUserNeeds() {
     return (
       <AdminLayout>
         <RootContainer>
+          <Typography variant="h6" gutterBottom>
+            Chargement des besoins en cours...
+          </Typography>
           <CircularProgress />
         </RootContainer>
       </AdminLayout>
@@ -114,10 +118,13 @@ function AdminUserNeeds() {
               <Grid item key={need._id} xs={12} sm={6} md={4}>
                 <CustomCard>
                   <CustomCardContent>
-                    <Typography variant="body1" gutterBottom>
+                  <Typography className='font-extrabold' gutterBottom>
+                      {need.title}
+                    </Typography>
+                    <Typography variant="body2" gutterBottom>
                       {need.message}
                     </Typography>
-                    <Typography variant="body2" color="textSecondary">
+                    <Typography variant="body3" color="textSecondary">
                       {new Date(need.createdAt).toLocaleString()}
                     </Typography>
                   </CustomCardContent>

@@ -52,7 +52,6 @@ const userRoutes = [
 const notificationRoutes = [
     { method: 'post', path: '/:id/notify', handler: courseController.sendCourseNotification },
 ];
-
 // Apply routes
 const applyRoutes = (routes) => {
     routes.forEach(({ method, path, middleware = [], handler }) => {

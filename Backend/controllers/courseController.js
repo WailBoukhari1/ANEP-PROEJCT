@@ -361,39 +361,43 @@ const deleteComment = async (req, res) => {
     }
 };
 // user assigned download 
-const userAssignedDownload = async (req , res) => {
+const userAssignedDownload = async (req, res) => {
     try {
-        const courseId = req.params.courseId;
-        const course = await Course.findById(courseId).populate('assignedUsers');
-
-        if (!course) {
-            return res.status(404).send('Course not found');
-        }
-
-        const usersData = course.assignedUsers.map(user => ({
-            Name: user.name,
-            Email: user.email,
-            // Add more fields as necessary
-        }));
-
-        const worksheet = XLSX.utils.json_to_sheet(usersData);
-        const workbook = XLSX.utils.book_new();
-        XLSX.utils.book_append_sheet(workbook, worksheet, 'Assigned Users');
-
-        const buffer = XLSX.write(workbook, { type: 'buffer', bookType: 'xlsx' });
-
-        res.setHeader(
-            'Content-Disposition',
-            'attachment; filename=assigned_users.xlsx'
-        );
-        res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
-        res.send(buffer);
+      const courseId = req.params.courseId;
+      const course = await Course.findById(courseId)
+        .populate('assignedUsers')
+        .select('assignedUsers presence'); // Ensure presence is populated
+  
+      if (!course) {
+        return res.status(404).send('Course not found');
+      }
+  
+      // Map assigned users and include presence
+      const usersData = course.assignedUsers.map(user => ({
+        Name: user.name,
+        Email: user.email,
+        Presence: course.presence.find(p => p.userId.equals(user._id))?.status || 'Unknown', // Include presence status
+        // Add more fields as necessary
+      }));
+  
+      const worksheet = XLSX.utils.json_to_sheet(usersData);
+      const workbook = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(workbook, worksheet, 'Assigned Users');
+  
+      const buffer = XLSX.write(workbook, { type: 'buffer', bookType: 'xlsx' });
+  
+      res.setHeader(
+        'Content-Disposition',
+        'attachment; filename=assigned_users.xlsx'
+      );
+      res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+      res.send(buffer);
     } catch (error) {
-        console.error('Error downloading assigned users:', error);
-        res.status(500).send('Server error');
+      console.error('Error downloading assigned users:', error);
+      res.status(500).send('Server error');
     }
-
-}
+  }
+  
 // Report a comment
 const reportComment = async (req, res) => {
     const { id, commentId } = req.params;

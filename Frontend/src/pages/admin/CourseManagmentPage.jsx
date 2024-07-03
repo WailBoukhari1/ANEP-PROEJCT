@@ -24,11 +24,10 @@ import Notifications from "@mui/icons-material/Notifications";
 import People from "@mui/icons-material/People";
 import AdminLayout from "../../layout/admin/AdminLayout";
 import FileUploadIcon from "@mui/icons-material/FileUpload";
-import DownloadIcon from "@mui/icons-material/Download"; // Importation ajoutée
+import DownloadIcon from "@mui/icons-material/Download";
 
-const socket = io("https://anep-proejct.onrender.com");
+const socket = io("http://localhost:5000");
 
-// Composant pour le menu de présence
 const PresenceMenu = ({
   anchorEl,
   userPresence,
@@ -104,14 +103,12 @@ PresenceMenu.propTypes = {
   handleSavePresence: PropTypes.func.isRequired,
 };
 
-// Fonction principale de gestion des cours
 function CourseManagement() {
   const [courses, setCourses] = useState([]);
   const [anchorEl, setAnchorEl] = useState(null);
   const [selectedCourse, setSelectedCourse] = useState(null);
   const [userPresence, setUserPresence] = useState([]);
 
-  // Effet pour charger les cours et gérer les notifications
   useEffect(() => {
     fetchCourses();
 
@@ -124,7 +121,6 @@ function CourseManagement() {
     };
   }, []);
 
-  // Fonction pour ouvrir le menu de présence
   const handleMenuOpen = async (event, course) => {
     setAnchorEl(event.currentTarget);
     setSelectedCourse(course);
@@ -138,7 +134,6 @@ function CourseManagement() {
     }
   };
 
-  // Fonction pour sauvegarder la présence
   const handleSavePresence = async () => {
     const presenceData = userPresence.map((user) => ({
       userId: user._id,
@@ -158,13 +153,11 @@ function CourseManagement() {
     }
   };
 
-  // Fonction pour fermer le menu
   const handleMenuClose = () => {
     setAnchorEl(null);
     setSelectedCourse(null);
   };
 
-  // Fonction pour changer la présence d'un utilisateur
   const handlePresenceChange = (userId, status) => {
     setUserPresence(
       userPresence.map((user) =>
@@ -173,7 +166,6 @@ function CourseManagement() {
     );
   };
 
-  // Fonction pour récupérer les cours
   const fetchCourses = async () => {
     try {
       const response = await useApiAxios.get("/courses");
@@ -183,7 +175,6 @@ function CourseManagement() {
     }
   };
 
-  // Fonction pour supprimer un cours
   const handleDelete = async (id) => {
     try {
       await useApiAxios.delete(`/courses/${id}`);
@@ -193,7 +184,6 @@ function CourseManagement() {
     }
   };
 
-  // Fonction pour télécharger la liste des utilisateurs assignés à un cours
   const handleDownloadAssignedUsers = async (courseId) => {
     try {
       const response = await useApiAxios.get(
@@ -215,7 +205,6 @@ function CourseManagement() {
     }
   };
 
-  // Fonction pour notifier les utilisateurs d'un cours
   const handleNotify = async (course) => {
     try {
       const response = await useApiAxios.get(
@@ -304,117 +293,117 @@ function CourseManagement() {
             </IconButton>
           </Tooltip>
         </Box>
-      ),
-    },
-    {
-      field: "notify",
-      headerName: "Notifier les utilisateurs",
-      sortable: false,
-      width: 170,
-      renderCell: (params) => (
-        <Box sx={{ display: "flex", justifyContent: "center" }}>
-          <Tooltip title="Notifier les utilisateurs">
-            <IconButton onClick={() => handleNotify(params.row)} color="info">
-              <Notifications />
-            </IconButton>
-          </Tooltip>
-        </Box>
-      ),
-    },
-    {
-      field: "manageAttendance",
-      headerName: "Gérer la présence",
-      sortable: false,
-      width: 150,
-      renderCell: (params) => (
-        <Box sx={{ display: "flex", justifyContent: "center" }}>
-          <Tooltip title="Gérer la présence">
-            <IconButton
-              onClick={(event) => handleMenuOpen(event, params.row)}
-              color="default"
-            >
-              <People />
-            </IconButton>
-          </Tooltip>
-        </Box>
-      ),
-    },
-    {
-      field: "downloadEvaluations",
-      headerName: "Télécharger les évaluations",
-      sortable: false,
-      width: 150,
-      renderCell: (params) => (
-        <Box sx={{ display: "flex", justifyContent: "center" }}>
-          <Tooltip title="Télécharger les évaluations">
-            <IconButton
-              onClick={() => handleDownloadEvaluations(params.row._id)}
-              color="primary"
-            >
-              <FileUploadIcon />
-            </IconButton>
-          </Tooltip>
-        </Box>
-      ),
-    },
-    {
-      field: "downloadAssignedUsers",
-      headerName: "Télécharger les utilisateurs assignés",
-      sortable: false,
-      width: 180,
-      renderCell: (params) => (
-        <Box sx={{ display: "flex", justifyContent: "center" }}>
-          <Tooltip title="Télécharger les utilisateurs assignés">
-            <IconButton
-              onClick={() => handleDownloadAssignedUsers(params.row._id)}
-              color="primary"
-            >
-              <DownloadIcon />
-            </IconButton>
-          </Tooltip>
-        </Box>
-      ),
-    },
-  ];
-  
-
-  return (
-    <AdminLayout>
-      <Paper sx={{ p: 2, margin: "auto", maxWidth: 12000, flexGrow: 1 }}>
-        <Box sx={{ mb: 2, display: "flex", justifyContent: "space-between" }}>
-          <Typography variant="h6">Gestion des cours</Typography>
-          <Button
-            variant="contained"
-            color="primary"
-            startIcon={<AddIcon />}
-            component={Link}
-            to={`/CreateCourse`}
+     
+    ),
+  },
+  {
+    field: "notify",
+    headerName: "Notifier les utilisateurs",
+    sortable: false,
+    width: 170,
+    renderCell: (params) => (
+      <Box sx={{ display: "flex", justifyContent: "center" }}>
+        <Tooltip title="Notifier les utilisateurs">
+          <IconButton onClick={() => handleNotify(params.row)} color="info">
+            <Notifications />
+          </IconButton>
+        </Tooltip>
+      </Box>
+    ),
+  },
+  {
+    field: "manageAttendance",
+    headerName: "Gérer la présence",
+    sortable: false,
+    width: 150,
+    renderCell: (params) => (
+      <Box sx={{ display: "flex", justifyContent: "center" }}>
+        <Tooltip title="Gérer la présence">
+          <IconButton
+            onClick={(event) => handleMenuOpen(event, params.row)}
+            color="default"
           >
-            Créer un cours
-          </Button>
-        </Box>
-        <DataGrid
-          rows={courses}
-          columns={columns}
-          pageSize={5}
-          rowsPerPageOptions={[5]}
-          checkboxSelection
-          disableSelectionOnClick
-          autoHeight
-          getRowId={(row) => row._id} // This line tells DataGrid to use `_id` as the unique row identifier
+            <People />
+          </IconButton>
+        </Tooltip>
+      </Box>
+    ),
+  },
+  {
+    field: "downloadEvaluations",
+    headerName: "Télécharger les évaluations",
+    sortable: false,
+    width: 150,
+    renderCell: (params) => (
+      <Box sx={{ display: "flex", justifyContent: "center" }}>
+        <Tooltip title="Télécharger les évaluations">
+          <IconButton
+            onClick={() => handleDownloadEvaluations(params.row._id)}
+            color="primary"
+          >
+            <FileUploadIcon />
+          </IconButton>
+        </Tooltip>
+      </Box>
+    ),
+  },
+  {
+    field: "downloadAssignedUsers",
+    headerName: "Télécharger les utilisateurs assignés",
+    sortable: false,
+    width: 180,
+    renderCell: (params) => (
+      <Box sx={{ display: "flex", justifyContent: "center" }}>
+        <Tooltip title="Télécharger les utilisateurs assignés">
+          <IconButton
+            onClick={() => handleDownloadAssignedUsers(params.row._id)}
+            color="primary"
+          >
+            <DownloadIcon />
+          </IconButton>
+        </Tooltip>
+      </Box>
+    ),
+  },
+];
+
+return (
+  <AdminLayout>
+    <Paper sx={{ p: 2, margin: "auto", maxWidth: 1200, flexGrow: 1 }}>
+      <Box sx={{ mb: 2, display: "flex", justifyContent: "space-between" }}>
+        <Typography variant="h6">Gestion des cours</Typography>
+        <Button
+          variant="contained"
+          color="primary"
+          startIcon={<AddIcon />}
+          component={Link}
+          to={`/CreateCourse`}
+        >
+          Créer un cours
+        </Button>
+      </Box>
+      <DataGrid
+        rows={courses}
+        columns={columns}
+        pageSize={5}
+        rowsPerPageOptions={[5]}
+        checkboxSelection
+        disableSelectionOnClick
+        autoHeight
+        getRowId={(row) => row._id} // This line tells DataGrid to use `_id` as the unique row identifier
+      />
+      {selectedCourse && (
+        <PresenceMenu
+          anchorEl={anchorEl}
+          userPresence={userPresence}
+          handleMenuClose={handleMenuClose}
+          handlePresenceChange={handlePresenceChange}
+          handleSavePresence={handleSavePresence}
         />
-        {selectedCourse && (
-          <PresenceMenu
-            anchorEl={anchorEl}
-            userPresence={userPresence}
-            handleMenuClose={handleMenuClose}
-            handlePresenceChange={handlePresenceChange}
-            handleSavePresence={handleSavePresence}
-          />
-        )}
-      </Paper>
-    </AdminLayout>
-  );
+      )}
+    </Paper>
+  </AdminLayout>
+);
 }
 
 export default CourseManagement;

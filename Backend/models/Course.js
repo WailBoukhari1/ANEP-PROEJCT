@@ -81,6 +81,10 @@
                 required: false
             }
         }],
+        category: {
+            type: String,
+            required: true,
+        },
         evaluations: [evaluationSchema]
     }, { timestamps: false });
 

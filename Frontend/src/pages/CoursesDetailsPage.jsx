@@ -25,10 +25,10 @@ function CoursesDetails() {
   const [feedbackMessage, setFeedbackMessage] = useState("");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [currentUser] = useContext(UserContext); // Ensure currentUser is declared and initialized before use
+  const [currentUser] = useContext(UserContext);
   const userId = currentUser._id;
-  const baseURL = "https://anep-proejct.onrender.com";
-  const socket = io("https://anep-proejct.onrender.com/");
+  const baseURL = "http://localhost:5000";
+  const socket = io("http://localhost:5000/");
   const [hasSubmittedFeedback, setHasSubmittedFeedback] = useState(false);
 
   useEffect(() => {
@@ -491,8 +491,6 @@ function CoursesDetails() {
                       <div className="py-2">
                         <p className="text-lg font-semibold py-1">
                         Exprimez votre intérêt pour l'adhésion
-                       
-                        
                         </p>
                         <button
                           type="submit"

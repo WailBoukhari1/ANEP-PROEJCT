@@ -28,13 +28,23 @@ import useApiAxios from "../../config/axios";
 import debounce from "lodash/debounce";
 import ReactQuill from "react-quill";
 import "react-quill/dist/quill.snow.css";
-
+const categories = [
+  "Category 1",
+  "Category 2",
+  "Category 3",
+  "Category 4",
+  "Category 5",
+  "Category 6",
+  "Category 7",
+  "Category 8",
+];
 function EditCoursePage() {
   const { id } = useParams();
   const navigate = useNavigate();
   const [course, setCourse] = useState({
     title: "",
     location:"",
+    category: "", // Initialize category state
     imageUrl: "",
     offline: "",
     description: "",
@@ -80,7 +90,7 @@ function EditCoursePage() {
     gradeFonction: null,
   });
   const [allCourses, setAllCourses] = useState([]);
-  const baseUrl = "https://anep-proejct.onrender.com/";
+  const baseUrl = "http://localhost:5000";
   useEffect(() => {
     const fetchUsersAndCourse = async () => {
       try {
@@ -99,6 +109,7 @@ function EditCoursePage() {
           image: courseData.image ? { preview: courseData.imageUrl } : null, // Set preview from imageUrl
           assignedUsers: courseData.assignedUsers || [], // Ensure assignedUsers is initialized
           interestedUsers: courseData.interestedUsers || [], // Ensure interestedUsers is initialized
+          category: courseData.category || "",
         });
 
         if (courseData.assignedUsers) {
@@ -369,7 +380,14 @@ function EditCoursePage() {
     // Optionally update course.assignedUsers here or elsewhere depending on your application logic
     setCourse((prev) => ({ ...prev, assignedUsers: newValue }));
   };
-
+  // Function to handle category change
+  const handleCategoryChange = (event) => {
+    const { value } = event.target;
+    setCourse((prev) => ({
+      ...prev,
+      category: value,
+    }));
+  };
   return (
     <AdminLayout>
       <form
@@ -409,6 +427,21 @@ function EditCoursePage() {
           style={{ marginBottom: "16px" }}
           required
         />
+         <FormControl fullWidth style={{ marginBottom: "16px" }}>
+          <InputLabel>Catégorie</InputLabel>
+          <Select
+              name="category"
+              value={course.category}
+              onChange={handleCategoryChange}
+              required
+          >
+            {categories.map((category, index) => (
+              <MenuItem key={index} value={category}>
+                {category}
+              </MenuItem>
+            ))}
+          </Select>
+        </FormControl>
         <div
           {...getRootProps()}
           style={{

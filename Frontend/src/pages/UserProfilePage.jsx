@@ -11,7 +11,7 @@ function UserCourses() {
     enCours: [],
     terminés: [],
   });
-  const baseUrl = "https://anep-proejct.onrender.com";
+  const baseUrl = "http://localhost:5000";
 
   useEffect(() => {
     const fetchCourses = async () => {

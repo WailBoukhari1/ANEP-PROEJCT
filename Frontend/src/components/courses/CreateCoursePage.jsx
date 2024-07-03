@@ -22,17 +22,26 @@ import FileCopyIcon from "@mui/icons-material/FileCopy";
 import ReactQuill from "react-quill";
 import "react-quill/dist/quill.snow.css";
 import useApiAxios from "../../config/axios";
-
+const categories = [
+  "Category 1",
+  "Category 2",
+  "Category 3",
+  "Category 4",
+  "Category 5",
+  "Category 6",
+  "Category 7",
+  "Category 8",
+];
 function CreateCoursePage() {
   const navigate = useNavigate();
   const [course, setCourse] = useState({
     title: "",
     location:"",
+    category: "",
     offline: "",
     description: "",
     hidden: "",
     budget: "",
-    location: "",
     times: [
       {
         startTime: "",
@@ -270,6 +279,22 @@ function CreateCoursePage() {
           style={{ marginBottom: "16px" }}
           required
         />
+   
+        <FormControl fullWidth style={{ marginBottom: "16px" }}>
+          <InputLabel>Catégorie</InputLabel>
+          <Select
+            name="category"
+            value={course.category}
+            onChange={handleInputChange}
+            required
+          >
+            {categories.map((category, index) => (
+              <MenuItem key={index} value={category}>
+                {category}
+              </MenuItem>
+            ))}
+          </Select>
+        </FormControl>
         <div
           {...getRootProps()}
           style={{

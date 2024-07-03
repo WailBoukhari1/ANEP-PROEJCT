@@ -97,17 +97,7 @@ const EditUser = () => {
                 margin="normal"
               />
             </Grid>
-            <Grid item xs={6}>
-              <TextField
-                label="Password"
-                name="password"
-                type="password"
-                value={user.password}
-                onChange={handleChange}
-                fullWidth
-                margin="normal"
-              />
-            </Grid>
+      
             <Grid item xs={6}>
               <FormControl fullWidth margin="normal">
                 <InputLabel>Roles</InputLabel>
@@ -461,7 +451,6 @@ const EditUser = () => {
 
 EditUser.propTypes = {
   email: PropTypes.string,
-  password: PropTypes.string,
   roles: PropTypes.array,
   name: PropTypes.string,
   PPR: PropTypes.number,

@@ -3,9 +3,10 @@ const UserNeed = require('../models/UserNeed');
 // Create a user need
 exports.createUserNeed = async (req, res) => {
   try {
-    const { message } = req.body;
+    const { title , message } = req.body;
     const userNeed = new UserNeed({
       message,
+      title
     });
     await userNeed.save();
     res.status(201).json(userNeed);

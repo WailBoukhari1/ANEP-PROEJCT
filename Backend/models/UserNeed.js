@@ -1,16 +1,24 @@
 const mongoose = require('mongoose');
 
 const userNeedSchema = new mongoose.Schema({
+  title: {
+    type: String,
+    trim: true,
+    maxlength: [100, 'Title cannot be more than 100 characters']
+  },
   message: {
     type: String,
-    required: [false, 'Message is required'],
-    trim: false,
+    trim: true,
     maxlength: [500, 'Message cannot be more than 500 characters']
   },
   createdAt: {
     type: Date,
     default: Date.now
   },
+  updatedAt: {
+    type: Date,
+    default: Date.now
+  }
 });
 
 // Middleware to update the `updatedAt` field on document update
