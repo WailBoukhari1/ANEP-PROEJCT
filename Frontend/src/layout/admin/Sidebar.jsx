@@ -19,11 +19,15 @@ import DashboardIcon from "@mui/icons-material/Dashboard";
 import LibraryBooksIcon from "@mui/icons-material/LibraryBooks";
 import PersonOutlineIcon from "@mui/icons-material/PersonOutline";
 import { useLocation, Link } from "react-router-dom";
-import { useState } from "react";
+import { useState, useContext } from "react";
+import UserContext from "../../auth/user-context";
 
 const Sidebar = ({ open, handleClose, drawerWidth, isMobile }) => {
   const location = useLocation();
   const [menuAnchor, setMenuAnchor] = useState(null);
+  const [currentUser] = useContext(UserContext);
+
+  const upperCaseName = currentUser.name.toUpperCase();
 
   const handleMenuOpen = (event) => {
     setMenuAnchor(event.currentTarget);
@@ -42,17 +46,17 @@ const Sidebar = ({ open, handleClose, drawerWidth, isMobile }) => {
   const menuItems = [
     { text: "Dashboard", icon: <DashboardIcon />, path: "/Dashboard" },
     {
-      text: "Courses Management",
+      text: "Gestion des cours",
       icon: <LibraryBooksIcon />,
       path: "/CoursesManagement",
     },
     {
-      text: "Users Management",
+      text: "Gestion des utilisateurs",
       icon: <PersonOutlineIcon />,
       path: "/UsersManagement",
     },
     {
-      text: "Users Needs",
+      text: "Besoins des utilisateurs",
       icon: <PersonOutlineIcon />,
       path: "/UserNeedAdmin",
     },
@@ -95,7 +99,7 @@ const Sidebar = ({ open, handleClose, drawerWidth, isMobile }) => {
         }}
       >
         <Typography variant="h6" noWrap>
-          Admin Panel
+          Panneau d'administration
         </Typography>
         <IconButton onClick={handleClose}>
           <CloseIcon />
@@ -113,15 +117,14 @@ const Sidebar = ({ open, handleClose, drawerWidth, isMobile }) => {
         onClick={handleMenuOpen}
       >
         <Avatar
-          alt="User Name"
+          alt={upperCaseName}
           src="/static/images/avatar/1.jpg"
           sx={{
             width: 56,
             height: 56,
             marginBottom: (theme) => theme.spacing(1),
-          }}
-        />
-        <Typography variant="subtitle1">John Doe</Typography>
+          }}/>
+        <Typography variant="subtitle1">{currentUser.name}</Typography>
       </Box>
       <Menu
         anchorEl={menuAnchor}

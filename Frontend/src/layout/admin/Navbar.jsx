@@ -18,6 +18,7 @@ import { useState, useEffect, useContext } from "react";
 import { io } from "socket.io-client";
 import useApiAxios from "../../config/axios";
 import UserContext from "../../auth/user-context";
+import {logoutQuery} from "../../auth/user-axios" // Importer la fonction logoutQuery
 
 const socket = io("https://anep-proejct.onrender.com/");
 
@@ -28,6 +29,7 @@ const Navbar = ({ handleDrawerOpen, open, drawerWidth, isMobile }) => {
  const [currentUser] = useContext(UserContext);
   const adminId = currentUser._id;
   const navigate = useNavigate();
+  const upperCaseName = currentUser.name.toUpperCase();
   useEffect(() => {
     // Register the admin user
     socket.emit("register", adminId);
@@ -76,6 +78,12 @@ const Navbar = ({ handleDrawerOpen, open, drawerWidth, isMobile }) => {
   const handleUserMenuClose = () => {
     setAnchorElUser(null);
   };
+  const handleLogout = () => {
+    logoutQuery(); // Appeler la fonction logoutQuery pour se déconnecter
+  };
+  const handleUserProfile =() =>{
+    window.location.href = 'UserProfile'
+  }
 
   const handleNotificationClick = (notificationId, courseId) => {
     
@@ -136,8 +144,7 @@ const Navbar = ({ handleDrawerOpen, open, drawerWidth, isMobile }) => {
           <MenuIcon />
         </IconButton>
         <Typography variant="h6" noWrap component="div" sx={{ flexGrow: 1 }}>
-          Admin Dashboard
-        </Typography>
+        Tableau de bord administrateur        </Typography>
         <Box sx={{ display: "flex", alignItems: "center" }}>
           <Tooltip title="Notifications" arrow>
             <IconButton color="inherit" onClick={handleNotifClick}>
@@ -188,7 +195,14 @@ const Navbar = ({ handleDrawerOpen, open, drawerWidth, isMobile }) => {
               onClick={handleUserMenuClick}
               sx={{ marginLeft: 2 }}
             >
-              <Avatar alt="User Name" src="/static/images/avatar/1.jpg" />
+              <Avatar
+  alt={upperCaseName}
+  src="/static/images/avatar/1.jpg"
+  sx={{
+    width: 56,
+    height: 56,
+    marginBottom: (theme) => theme.spacing(1),
+  }}/>
             </IconButton>
           </Tooltip>
           <Menu
@@ -205,8 +219,8 @@ const Navbar = ({ handleDrawerOpen, open, drawerWidth, isMobile }) => {
               },
             }}
           >
-            <MenuItem onClick={handleUserMenuClose}>Profile</MenuItem>
-            <MenuItem onClick={handleUserMenuClose}>Logout</MenuItem>
+            <MenuItem onClick={handleUserProfile}>Profile</MenuItem>
+            <MenuItem onClick={handleLogout}>Logout</MenuItem>
           </Menu>
         </Box>
       </Toolbar>

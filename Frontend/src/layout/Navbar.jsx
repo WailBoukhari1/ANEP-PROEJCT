@@ -322,7 +322,7 @@ function Navbar() {
             </li>
             <li>
               <NavLink
-                to={`/UserCourses/666e021bef86c2482444b3a6`}
+                to={`/UserProfile`}
                 className={({ isActive }) =>
                   isActive
                     ? "text-primaryColor font-extrabold"
@@ -341,7 +341,7 @@ function Navbar() {
                     ? "text-primaryColor font-extrabold"
                     : "text-darkdeep1 hover:text-secondaryColor"
                 }
-                onClick={toggleMobileMenu} // Fermer le menu mobile en cliquant sur le lien
+                onClick={handleLogout} // Fermer le menu mobile en cliquant sur le lien
               >
                 Déconnexion
               </NavLink>

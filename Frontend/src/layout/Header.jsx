@@ -8,11 +8,11 @@ function Header() {
           <div className="flex justify-between items-center">
             <div className="flex  items-center">
             <i class="icofont-phone  text-size-15 mr-5px"></i>
-              <p>Appelez-nous : +1 800 123 456 789 </p>
+              <p>Appelez-nous : 0771000605 </p>
             </div>
             <div className="flex     items-center">
             <i class="icofont-ui-email  text-size-15 mr-5px"></i>
-              <p>Envoyez-nous un e-mail : Itcroc@mail.com</p>
+              <p>Envoyez-nous un e-mail : formation.continue@anep.ma</p>
             </div>
             <div className="flex gap-37px items-center">
               <div>

@@ -44,62 +44,11 @@ function Auth() {
 
   return (
     <>
-      {/* banner section */}
-      <section>
-        {/* banner section */}
-        <div className="bg-lightGrey10 dark:bg-lightGrey10-dark relative z-0 overflow-y-visible py-50px md:py-20 lg:py-100px 2xl:pb-150px 2xl:pt-40.5">
-          {/* animated icons */}
-          <div>
-            <img
-              className="absolute left-0 bottom-0 md:left-[14px] lg:left-[50px] lg:bottom-[21px] 2xl:left-[165px] 2xl:bottom-[60px] animate-move-var z-10"
-              src="assets/images/herobanner/herobanner__1.png"
-              alt=""
-            />
-            <img
-              className="absolute left-0 top-0 lg:left-[50px] lg:top-[100px] animate-spin-slow"
-              src="assets/images/herobanner/herobanner__2.png"
-              alt=""
-            />
-            <img
-              className="absolute right-[30px] top-0 md:right-10 lg:right-[575px] 2xl:top-20 animate-move-var2 opacity-50 hidden md:block"
-              src="assets/images/herobanner/herobanner__3.png"
-              alt=""
-            />
-            <img
-              className="absolute right-[30px] top-[212px] md:right-10 md:top-[157px] lg:right-[45px] lg:top-[100px] animate-move-hor"
-              src="assets/images/herobanner/herobanner__5.png"
-              alt=""
-            />
-          </div>
-          <div className="container">
-            <div className="text-center">
-              <h1 className="text-3xl md:text-size-40 2xl:text-size-55 font-bold text-blackColor dark:text-blackColor-dark mb-7 md:mb-6 pt-3">
-                Se Connecter
-              </h1>
-              <ul className="flex gap-1 justify-center">
-                <li>
-                  <a
-                    href="index.html"
-                    className="text-lg text-blackColor2 dark:text-blackColor2-dark"
-                  >
-                    Home <i className="icofont-simple-right" />
-                  </a>
-                </li>
-                <li>
-                  <span className="text-lg text-blackColor2 dark:text-blackColor2-dark">
-                    Se Connecter
-                  </span>
-                </li>
-              </ul>
-            </div>
-          </div>
-        </div>
-      </section>
+    
       {/*form section */}
       <section className="relative">
         <div className="container py-100px flex">
           <div className="hidden md:block w-1/3">
-            <img src="assets/images/login-image.png" alt="Login Image" className="w-full" />
           </div>
           <div className="tab md:w-2/3 mx-auto">
             {/* tab controller */}
@@ -142,16 +91,20 @@ function Auth() {
               </button>
             </div>
             {/*  tab contents */}
-            <div className="shadow-container bg-whiteColor dark:bg-whiteColor-dark pt-10px px-5 pb-10 md:p-50px md:pt-30px rounded-5px">
+            <div className=" flex shadow-container bg-whiteColor dark:bg-whiteColor-dark pt-10px px-5 pb-10 md:p-50px md:pt-30px rounded-5px">
+              <div>
+            <img src="assets/images/anep_login.png" alt="Login Image" className="w-full" />
+              </div>
+
               <div className="tab-contents">
                 {/* login form*/}
                 {activeTab === "login" && (
                   <div className="block opacity-100 transition-opacity duration-150 ease-linear">
                     {/* heading   */}
                     <div className="text-center">
-                      <img src="assets/images/logo.png" alt="Logo" className="mx-auto mb-4" />
+                      <img src="assets/images/logo/logo_2.jpg" alt="Logo" className="mx-auto mb-4" />
                       <h3 className="text-size-32 font-bold text-blackColor dark:text-blackColor-dark mb-2 leading-normal">
-                        Se Connecter
+                        
                       </h3>
                     </div>
                     <form className="pt-25px" data-aos="fade-up">
@@ -205,10 +158,8 @@ function Auth() {
                   <div className="block opacity-100 transition-opacity duration-150 ease-linear">
                     {/* heading   */}
                     <div className="text-center">
-                      <img src="assets/images/logo.png" alt="Logo" className="mx-auto mb-4" />
-                      <h3 className="text-size-32 font-bold text-blackColor dark:text-blackColor-dark mb-2 leading-normal">
-                        activez votre compte
-                      </h3>
+                      <img src="assets/images/logo/logo_2.jpg" alt="Logo" className="mx-auto mb-4" />
+                      
                     </div>
                     <form className="pt-25px" data-aos="fade-up" onSubmit={handleEmailVerification}>
                       <div className="grid grid-cols-1 lg:grid-cols-1 lg:gap-x-30px gap-y-25px mb-25px">

@@ -270,59 +270,97 @@ function CourseManagement() {
     { field: "hidden", headerName: "Statut", width: 100 },
     { field: "budget", headerName: "Budget", width: 100 },
     {
-      field: "actions",
-      headerName: "Actions",
+      field: "edit",
+      headerName: "Éditer",
       sortable: false,
-      width: 250,
+      width: 100,
       renderCell: (params) => (
-        <Box sx={{ display: "flex", justifyContent: "center", gap: 1 }}>
-          <Tooltip title="Éditer">
-            <IconButton
-              component={Link}
-              to={`/EditCourse/${params.row._id}`}
-              color="primary"
-            >
-              <EditIcon />
-            </IconButton>
-          </Tooltip>
-          <Tooltip title="Supprimer">
-            <IconButton
-              onClick={() => handleDelete(params.row._id)}
-              color="secondary"
-            >
-              <DeleteIcon />
-            </IconButton>
-          </Tooltip>
-          <Tooltip title="Notifier les utilisateurs">
-            <IconButton onClick={() => handleNotify(params.row)} color="info">
-              <Notifications />
-            </IconButton>
-          </Tooltip>
-          <Tooltip title="Gérer la présence">
-            <IconButton
-              onClick={(event) => handleMenuOpen(event, params.row)}
-              color="default"
-            >
-              <People />
-            </IconButton>
-          </Tooltip>
-          <Tooltip title="Télécharger les évaluations">
-            <IconButton
-              onClick={() => handleDownloadEvaluations(params.row._id)}
-              color="primary"
-            >
-              <FileUploadIcon />
-            </IconButton>
-          </Tooltip>
-          <Tooltip title="Télécharger les utilisateurs assignés">
-            <IconButton
-              onClick={() => handleDownloadAssignedUsers(params.row._id)}
-              color="primary"
-            >
-              <DownloadIcon />
-            </IconButton>
-          </Tooltip>
-        </Box>
+        <Tooltip title="Éditer">
+          <IconButton
+            component={Link}
+            to={`/EditCourse/${params.row._id}`}
+            color="primary"
+          >
+            <EditIcon />
+          </IconButton>
+        </Tooltip>
+      ),
+    },
+    {
+      field: "delete",
+      headerName: "Supprimer",
+      sortable: false,
+      width: 100,
+      renderCell: (params) => (
+        <Tooltip title="Supprimer">
+          <IconButton
+            onClick={() => handleDelete(params.row._id)}
+            color="secondary"
+          >
+            <DeleteIcon />
+          </IconButton>
+        </Tooltip>
+      ),
+    },
+    {
+      field: "notify",
+      headerName: "Notifier les utilisateurs",
+      sortable: false,
+      width: 170,
+      renderCell: (params) => (
+        <Tooltip title="Notifier les utilisateurs">
+          <IconButton onClick={() => handleNotify(params.row)} color="info">
+            <Notifications />
+          </IconButton>
+        </Tooltip>
+      ),
+    },
+    {
+      field: "manageAttendance",
+      headerName: "Gérer la présence",
+      sortable: false,
+      width: 150,
+      renderCell: (params) => (
+        <Tooltip title="Gérer la présence">
+          <IconButton
+            onClick={(event) => handleMenuOpen(event, params.row)}
+            color="default"
+          >
+            <People />
+          </IconButton>
+        </Tooltip>
+      ),
+    },
+    {
+      field: "downloadEvaluations",
+      headerName: " les évaluations",
+      sortable: false,
+      width: 150,
+      renderCell: (params) => (
+        <Tooltip title=" les évaluations">
+          <IconButton
+            onClick={() => handleDownloadEvaluations(params.row._id)}
+            color="primary"
+          >
+            <FileUploadIcon />
+          </IconButton>
+        </Tooltip>
+      ),
+    },
+    {
+      field: "downloadAssignedUsers",
+      headerName: " les utilisateurs assignés",
+      sortable: false,
+      width: 180,
+      renderCell: (params) => (
+        <Tooltip title=" les utilisateurs assignés">
+          <IconButton
+            onClick={() => handleDownloadAssignedUsers(params.row._id)}
+            color="primary"
+          >
+            <DownloadIcon />
+          </IconButton>
+        </Tooltip>
       ),
     },
   ];
