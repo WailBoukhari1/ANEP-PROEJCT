@@ -3,37 +3,37 @@
     const resourceSchema = new mongoose.Schema({
         type: {
             type: String,
-            required: false,
+            required: true,
             enum: ['file', 'image', 'video', 'pdf']
         },
-        title: { type: String, required: false },
-        link: { type: String, required: false },
+        title: { type: String, required: true },
+        link: { type: String, required: true },
     });
     const evaluationSchema = new mongoose.Schema({
-        userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: false },
+        userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
         evaluationData: [{
-            name: { type: String, required: false },
-            value: { type: Number, required: false }
+            name: { type: String, required: true },
+            value: { type: Number, required: true }
         }],
-        aspectsToImprove: { type: String, required: false },
+        aspectsToImprove: { type: String, required: true },
         createdAt: { type: Date, default: Date.now }
     });
 
     const commentSchema = new mongoose.Schema({
         userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
-        userName: { type: String, required: false },
-        text: { type: String, required: false },
+        userName: { type: String, required: true },
+        text: { type: String, required: true },
         createdAt: { type: Date, default: Date.now },
         reported: { type: Boolean, default: false },
         reportedBy: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }]
     });
 
     const timeSchema = new mongoose.Schema({
-        startTime: { type: String, required: false },
-        endTime: { type: String, required: false },
+        startTime: { type: String, required: true },
+        endTime: { type: String, required: true },
         instructorType: {
             type: String,
-            required: false,
+            required: true,
             enum: ['intern', 'extern']
         },
         instructor: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: false },
@@ -46,23 +46,23 @@
     });
 
     const courseSchema = new mongoose.Schema({
-        title: { type: String, required: false },
-        location: { type: String, required: false },
-        imageUrl: { type: String, required: false },
+        title: { type: String, required: true },
+        location: { type: String, required: true },
+        imageUrl: { type: String, required: true },
         offline: {
             type: String,
-            required: false,
+            required: true,
             enum: ['online', 'offline' ,'hybrid']
         },
         description: { type: String },
         notifyUsers: { type: Boolean, default: false },
         hidden: {
             type: String,
-            required: false,
+            required: true,
             enum: ['visible', 'hidden'] 
         },
         times: [timeSchema],
-        budget: { type: Number, required: false },
+        budget: { type: Number, required: true },
         assignedUsers: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
         resources: [resourceSchema],
         comments: [commentSchema],
@@ -74,15 +74,15 @@
             userId: {
                 type: mongoose.Schema.Types.ObjectId,
                 ref: 'User',
-                required: false
+                required: true
             },
             status: {
                 type: String,
-                required: false
+                required: true
             }
         }],
         evaluations: [evaluationSchema]
-    }, { timestamps: false });
+    }, { timestamps: true });
 
     const Course = mongoose.model('Course', courseSchema);
 
