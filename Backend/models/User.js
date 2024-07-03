@@ -63,7 +63,7 @@ const userSchema = new mongoose.Schema({
     notifications: [notificationSchema],
     resetToken: { type: String },
     vacations: [vacationSchema] ,
-    phoneNumber: { type: Number },
+    phoneNumber: { type: String },
 });
 
 const User = mongoose.model('User', userSchema);
