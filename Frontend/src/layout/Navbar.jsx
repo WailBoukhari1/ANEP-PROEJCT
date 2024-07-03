@@ -34,7 +34,7 @@ function Navbar() {
   // Effet pour initialiser la connexion du socket
   useEffect(() => {
     // Initialize socket connection
-    socket.current = io("http://localhost:5000//");
+    socket.current = io("http://localhost:5000/");
 
     socket.current.emit("register", userId);
 

@@ -107,7 +107,16 @@ function CoursesDetails() {
         .catch((error) => console.error("Erreur lors du téléchargement du fichier :", error));
     },
   });
-
+  useEffect(() => {
+    useApiAxios
+      .get(`/courses/${id}/comments`)
+      .then((response) => {
+        setComments(response.data);
+      })
+      .catch((error) => {
+        console.error("Failed to fetch comments:", error);
+      });
+  }, [id]);
   useEffect(() => {
     useApiAxios
       .get(`/courses/${id}/resources`)

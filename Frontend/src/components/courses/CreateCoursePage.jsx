@@ -374,7 +374,7 @@ function CreateCoursePage() {
           required
         />
         <Typography variant="h6" gutterBottom>
-          Sessions
+          Planification
         </Typography>
         {course.times.map((session, index) => (
           <Paper

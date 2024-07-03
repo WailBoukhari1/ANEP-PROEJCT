@@ -555,7 +555,7 @@ function EditCoursePage() {
           style={{ marginBottom: "16px" }}
         />
         <div style={{ marginBottom: "16px" }}>
-          <Typography variant="h6">Session</Typography>
+          <Typography variant="h6">Planification</Typography>
           {course.times?.map((session, index) => (
             <Paper
               key={index}

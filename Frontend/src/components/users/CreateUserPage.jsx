@@ -449,7 +449,7 @@ const CreateUser = () => {
             </Grid>
             <Grid item xs={12}>
               <Typography variant="h6" component="h2" gutterBottom>
-                Vacations
+              indisponibilité
               </Typography>
               {user.vacations.map((vacation, index) => (
                 <Paper key={index} elevation={3} style={{ padding: "16px", marginBottom: "16px" }}>
@@ -489,7 +489,7 @@ const CreateUser = () => {
                         color="secondary"
                         style={{ marginTop: "16px" }}
                       >
-                        Remove Vacation
+                       Supprimer l'indisponibilité
                       </Button>
                     </Grid>
                   </Grid>
@@ -507,7 +507,7 @@ const CreateUser = () => {
                 fullWidth
                 style={{ marginTop: "16px" }}
               >
-                Add Vacation
+                 Ajouter l'indisponibilité
               </Button>
             </Grid>
             <Grid item xs={12}>
@@ -518,7 +518,7 @@ const CreateUser = () => {
                 fullWidth
                 style={{ marginTop: "16px" }}
               >
-                Create User
+                Ajouter Utilisateur
               </Button>
             </Grid>
           </Grid>
