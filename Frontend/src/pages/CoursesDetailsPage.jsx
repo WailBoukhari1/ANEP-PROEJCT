@@ -52,7 +52,16 @@ function CoursesDetails() {
         setLoading(false);
       });
   }, [id]);
-
+  useEffect(() => {
+    useApiAxios
+      .get(`/courses/${id}/comments`)
+      .then((response) => {
+        setComments(response.data);
+      })
+      .catch((error) => {
+        console.error("Failed to fetch comments:", error);
+      });
+  }, [id]);
   useEffect(() => {
     // Fetch whether the user has already submitted feedback
     useApiAxios
@@ -107,16 +116,7 @@ function CoursesDetails() {
         .catch((error) => console.error("Erreur lors du téléchargement du fichier :", error));
     },
   });
-  useEffect(() => {
-    useApiAxios
-      .get(`/courses/${id}/comments`)
-      .then((response) => {
-        setComments(response.data);
-      })
-      .catch((error) => {
-        console.error("Failed to fetch comments:", error);
-      });
-  }, [id]);
+
   useEffect(() => {
     useApiAxios
       .get(`/courses/${id}/resources`)
@@ -513,7 +513,7 @@ function CoursesDetails() {
                           onClick={handleJoinRequest}
                           className="w-full text-size-15 text-whiteColor bg-primaryColor px-25px py-10px border mb-10px leading-1.8 border-primaryColor hover:text-primaryColor hover:bg-whiteColor inline-block  group dark:hover:text-whiteColor dark:hover:bg-whiteColor-dark"
                         >
-                          Adhésion
+                          intéresser
                         </button>
                       </div>
                       {course.assignedUsers.includes(currentUser._id)&&
