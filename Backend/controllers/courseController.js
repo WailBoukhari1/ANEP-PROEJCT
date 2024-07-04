@@ -376,8 +376,7 @@ const userAssignedDownload = async (req, res) => {
       const usersData = course.assignedUsers.map(user => ({
         Name: user.name,
         Email: user.email,
-        Presence: course.presence.find(p => p.userId.equals(user._id))?.status || 'Unknown', // Include presence status
-        // Add more fields as necessary
+        Presence: course.presence.find(p => p.userId.equals(user._id))?.status || 'Unknown',
       }));
   
       const worksheet = XLSX.utils.json_to_sheet(usersData);

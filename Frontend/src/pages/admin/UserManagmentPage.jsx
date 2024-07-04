@@ -57,6 +57,7 @@ function GestionUtilisateurs() {
         const newUsers = formattedData.filter(user => !users.some(existingUser => existingUser.email === user.email));
         setUsers((prevUsers) => [...prevUsers, ...newUsers]);
         alert(`Users imported: ${response.data.imported}, skipped: ${response.data.skipped}`);
+        window.location.reload();
       } catch (error) {
         console.error('Échec de l\'importation des utilisateurs:', error.response?.data || error.message);
       }
