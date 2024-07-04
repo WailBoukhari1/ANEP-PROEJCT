@@ -375,8 +375,15 @@ const userAssignedDownload = async (req, res) => {
       // Map assigned users and include presence
       const usersData = course.assignedUsers.map(user => ({
         Name: user.name,
-        Email: user.email,
-        Presence: course.presence.find(p => p.userId.equals(user._id))?.status || 'Unknown',
+        GRADE_fonction: user.GRADE_fonction,
+        AFFECTATION: user.AFFECTATION,
+        DEPARTEMENT_DIVISION: user.DEPARTEMENT_DIVISION,
+        SERVICE: user.SERVICE,
+        Localite: user.Localite,
+        FONCTION: user.FONCTION,
+        // POST: user.name,
+        // DAT-FCT: user.name,
+        Presence: course.presence.find(p => p.userId.equals(user._id))?.status || 'absent',
       }));
   
       const worksheet = XLSX.utils.json_to_sheet(usersData);

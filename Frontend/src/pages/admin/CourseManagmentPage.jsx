@@ -148,6 +148,7 @@ function CourseManagement() {
         }
       );
       console.log("Présence mise à jour avec succès");
+      handleMenuClose(); 
     } catch (error) {
       console.error("Échec de la mise à jour de la présence:", error);
     }
@@ -369,7 +370,7 @@ function CourseManagement() {
 
 return (
   <AdminLayout>
-    <Paper sx={{ p: 2, margin: "auto", maxWidth: 1200, flexGrow: 1 }}>
+    <Paper sx={{ p: 2, margin: "auto",flexGrow: 1 }}>
       <Box sx={{ mb: 2, display: "flex", justifyContent: "space-between" }}>
         <Typography variant="h6">Gestion des cours</Typography>
         <Button
