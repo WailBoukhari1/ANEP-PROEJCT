@@ -14,8 +14,12 @@
     const itemsPerPage = 3;
     const [selectedCategory, setSelectedCategory] = useState("All");
 
-    const categories = ["All", "online", "offline" , "hybrid"];
-
+    const categories = [
+      { value: "all", displayText: "All" },
+      { value: "online", displayText: "En ligne" },
+      { value: "offline", displayText: "Présentiel" },
+      { value: "hybrid", displayText: "Hybrid" }
+    ];
     const baseURL = "http://localhost:5000";
 
     useEffect(() => {
@@ -146,26 +150,26 @@
                   </p>
                 </div>
                 <div className="flex items-center">
-                  <div className="pl-50px sm:pl-20 pr-10px">
-                    <div className="basis-full lg:basis-[700px]">
-                      <div className="category-filter">
-                        {categories.map((category) => (
-                          <button
-                            key={category}
-                            className={`category-button ${
-                              selectedCategory === category ? "active" : ""
-                            }`}
-                            onClick={() => {
-                              setSelectedCategory(category);
-                              setCurrentPage(1);
-                            }}
-                          >
-                            {category.charAt(0).toUpperCase() + category.slice(1)}
-                          </button>
-                        ))}
-                      </div>
-                    </div>
-                  </div>
+                <div className="pl-50px sm:pl-20 pr-10px">
+  <div className="basis-full lg:basis-[700px]">
+    <div className="category-filter">
+      {categories.map((category) => (
+        <button
+          key={category.value}
+          className={`category-button ${
+            selectedCategory === category.value ? "active" : ""
+          }`}
+          onClick={() => {
+            setSelectedCategory(category.value);
+            setCurrentPage(1);
+          }}
+        >
+          {category.displayText}
+        </button>
+      ))}
+    </div>
+  </div>
+</div>
                   <div className="pl-50px sm:pl-20 pr-10px">
                     <select
                       className="text-blackColor bg-whiteColor py-3px pr-2 pl-3 rounded-md outline-none border-4 border-transparent focus:border-blue-light box-border"

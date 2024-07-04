@@ -48,7 +48,6 @@ function EditCoursePage() {
     imageUrl: "",
     offline: "",
     description: "",
-    notifyUsers: false,
     hidden: "",
     budget: "",
     notification: [],
@@ -477,7 +476,7 @@ function EditCoursePage() {
           )}
         </div>
         <FormControl fullWidth style={{ marginBottom: "16px" }}>
-          <InputLabel>Offline/Online</InputLabel>
+          <InputLabel>En ligne/Présentiel</InputLabel>
           <Select
             name="offline"
             value={course.offline}
@@ -490,8 +489,9 @@ function EditCoursePage() {
             }
             required
           >
-            <MenuItem value="online">Online</MenuItem>
-            <MenuItem value="offline">Offline</MenuItem>
+            <MenuItem value="online">En ligne</MenuItem>
+            <MenuItem value="offline">Présentiel</MenuItem>
+            <MenuItem value="hybrid">Hybrid</MenuItem>
           </Select>
         </FormControl>
         <FormControl fullWidth style={{ marginBottom: "16px" }}>
@@ -506,23 +506,8 @@ function EditCoursePage() {
             }}
           />
         </FormControl>
-        <FormControlLabel
-          control={
-            <Checkbox
-              checked={course.notifyUsers}
-              onChange={(e) =>
-                setCourse((prev) => ({
-                  ...prev,
-                  notifyUsers: e.target.checked,
-                }))
-              }
-            />
-          }
-          label="Notify Users"
-          style={{ marginBottom: "16px" }}
-        />
         <FormControl fullWidth style={{ marginBottom: "16px" }}>
-          <InputLabel>Visibility</InputLabel>
+          <InputLabel>Visibilité</InputLabel>
           <Select
             name="hidden"
             value={course.hidden}
@@ -535,8 +520,8 @@ function EditCoursePage() {
             }
             required
           >
-            <MenuItem value="visible">Visible</MenuItem>
-            <MenuItem value="hidden">Hidden</MenuItem>
+            <MenuItem value="visible">Caché</MenuItem>
+            <MenuItem value="hidden">Visible</MenuItem>
           </Select>
         </FormControl>
         <TextField
@@ -592,8 +577,8 @@ function EditCoursePage() {
                       onChange={(e) => handleChange(e, index)}
                       fullWidth
                     >
-                      <MenuItem value="intern">Internal</MenuItem>
-                      <MenuItem value="extern">External</MenuItem>
+                         <MenuItem value="intern" >Interne</MenuItem>
+                         <MenuItem value="extern">Externe</MenuItem>
                     </Select>
                   </FormControl>
                 </Grid>
@@ -687,191 +672,192 @@ function EditCoursePage() {
             startIcon={<AddCircleOutlineIcon />}
             onClick={handleAddSession}
           >
-            Add Session
+            Ajouter une session
           </Button>
         </div>
         <div style={{ marginBottom: "16px" }}>
-          <Typography variant="h6">Assign Users</Typography>
-          <Grid container spacing={2} style={{ marginBottom: "16px" }}>
-            <Grid item xs={6} sm={1.5}>
-              <Autocomplete
-                options={uniqueOptions("FONCTION")}
-                value={filter.fonction}
-                onChange={(event, newValue) =>
-                  handleFilterChange(event, newValue, "fonction")
-                }
-                renderInput={(params) => (
-                  <TextField {...params} label="Function" fullWidth />
-                )}
-                getOptionLabel={(option) => option.label || ""}
-                isOptionEqualToValue={(option, value) =>
-                  option.label === value?.label
-                }
-              />
-            </Grid>
-            <Grid item xs={6} sm={1.5}>
-              <Autocomplete
-                options={uniqueOptions("Localite")}
-                value={filter.localite}
-                onChange={(event, newValue) =>
-                  handleFilterChange(event, newValue, "localite")
-                }
-                renderInput={(params) => (
-                  <TextField {...params} label="Localite" fullWidth />
-                )}
-                isOptionEqualToValue={(option, value) =>
-                  option?.label === value?.label
-                }
-                getOptionLabel={(option) => option.label || ""}
-              />
-            </Grid>
-            <Grid item xs={6} sm={1.5}>
-              <Autocomplete
-                options={uniqueOptions("SERVICE")}
-                value={filter.service}
-                onChange={(event, newValue) =>
-                  handleFilterChange(event, newValue, "service")
-                }
-                renderInput={(params) => (
-                  <TextField {...params} label="Service" fullWidth />
-                )}
-                isOptionEqualToValue={(option, value) =>
-                  option?.label === value?.label
-                }
-                getOptionLabel={(option) => option.label || ""}
-              />
-            </Grid>
-            <Grid item xs={6} sm={1.5}>
-              <Autocomplete
-                options={uniqueOptions("DEPARTEMENT_DIVISION")}
-                value={filter.departementDivision}
-                onChange={(event, newValue) =>
-                  handleFilterChange(event, newValue, "departementDivision")
-                }
-                renderInput={(params) => (
-                  <TextField
-                    {...params}
-                    label="Department/Division"
-                    fullWidth
-                  />
-                )}
-                isOptionEqualToValue={(option, value) =>
-                  option?.label === value?.label
-                }
-                getOptionLabel={(option) => option.label || ""}
-              />
-            </Grid>
-            <Grid item xs={6} sm={1.5}>
-              <Autocomplete
-                options={uniqueOptions("AFFECTATION")}
-                value={filter.affectation}
-                onChange={(event, newValue) =>
-                  handleFilterChange(event, newValue, "affectation")
-                }
-                renderInput={(params) => (
-                  <TextField {...params} label="Affectation" fullWidth />
-                )}
-                isOptionEqualToValue={(option, value) =>
-                  option?.label === value?.label
-                }
-                getOptionLabel={(option) => option.label || ""}
-              />
-            </Grid>
-            <Grid item xs={6} sm={1.5}>
-              <Autocomplete
-                options={uniqueOptions("GRADE_ASSIMILE")}
-                value={filter.gradeAssimile}
-                onChange={(event, newValue) =>
-                  handleFilterChange(event, newValue, "gradeAssimile")
-                }
-                renderInput={(params) => (
-                  <TextField {...params} label="Grade Assimile" fullWidth />
-                )}
-                isOptionEqualToValue={(option, value) =>
-                  option?.label === value?.label
-                }
-                getOptionLabel={(option) => option.label || ""}
-              />
-            </Grid>
-            <Grid item xs={6} sm={1.5}>
-              <Autocomplete
-                options={uniqueOptions("GRADE_fonction")}
-                value={filter.gradeFonction}
-                onChange={(event, newValue) =>
-                  handleFilterChange(event, newValue, "gradeFonction")
-                }
-                renderInput={(params) => (
-                  <TextField {...params} label="Grade Function" fullWidth />
-                )}
-                isOptionEqualToValue={(option, value) =>
-                  option?.label === value?.label
-                }
-                getOptionLabel={(option) => option.label || ""}
-              />
-            </Grid>
-          </Grid>
-          <FormControl fullWidth style={{ marginBottom: "16px" }}>
-            <Autocomplete
-              multiple
-              options={filteredUsers}
-              getOptionLabel={(user) => user.name}
-              value={assignedUsers.filter((user) => user)}
-              onChange={handleUserChange}
-              isOptionEqualToValue={(option, value) => option._id === value._id}
-              renderOption={(props, option) => {
-                const conflict = checkConflicts(
-                  option._id,
-                  course.times[0].startTime,
-                  course.times[0].endTime
-                );
-                const conflictStyle = conflict
-                  ? conflict.type === 'course'
-                    ? { color: "red" }
-                    : { color: "yellow" }
-                  : {};
+  <Typography variant="h6">Assigner des Utilisateurs</Typography>
+  <Grid container spacing={2} style={{ marginBottom: "16px" }}>
+    <Grid item xs={6} sm={1.5}>
+      <Autocomplete
+        options={uniqueOptions("FONCTION")}
+        value={filter.fonction}
+        onChange={(event, newValue) =>
+          handleFilterChange(event, newValue, "fonction")
+        }
+        renderInput={(params) => (
+          <TextField {...params} label="Fonction" fullWidth />
+        )}
+        getOptionLabel={(option) => option.label || ""}
+        isOptionEqualToValue={(option, value) =>
+          option.label === value?.label
+        }
+      />
+    </Grid>
+    <Grid item xs={6} sm={1.5}>
+      <Autocomplete
+        options={uniqueOptions("Localite")}
+        value={filter.localite}
+        onChange={(event, newValue) =>
+          handleFilterChange(event, newValue, "localite")
+        }
+        renderInput={(params) => (
+          <TextField {...params} label="Localité" fullWidth />
+        )}
+        isOptionEqualToValue={(option, value) =>
+          option?.label === value?.label
+        }
+        getOptionLabel={(option) => option.label || ""}
+      />
+    </Grid>
+    <Grid item xs={6} sm={1.5}>
+      <Autocomplete
+        options={uniqueOptions("SERVICE")}
+        value={filter.service}
+        onChange={(event, newValue) =>
+          handleFilterChange(event, newValue, "service")
+        }
+        renderInput={(params) => (
+          <TextField {...params} label="Service" fullWidth />
+        )}
+        isOptionEqualToValue={(option, value) =>
+          option?.label === value?.label
+        }
+        getOptionLabel={(option) => option.label || ""}
+      />
+    </Grid>
+    <Grid item xs={6} sm={1.5}>
+      <Autocomplete
+        options={uniqueOptions("DEPARTEMENT_DIVISION")}
+        value={filter.departementDivision}
+        onChange={(event, newValue) =>
+          handleFilterChange(event, newValue, "departementDivision")
+        }
+        renderInput={(params) => (
+          <TextField
+            {...params}
+            label="Département/Division"
+            fullWidth
+          />
+        )}
+        isOptionEqualToValue={(option, value) =>
+          option?.label === value?.label
+        }
+        getOptionLabel={(option) => option.label || ""}
+      />
+    </Grid>
+    <Grid item xs={6} sm={1.5}>
+      <Autocomplete
+        options={uniqueOptions("AFFECTATION")}
+        value={filter.affectation}
+        onChange={(event, newValue) =>
+          handleFilterChange(event, newValue, "affectation")
+        }
+        renderInput={(params) => (
+          <TextField {...params} label="Affectation" fullWidth />
+        )}
+        isOptionEqualToValue={(option, value) =>
+          option?.label === value?.label
+        }
+        getOptionLabel={(option) => option.label || ""}
+      />
+    </Grid>
+    <Grid item xs={6} sm={1.5}>
+      <Autocomplete
+        options={uniqueOptions("GRADE_ASSIMILE")}
+        value={filter.gradeAssimile}
+        onChange={(event, newValue) =>
+          handleFilterChange(event, newValue, "gradeAssimile")
+        }
+        renderInput={(params) => (
+          <TextField {...params} label="Grade Assimilé" fullWidth />
+        )}
+        isOptionEqualToValue={(option, value) =>
+          option?.label === value?.label
+        }
+        getOptionLabel={(option) => option.label || ""}
+      />
+    </Grid>
+    <Grid item xs={6} sm={1.5}>
+      <Autocomplete
+        options={uniqueOptions("GRADE_fonction")}
+        value={filter.gradeFonction}
+        onChange={(event, newValue) =>
+          handleFilterChange(event, newValue, "gradeFonction")
+        }
+        renderInput={(params) => (
+          <TextField {...params} label="Grade Fonction" fullWidth />
+        )}
+        isOptionEqualToValue={(option, value) =>
+          option?.label === value?.label
+        }
+        getOptionLabel={(option) => option.label || ""}
+      />
+    </Grid>
+  </Grid>
+  <FormControl fullWidth style={{ marginBottom: "16px" }}>
+    <Autocomplete
+      multiple
+      options={filteredUsers}
+      getOptionLabel={(user) => user.name}
+      value={assignedUsers.filter((user) => user)}
+      onChange={handleUserChange}
+      isOptionEqualToValue={(option, value) => option._id === value._id}
+      renderOption={(props, option) => {
+        const conflict = checkConflicts(
+          option._id,
+          course.times[0].startTime,
+          course.times[0].endTime
+        );
+        const conflictStyle = conflict
+          ? conflict.type === 'course'
+            ? { color: "red" }
+            : { color: "yellow" }
+          : {};
 
-                return (
-                  <li {...props} style={conflictStyle}>
-                    {option.name}
-                    {conflict && conflict.type === 'course' && (
-                      <span style={{ marginLeft: "10px", color: "red" }}>
-                        (Conflict with: {conflict.course.title})
-                      </span>
-                    )}
-                    {conflict && conflict.type === 'vacation' && (
-                      <span style={{ marginLeft: "10px", color: "yellow" }}>
-                        (On vacation)
-                      </span>
-                    )}
-                  </li>
-                );
-              }}
-              renderInput={(params) => (
-                <TextField
-                  {...params}
-                  label="Assign Users"
-                  variant="outlined"
-                  fullWidth
-                />
-              )}
-            />
-          </FormControl>
-          <Typography variant="h6">Interested Users</Typography>{" "}
-          <List>
-            {filteredInterestedUsers.map((user) => (
-              <ListItem key={user._id}>
-                <ListItemText primary={user.name} />
-                <Button
-                  variant="contained"
-                  color="primary"
-                  onClick={() => handleAssignUser(user._id)}
-                >
-                  Assign
-                </Button>
-              </ListItem>
-            ))}
-          </List>
-        </div>
+        return (
+          <li {...props} style={conflictStyle}>
+            {option.name}
+            {conflict && conflict.type === 'course' && (
+              <span style={{ marginLeft: "10px", color: "red" }}>
+                (Conflit avec : {conflict.course.title})
+              </span>
+            )}
+            {conflict && conflict.type === 'vacation' && (
+              <span style={{ marginLeft: "10px", color: "yellow" }}>
+                (En vacances)
+              </span>
+            )}
+          </li>
+        );
+      }}
+      renderInput={(params) => (
+        <TextField
+          {...params}
+          label="Assigner des Utilisateurs"
+          variant="outlined"
+          fullWidth
+        />
+      )}
+    />
+  </FormControl>
+  <Typography variant="h6">Utilisateurs Intéressés</Typography>
+  <List>
+    {filteredInterestedUsers.map((user) => (
+      <ListItem key={user._id}>
+        <ListItemText primary={user.name} />
+        <Button
+          variant="contained"
+          color="primary"
+          onClick={() => handleAssignUser(user._id)}
+        >
+          Assigner
+        </Button>
+      </ListItem>
+    ))}
+  </List>
+</div>
+
         <Button
           type="submit"
           variant="contained"
@@ -879,7 +865,7 @@ function EditCoursePage() {
           fullWidth
           style={{ marginTop: "16px" }}
         >
-          Save Course
+          Sauvegarder le cours
         </Button>
       </form>
     </AdminLayout>

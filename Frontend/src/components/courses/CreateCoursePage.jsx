@@ -315,7 +315,7 @@ function CreateCoursePage() {
             )}
           </Paper>
           {course.image && (
-            <img
+            <img  
               src={course.image.preview}
               alt="Aperçu"
               style={{ marginTop: "16px", maxWidth: "100%", height: "auto" }}
@@ -323,8 +323,8 @@ function CreateCoursePage() {
           )}
         </div>
         <FormControl fullWidth style={{ marginBottom: "16px" }}>
-          <InputLabel>En ligne/Hors ligne</InputLabel>
-          <Select
+        <InputLabel>En ligne/Présentiel</InputLabel>
+        <Select
             name="offline"
             value={course.offline}
             label="En ligne/Hors ligne/Hybrid"
@@ -332,9 +332,8 @@ function CreateCoursePage() {
             required
           >
             <MenuItem value="online">En ligne</MenuItem>
-            <MenuItem value="offline">Hors ligne</MenuItem>
-            <MenuItem value="hybrid">hybrid</MenuItem>
-
+            <MenuItem value="offline">Présentiel</MenuItem>
+            <MenuItem value="hybrid">Hybrid</MenuItem>
           </Select>
         </FormControl>
         <FormControl fullWidth style={{ marginBottom: "16px" }}>

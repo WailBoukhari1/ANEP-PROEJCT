@@ -52,27 +52,28 @@ function CoursesDetails() {
         setLoading(false);
       });
   }, [id]);
-  useEffect(() => {
-    useApiAxios
-      .get(`/courses/${id}/comments`)
-      .then((response) => {
-        setComments(response.data);
-      })
-      .catch((error) => {
-        console.error("Failed to fetch comments:", error);
-      });
-  }, [id]);
-  useEffect(() => {
-    // Fetch whether the user has already submitted feedback
-    useApiAxios
-      .get(`/courses/${id}/feedback/${userId}`)
-      .then((response) => {
-        setHasSubmittedFeedback(response.data.hasSubmitted);
-      })
-      .catch((error) => {
-        console.error("Vérification des erreurs lors de la soumission du retour d'information :", error);
-      });
-  }, [id, userId]);
+   useEffect(() => {
+    const fetchComments = async () => {
+      try {
+        const response = await useApiAxios.get('/courses/6685c968a7b7e26929c41c2b/comments');
+        console.log(response.data);
+      } catch (error) {
+        console.error('Failed to fetch comments:', error);
+      }
+    };
+
+    const fetchFeedback = async () => {
+      try {
+        const response = await useApiAxios.get('/courses/6685c968a7b7e26929c41c2b/feedback/665f4161e7284ed300e62ce7');
+        console.log(response.data);
+      } catch (error) {
+        console.error('Error during feedback submission:', error);
+      }
+    };
+
+    fetchComments();
+    fetchFeedback();
+  }, []);
 
   const handleTabClick = (tab) => {
     setActiveTab(tab);
