@@ -26,7 +26,7 @@ function CoursesDetails() {
   const [error, setError] = useState(null);
   const [currentUser] = useContext(UserContext);
   const userId = currentUser._id;
-  const baseURL = "https://anep-proejct.onrender.com";
+  const baseURL = "http://localhost:5000";
   const [hasSubmittedFeedback] = useState(false);
 
   useEffect(() => {

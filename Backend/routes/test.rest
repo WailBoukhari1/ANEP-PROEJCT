@@ -1,4 +1,4 @@
-POST https://anep-proejct.onrender.com/auth/emailverify
+POST http://localhost:5000/auth/emailverify
 Content-Type: application/json
 
 {
@@ -6,15 +6,15 @@ Content-Type: application/json
 }
 
 ### logout
-GET https://anep-proejct.onrender.com/auth/refreshUser
+GET http://localhost:5000/auth/refreshUser
 Authorization:Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY2NWY0MTYxZTcyODRlZDMwMGU2MmNlNyIsImVtYWlsIjoiYWRtaW5AYWRtaW4uY29tIiwicm9sZXMiOlsidXNlciIsImFkbWluIl0sImlhdCI6MTcxOTA4NDEyMSwiZXhwIjoxNzE5MDg3NzIxfQ.mvtWZAXzotHJ_f4bqiyXXWU8UtLpUGuBWb0Gm0d5wo0
 
 ### resetTokenVerification
-GET https://anep-proejct.onrender.com/auth/resetTokenVerification/eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImEuYWJhdG9yYWJAYW5lcC5tYSIsImlhdCI6MTcxOTU5Nzk0NCwiZXhwIjoxNzE5NjAxNTQ0fQ.ksa0NbAyxnCA0Al_pEPNsJHlBHdK1YkP2efVYIwuAzk
+GET http://localhost:5000/auth/resetTokenVerification/eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImEuYWJhdG9yYWJAYW5lcC5tYSIsImlhdCI6MTcxOTU5Nzk0NCwiZXhwIjoxNzE5NjAxNTQ0fQ.ksa0NbAyxnCA0Al_pEPNsJHlBHdK1YkP2efVYIwuAzk
 
 
 ### new password 
-POST https://anep-proejct.onrender.com/auth/newpassword
+POST http://localhost:5000/auth/newpassword
 Content-Type: application/json
 
 {

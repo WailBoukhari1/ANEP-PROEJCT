@@ -19,7 +19,7 @@
         { value: "offline", displayText: "Présentiel" },
         { value: "hybrid", displayText: "Hybrid" }
       ];
-      const baseURL = "https://anep-proejct.onrender.com";
+      const baseURL = "http://localhost:5000";
 
       useEffect(() => {
         async function fetchCourses() {

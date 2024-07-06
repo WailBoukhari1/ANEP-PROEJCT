@@ -15,7 +15,7 @@ function HomePage() {
     hybrid: 0
   });
 
-  const baseURL = "https://anep-proejct.onrender.com";
+  const baseURL = "http://localhost:5000";
 
   // Effectuer une requête pour récupérer les cours
   useEffect(() => {

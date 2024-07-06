@@ -54,7 +54,7 @@ const emailVerify = async (req, res) => {
 
         if (!user.password) {
             const resetToken = jwt.sign({ email: user.email }, process.env.JWT_SECRET_KEY, { expiresIn: '1h' });
-            const urlreset = `https://anep-proejct.onrender.com/resetPassword/${resetToken}`;
+            const urlreset = `http://localhost:5173/resetPassword/${resetToken}`;
             const emailTemplate = mailer.activeAccount(urlreset);
             user.resetToken = resetToken;
             await user.save();
