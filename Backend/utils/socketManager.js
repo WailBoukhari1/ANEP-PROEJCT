@@ -49,25 +49,6 @@ const setupSocket = (server) => {
             }
         });
 
-        socket.on('commentReported', async (data) => {
-            console.log('Comment reported:', data);
-            const adminId = '6679bfcc1a97f81c02ceb441';
-            const notification = {
-                message: `A comment in "${data.courseName}" has been reported`,
-                courseId: data.courseId,
-                commentSnippet: data.commentText.substring(0, 30) + '...'
-            };
-
-            // Store notification in the database
-            await User.findByIdAndUpdate(adminId, {
-                $push: { notifications: notification }
-            });
-
-            if (users[adminId]) {
-                io.to(users[adminId]).emit('notification', notification);
-            }
-        });
-
         socket.on('disconnect', () => {
             console.log('A user disconnected:', socket.id);
             for (const [userId, socketId] of Object.entries(users)) {

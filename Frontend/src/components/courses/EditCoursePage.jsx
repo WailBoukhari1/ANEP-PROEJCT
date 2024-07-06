@@ -8,8 +8,6 @@ import {
   InputLabel,
   Select,
   MenuItem,
-  Checkbox,
-  FormControlLabel,
   IconButton,
   Paper,
   Grid,
@@ -18,6 +16,7 @@ import {
   Autocomplete,
   List,
   ListItem,
+  Box,
   ListItemText,
 } from "@mui/material";
 import { useDropzone } from "react-dropzone";
@@ -28,23 +27,13 @@ import useApiAxios from "../../config/axios";
 import debounce from "lodash/debounce";
 import ReactQuill from "react-quill";
 import "react-quill/dist/quill.snow.css";
-const categories = [
-  "Category 1",
-  "Category 2",
-  "Category 3",
-  "Category 4",
-  "Category 5",
-  "Category 6",
-  "Category 7",
-  "Category 8",
-];
 function EditCoursePage() {
   const { id } = useParams();
   const navigate = useNavigate();
+
   const [course, setCourse] = useState({
     title: "",
-    location:"",
-    category: "", // Initialize category state
+    location: "",
     imageUrl: "",
     offline: "",
     description: "",
@@ -108,7 +97,6 @@ function EditCoursePage() {
           image: courseData.image ? { preview: courseData.imageUrl } : null, // Set preview from imageUrl
           assignedUsers: courseData.assignedUsers || [], // Ensure assignedUsers is initialized
           interestedUsers: courseData.interestedUsers || [], // Ensure interestedUsers is initialized
-          category: courseData.category || "",
         });
 
         if (courseData.assignedUsers) {
@@ -123,7 +111,6 @@ function EditCoursePage() {
         console.error("Failed to fetch data", error);
       }
     };
-
     fetchUsersAndCourse();
   }, [id]);
 
@@ -315,7 +302,7 @@ function EditCoursePage() {
             (new Date(endTime) >= new Date(time.startTime) &&
               new Date(endTime) <= new Date(time.endTime))
           ) {
-            return { type: 'course', course };
+            return { type: "course", course };
           }
         }
       }
@@ -329,7 +316,7 @@ function EditCoursePage() {
         (new Date(endTime) >= new Date(vacation.start) &&
           new Date(endTime) <= new Date(vacation.end))
       ) {
-        return { type: 'vacation', vacation };
+        return { type: "vacation", vacation };
       }
     }
 
@@ -379,14 +366,7 @@ function EditCoursePage() {
     // Optionally update course.assignedUsers here or elsewhere depending on your application logic
     setCourse((prev) => ({ ...prev, assignedUsers: newValue }));
   };
-  // Function to handle category change
-  const handleCategoryChange = (event) => {
-    const { value } = event.target;
-    setCourse((prev) => ({
-      ...prev,
-      category: value,
-    }));
-  };
+
   return (
     <AdminLayout>
       <form
@@ -412,7 +392,7 @@ function EditCoursePage() {
           fullWidth
           style={{ marginBottom: "16px" }}
         />
-                 <TextField
+        <TextField
           label="Lieu"
           name="location"
           value={course.location}
@@ -426,21 +406,6 @@ function EditCoursePage() {
           style={{ marginBottom: "16px" }}
           required
         />
-         <FormControl fullWidth style={{ marginBottom: "16px" }}>
-          <InputLabel>Catégorie</InputLabel>
-          <Select
-              name="category"
-              value={course.category}
-              onChange={handleCategoryChange}
-              required
-          >
-            {categories.map((category, index) => (
-              <MenuItem key={index} value={category}>
-                {category}
-              </MenuItem>
-            ))}
-          </Select>
-        </FormControl>
         <div
           {...getRootProps()}
           style={{
@@ -577,8 +542,8 @@ function EditCoursePage() {
                       onChange={(e) => handleChange(e, index)}
                       fullWidth
                     >
-                         <MenuItem value="intern" >Interne</MenuItem>
-                         <MenuItem value="extern">Externe</MenuItem>
+                      <MenuItem value="intern">Interne</MenuItem>
+                      <MenuItem value="extern">Externe</MenuItem>
                     </Select>
                   </FormControl>
                 </Grid>
@@ -676,187 +641,190 @@ function EditCoursePage() {
           </Button>
         </div>
         <div style={{ marginBottom: "16px" }}>
-  <Typography variant="h6">Assigner des Utilisateurs</Typography>
-  <Grid container spacing={2} style={{ marginBottom: "16px" }}>
-    <Grid item xs={6} sm={1.5}>
-      <Autocomplete
-        options={uniqueOptions("FONCTION")}
-        value={filter.fonction}
-        onChange={(event, newValue) =>
-          handleFilterChange(event, newValue, "fonction")
-        }
-        renderInput={(params) => (
-          <TextField {...params} label="Fonction" fullWidth />
-        )}
-        getOptionLabel={(option) => option.label || ""}
-        isOptionEqualToValue={(option, value) =>
-          option.label === value?.label
-        }
-      />
-    </Grid>
-    <Grid item xs={6} sm={1.5}>
-      <Autocomplete
-        options={uniqueOptions("Localite")}
-        value={filter.localite}
-        onChange={(event, newValue) =>
-          handleFilterChange(event, newValue, "localite")
-        }
-        renderInput={(params) => (
-          <TextField {...params} label="Localité" fullWidth />
-        )}
-        isOptionEqualToValue={(option, value) =>
-          option?.label === value?.label
-        }
-        getOptionLabel={(option) => option.label || ""}
-      />
-    </Grid>
-    <Grid item xs={6} sm={1.5}>
-      <Autocomplete
-        options={uniqueOptions("SERVICE")}
-        value={filter.service}
-        onChange={(event, newValue) =>
-          handleFilterChange(event, newValue, "service")
-        }
-        renderInput={(params) => (
-          <TextField {...params} label="Service" fullWidth />
-        )}
-        isOptionEqualToValue={(option, value) =>
-          option?.label === value?.label
-        }
-        getOptionLabel={(option) => option.label || ""}
-      />
-    </Grid>
-    <Grid item xs={6} sm={1.5}>
-      <Autocomplete
-        options={uniqueOptions("DEPARTEMENT_DIVISION")}
-        value={filter.departementDivision}
-        onChange={(event, newValue) =>
-          handleFilterChange(event, newValue, "departementDivision")
-        }
-        renderInput={(params) => (
-          <TextField
-            {...params}
-            label="Département/Division"
-            fullWidth
-          />
-        )}
-        isOptionEqualToValue={(option, value) =>
-          option?.label === value?.label
-        }
-        getOptionLabel={(option) => option.label || ""}
-      />
-    </Grid>
-    <Grid item xs={6} sm={1.5}>
-      <Autocomplete
-        options={uniqueOptions("AFFECTATION")}
-        value={filter.affectation}
-        onChange={(event, newValue) =>
-          handleFilterChange(event, newValue, "affectation")
-        }
-        renderInput={(params) => (
-          <TextField {...params} label="Affectation" fullWidth />
-        )}
-        isOptionEqualToValue={(option, value) =>
-          option?.label === value?.label
-        }
-        getOptionLabel={(option) => option.label || ""}
-      />
-    </Grid>
-    <Grid item xs={6} sm={1.5}>
-      <Autocomplete
-        options={uniqueOptions("GRADE_ASSIMILE")}
-        value={filter.gradeAssimile}
-        onChange={(event, newValue) =>
-          handleFilterChange(event, newValue, "gradeAssimile")
-        }
-        renderInput={(params) => (
-          <TextField {...params} label="Grade Assimilé" fullWidth />
-        )}
-        isOptionEqualToValue={(option, value) =>
-          option?.label === value?.label
-        }
-        getOptionLabel={(option) => option.label || ""}
-      />
-    </Grid>
-    <Grid item xs={6} sm={1.5}>
-      <Autocomplete
-        options={uniqueOptions("GRADE_fonction")}
-        value={filter.gradeFonction}
-        onChange={(event, newValue) =>
-          handleFilterChange(event, newValue, "gradeFonction")
-        }
-        renderInput={(params) => (
-          <TextField {...params} label="Grade Fonction" fullWidth />
-        )}
-        isOptionEqualToValue={(option, value) =>
-          option?.label === value?.label
-        }
-        getOptionLabel={(option) => option.label || ""}
-      />
-    </Grid>
-  </Grid>
-  <FormControl fullWidth style={{ marginBottom: "16px" }}>
-    <Autocomplete
-      multiple
-      options={filteredUsers}
-      getOptionLabel={(user) => user.name}
-      value={assignedUsers.filter((user) => user)}
-      onChange={handleUserChange}
-      isOptionEqualToValue={(option, value) => option._id === value._id}
-      renderOption={(props, option) => {
-        const conflict = checkConflicts(
-          option._id,
-          course.times[0].startTime,
-          course.times[0].endTime
-        );
-        const conflictStyle = conflict
-          ? conflict.type === 'course'
-            ? { color: "red" }
-            : { color: "yellow" }
-          : {};
+          <Typography variant="h6">Assigner des Utilisateurs</Typography>
+          <Grid container spacing={2} style={{ marginBottom: "16px" }}>
+            <Grid item xs={6} sm={1.5}>
+              <Autocomplete
+                options={uniqueOptions("FONCTION")}
+                value={filter.fonction}
+                onChange={(event, newValue) =>
+                  handleFilterChange(event, newValue, "fonction")
+                }
+                renderInput={(params) => (
+                  <TextField {...params} label="Fonction" fullWidth />
+                )}
+                getOptionLabel={(option) => option.label || ""}
+                isOptionEqualToValue={(option, value) =>
+                  option.label === value?.label
+                }
+              />
+            </Grid>
+            <Grid item xs={6} sm={1.5}>
+              <Autocomplete
+                options={uniqueOptions("Localite")}
+                value={filter.localite}
+                onChange={(event, newValue) =>
+                  handleFilterChange(event, newValue, "localite")
+                }
+                renderInput={(params) => (
+                  <TextField {...params} label="Localité" fullWidth />
+                )}
+                isOptionEqualToValue={(option, value) =>
+                  option?.label === value?.label
+                }
+                getOptionLabel={(option) => option.label || ""}
+              />
+            </Grid>
+            <Grid item xs={6} sm={1.5}>
+              <Autocomplete
+                options={uniqueOptions("SERVICE")}
+                value={filter.service}
+                onChange={(event, newValue) =>
+                  handleFilterChange(event, newValue, "service")
+                }
+                renderInput={(params) => (
+                  <TextField {...params} label="Service" fullWidth />
+                )}
+                isOptionEqualToValue={(option, value) =>
+                  option?.label === value?.label
+                }
+                getOptionLabel={(option) => option.label || ""}
+              />
+            </Grid>
+            <Grid item xs={6} sm={1.5}>
+              <Autocomplete
+                options={uniqueOptions("DEPARTEMENT_DIVISION")}
+                value={filter.departementDivision}
+                onChange={(event, newValue) =>
+                  handleFilterChange(event, newValue, "departementDivision")
+                }
+                renderInput={(params) => (
+                  <TextField
+                    {...params}
+                    label="Département/Division"
+                    fullWidth
+                  />
+                )}
+                isOptionEqualToValue={(option, value) =>
+                  option?.label === value?.label
+                }
+                getOptionLabel={(option) => option.label || ""}
+              />
+            </Grid>
+            <Grid item xs={6} sm={1.5}>
+              <Autocomplete
+                options={uniqueOptions("AFFECTATION")}
+                value={filter.affectation}
+                onChange={(event, newValue) =>
+                  handleFilterChange(event, newValue, "affectation")
+                }
+                renderInput={(params) => (
+                  <TextField {...params} label="Affectation" fullWidth />
+                )}
+                isOptionEqualToValue={(option, value) =>
+                  option?.label === value?.label
+                }
+                getOptionLabel={(option) => option.label || ""}
+              />
+            </Grid>
+            <Grid item xs={6} sm={1.5}>
+              <Autocomplete
+                options={uniqueOptions("GRADE_ASSIMILE")}
+                value={filter.gradeAssimile}
+                onChange={(event, newValue) =>
+                  handleFilterChange(event, newValue, "gradeAssimile")
+                }
+                renderInput={(params) => (
+                  <TextField {...params} label="Grade Assimilé" fullWidth />
+                )}
+                isOptionEqualToValue={(option, value) =>
+                  option?.label === value?.label
+                }
+                getOptionLabel={(option) => option.label || ""}
+              />
+            </Grid>
+            <Grid item xs={6} sm={1.5}>
+              <Autocomplete
+                options={uniqueOptions("GRADE_fonction")}
+                value={filter.gradeFonction}
+                onChange={(event, newValue) =>
+                  handleFilterChange(event, newValue, "gradeFonction")
+                }
+                renderInput={(params) => (
+                  <TextField {...params} label="Grade Fonction" fullWidth />
+                )}
+                isOptionEqualToValue={(option, value) =>
+                  option?.label === value?.label
+                }
+                getOptionLabel={(option) => option.label || ""}
+              />
+            </Grid>
+          </Grid>
+          <FormControl fullWidth style={{ marginBottom: "16px" }}>
+            <Autocomplete
+              multiple
+              options={filteredUsers}
+              getOptionLabel={(user) => user.name}
+              value={assignedUsers.filter((user) => user)}
+              onChange={handleUserChange}
+              isOptionEqualToValue={(option, value) => option._id === value._id}
+              renderOption={(props, option) => {
+                const conflict = checkConflicts(
+                  option._id,
+                  course.times[0].startTime,
+                  course.times[0].endTime
+                );
+                const conflictStyle = conflict
+                  ? conflict.type === "course"
+                    ? { color: "red" }
+                    : { color: "yellow" }
+                  : {};
 
-        return (
-          <li {...props} style={conflictStyle}>
-            {option.name}
-            {conflict && conflict.type === 'course' && (
-              <span style={{ marginLeft: "10px", color: "red" }}>
-                (Conflit avec : {conflict.course.title})
-              </span>
-            )}
-            {conflict && conflict.type === 'vacation' && (
-              <span style={{ marginLeft: "10px", color: "yellow" }}>
-                (En vacances)
-              </span>
-            )}
-          </li>
-        );
-      }}
-      renderInput={(params) => (
-        <TextField
-          {...params}
-          label="Assigner des Utilisateurs"
-          variant="outlined"
-          fullWidth
-        />
-      )}
-    />
-  </FormControl>
-  <Typography variant="h6">Utilisateurs Intéressés</Typography>
-  <List>
-    {filteredInterestedUsers.map((user) => (
-      <ListItem key={user._id}>
-        <ListItemText primary={user.name} />
-        <Button
-          variant="contained"
-          color="primary"
-          onClick={() => handleAssignUser(user._id)}
-        >
-          Assigner
-        </Button>
-      </ListItem>
-    ))}
-  </List>
-</div>
+                return (
+                  <li {...props} style={conflictStyle}>
+                    {option.name}
+                    {conflict && conflict.type === "course" && (
+                      <span style={{ marginLeft: "10px", color: "red" }}>
+                        (Conflit avec : {conflict.course.title})
+                      </span>
+                    )}
+                    {conflict && conflict.type === "vacation" && (
+                      <span style={{ marginLeft: "10px", color: "yellow" }}>
+                        (En vacances)
+                      </span>
+                    )}
+                  </li>
+                );
+              }}
+              renderInput={(params) => (
+                <TextField
+                  {...params}
+                  label="Assigner des Utilisateurs"
+                  variant="outlined"
+                  fullWidth
+                />
+              )}
+            />
+          </FormControl>
+          <Typography variant="h6">Utilisateurs Intéressés</Typography>
+          <List>
+            {filteredInterestedUsers.map((user) => (
+              <ListItem key={user._id}>
+                <Box display="flex" alignItems="center" width="30%">
+                  <ListItemText primary={user.name} />
+                  <Button
+                    variant="contained"
+                    color="primary"
+                    onClick={() => handleAssignUser(user._id)}
+                    style={{ marginLeft: "auto" }}
+                  >
+                    Assign
+                  </Button>
+                </Box>
+              </ListItem>
+            ))}
+          </List>
+        </div>
 
         <Button
           type="submit"

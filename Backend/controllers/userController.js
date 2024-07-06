@@ -77,7 +77,7 @@ const getNotifications = async (req, res) => {
 
         const notifications = user.notifications.map(notification => ({
             ...notification.toObject(),
-            isNew: notification.isNew 
+            isNew: notification.isNew
         }));
 
         res.json({ notifications });
@@ -151,38 +151,42 @@ const markNotificationRead = async (req, res) => {
 const importUsersFromExcel = async (req, res) => {
     try {
         const users = req.body; // Assume the request body contains the array of users
-    
+
         // Log the incoming data for debugging
         console.log('Incoming users data:', users);
-    
+
         const results = await Promise.all(users.map(async (user) => {
-          // Check if the user already exists by email
-          const existingUser = await User.findOne({ email: user.email });
-          if (existingUser) {
-            console.log(`User with email ${user.email} already exists. Skipping.`);
-            return null;
-          }
-    
-          // Generate an ID if the user doesn't have one
-          if (!user._id) {
-            user._id = new mongoose.Types.ObjectId(); // Assuming you're using Mongoose for MongoDB
-          }
-    
-          // Create the user in the database
-          return User.create(user);
+            // Check if the user already exists by email
+            const existingUser = await User.findOne({ email: user.email });
+            if (existingUser) {
+                console.log(`User with email ${user.email} already exists. Updating.`);
+                // Update the user, excluding the password field
+                const updateData = { ...user };
+                delete updateData.password; // Ensure the password is not updated
+                await User.updateOne({ email: user.email }, { $set: updateData });
+                return null; // Return null to indicate an update operation
+            }
+
+            // Generate an ID if the user doesn't have one
+            if (!user._id) {
+                user._id = new mongoose.Types.ObjectId(); // Assuming you're using Mongoose for MongoDB
+            }
+
+            // Create the user in the database
+            return User.create(user);
         }));
-    
+
         res.status(201).json({
-          message: 'Users imported successfully',
-          imported: results.filter(result => result !== null).length,
-          skipped: results.filter(result => result === null).length,
+            message: 'Users processed successfully',
+            imported: results.filter(result => result !== null).length,
+            updated: results.filter(result => result === null).length, // Count updates as null returns
         });
-      } catch (error) {
+    } catch (error) {
         // Log the error for debugging
-        console.error('Error during users import:', error);
-    
-        res.status(500).json({ message: 'Failed to import users', error: error.message });
-      }
+        console.error('Error during users processing:', error);
+
+        res.status(500).json({ message: 'Failed to process users', error: error.message });
+    }
 }
 module.exports = {
     getAllUsers,

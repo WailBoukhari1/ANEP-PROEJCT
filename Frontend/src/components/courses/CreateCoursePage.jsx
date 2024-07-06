@@ -15,6 +15,9 @@ import {
   Tooltip,
   Autocomplete,
 } from "@mui/material";
+import { createFilterOptions } from "@mui/material/Autocomplete";
+import DeleteIcon from "@mui/icons-material/Delete"; // Import Delete Icon
+
 import { useDropzone } from "react-dropzone";
 import AddCircleOutlineIcon from "@mui/icons-material/AddCircleOutline";
 import RemoveCircleOutlineIcon from "@mui/icons-material/RemoveCircleOutline";
@@ -22,22 +25,13 @@ import FileCopyIcon from "@mui/icons-material/FileCopy";
 import ReactQuill from "react-quill";
 import "react-quill/dist/quill.snow.css";
 import useApiAxios from "../../config/axios";
-const categories = [
-  "Category 1",
-  "Category 2",
-  "Category 3",
-  "Category 4",
-  "Category 5",
-  "Category 6",
-  "Category 7",
-  "Category 8",
-];
+
 function CreateCoursePage() {
   const navigate = useNavigate();
   const [course, setCourse] = useState({
     title: "",
-    location:"",
-    category: "",
+    location: "",
+    category: null, // Change to object containing id and name
     offline: "",
     description: "",
     hidden: "",
@@ -59,6 +53,7 @@ function CreateCoursePage() {
     image: null,
   });
 
+  const [categories, setCategories] = useState([]); // State to hold categories from the database
   const [internalInstructors, setInternalInstructors] = useState([]);
 
   useEffect(() => {
@@ -76,8 +71,68 @@ function CreateCoursePage() {
       }
     };
 
+    const fetchCategories = async () => {
+      try {
+        const { data } = await useApiAxios.get("/category");
+        setCategories(
+          data.map((category) => ({
+            id: category._id,
+            name: category.name,
+          }))
+        ); // Now we're storing both id and name
+      } catch (error) {
+        console.error("Failed to fetch categories:", error);
+      }
+    };
+
     fetchInstructors();
+    fetchCategories();
   }, []);
+
+  const filterOptions = createFilterOptions({
+    matchFrom: "start",
+    stringify: (option) => option.name,
+  });
+
+  const handleCategoryChange = async (event, newValue) => {
+    let categoryValue;
+
+    if (typeof newValue === "string") {
+      categoryValue = { name: newValue };
+    } else if (newValue && newValue.inputValue) {
+      categoryValue = { name: newValue.inputValue };
+    } else {
+      categoryValue = newValue;
+    }
+
+    if (categoryValue && categoryValue.name) {
+      // Check if the category exists
+      const existingCategory = categories.find(
+        (cat) => cat.name === categoryValue.name
+      );
+      if (existingCategory) {
+        setCourse({ ...course, category: existingCategory });
+      } else {
+        // If it's a new category, add it to the database
+        try {
+          const response = await useApiAxios.post("/category", {
+            name: categoryValue.name,
+          });
+          const newCategory = {
+            id: response.data._id,
+            name: categoryValue.name,
+          };
+          setCategories([...categories, newCategory]);
+          setCourse({ ...course, category: newCategory });
+          console.log("New category added:", newCategory);
+        } catch (error) {
+          console.error("Failed to add new category:", error);
+        }
+      }
+    } else {
+      setCourse({ ...course, category: null });
+    }
+  };
 
   const onDrop = useCallback((acceptedFiles) => {
     const file = acceptedFiles[0];
@@ -120,6 +175,22 @@ function CreateCoursePage() {
       ...prev,
       times: updatedTimes,
     }));
+  };
+
+  // Function to delete a category
+  const handleDeleteCategory = async (categoryId) => {
+    try {
+      await useApiAxios.delete(`/category/${categoryId}`);
+      setCategories(
+        categories.filter((category) => category.id !== categoryId)
+      );
+      if (course.category && course.category.id === categoryId) {
+        setCourse({ ...course, category: null });
+      }
+      console.log("Category deleted successfully");
+    } catch (error) {
+      console.error("Failed to delete category:", error);
+    }
   };
 
   const handleAddSession = () => {
@@ -218,6 +289,7 @@ function CreateCoursePage() {
         const finalCourseData = {
           ...course,
           imageUrl,
+          category: course.category ? course.category.id : null, // Use category ID
           times: course.times.map((session) => ({
             ...session,
             instructor: session.instructor || undefined,
@@ -236,7 +308,9 @@ function CreateCoursePage() {
           console.log("Cours créé avec succès!");
           navigate("/CoursesManagement");
         } else {
-          alert(`Échec de la création du cours: ${response.status} ${response.data}`);
+          alert(
+            `Échec de la création du cours: ${response.status} ${response.data}`
+          );
         }
       } else {
         alert(
@@ -248,7 +322,6 @@ function CreateCoursePage() {
       alert("Erreur lors de la création du cours: " + error.message);
     }
   };
-
 
   return (
     <AdminLayout>
@@ -270,7 +343,7 @@ function CreateCoursePage() {
           style={{ marginBottom: "16px" }}
           required
         />
-                <TextField
+        <TextField
           label="Lieu"
           name="location"
           value={course.location}
@@ -279,22 +352,55 @@ function CreateCoursePage() {
           style={{ marginBottom: "16px" }}
           required
         />
-   
-        <FormControl fullWidth style={{ marginBottom: "16px" }}>
-          <InputLabel>Catégorie</InputLabel>
-          <Select
-            name="category"
-            value={course.category}
-            onChange={handleInputChange}
-            required
-          >
-            {categories.map((category, index) => (
-              <MenuItem key={index} value={category}>
-                {category}
-              </MenuItem>
-            ))}
-          </Select>
-        </FormControl>
+        <Autocomplete
+          value={course.category || null}
+          onChange={handleCategoryChange}
+          filterOptions={(options, params) => {
+            const filtered = filterOptions(options, params);
+            const { inputValue } = params;
+            const isExisting = options.some(
+              (option) => inputValue === option.name
+            );
+            if (inputValue !== "" && !isExisting) {
+              filtered.push({
+                inputValue,
+                name: `Add "${inputValue}"`,
+              });
+            }
+            return filtered;
+          }}
+          selectOnFocus
+          clearOnBlur
+          handleHomeEndKeys
+          options={categories}
+          getOptionLabel={(option) => option.name || ""}
+          renderOption={(props, option) => (
+            <li {...props}>
+              {option.name}
+              {option.id && (
+                <IconButton
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleDeleteCategory(option.id);
+                  }}
+                  size="small"
+                >
+                  <DeleteIcon />
+                </IconButton>
+              )}
+            </li>
+          )}
+          freeSolo
+          renderInput={(params) => (
+            <TextField
+              {...params}
+              label="Category"
+              variant="outlined"
+              fullWidth
+              required
+            />
+          )}
+        />
         <div
           {...getRootProps()}
           style={{
@@ -307,15 +413,16 @@ function CreateCoursePage() {
           <input {...getInputProps()} />
           <Paper elevation={0} style={{ padding: "16px" }}>
             {isDragActive ? (
-              <p>Déposez l'image ici...</p>
+              <p>Déposez l&apos;image ici...</p>
             ) : (
               <p>
-                Glissez-déposez une image ici, ou cliquez pour sélectionner une image
+                Glissez-déposez une image ici, ou cliquez pour sélectionner une
+                image
               </p>
             )}
           </Paper>
           {course.image && (
-            <img  
+            <img
               src={course.image.preview}
               alt="Aperçu"
               style={{ marginTop: "16px", maxWidth: "100%", height: "auto" }}
@@ -323,8 +430,8 @@ function CreateCoursePage() {
           )}
         </div>
         <FormControl fullWidth style={{ marginBottom: "16px" }}>
-        <InputLabel>En ligne/Présentiel</InputLabel>
-        <Select
+          <InputLabel>En ligne/Présentiel</InputLabel>
+          <Select
             name="offline"
             value={course.offline}
             label="En ligne/Hors ligne/Hybrid"
@@ -412,14 +519,14 @@ function CreateCoursePage() {
               </Grid>
               <Grid item xs={6}>
                 <FormControl fullWidth>
-                  <InputLabel>Type d'instructeur</InputLabel>
+                  <InputLabel>Type d&apos;instructeur</InputLabel>
                   <Select
                     name="instructorType"
                     value={session.instructorType}
                     onChange={(e) => handleSessionChange(e, index)}
                     required
                   >
-                    <MenuItem value="intern" >Interne</MenuItem>
+                    <MenuItem value="intern">Interne</MenuItem>
                     <MenuItem value="extern">Externe</MenuItem>
                   </Select>
                 </FormControl>

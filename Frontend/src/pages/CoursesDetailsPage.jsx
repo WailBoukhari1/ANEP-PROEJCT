@@ -2,7 +2,6 @@ import MainLayout from "../layout/MainLayout";
 import { useEffect, useState, useContext } from "react";
 import { useDropzone } from "react-dropzone";
 import { useParams } from "react-router-dom";
-import { io } from "socket.io-client";
 import useApiAxios from "../config/axios";
 import UserContext from "../auth/user-context";
 import FeedbackModal from "../components/models/FeedbackModel";
@@ -28,8 +27,7 @@ function CoursesDetails() {
   const [currentUser] = useContext(UserContext);
   const userId = currentUser._id;
   const baseURL = "http://localhost:5000";
-  const socket = io("http://localhost:5000/");
-  const [hasSubmittedFeedback, setHasSubmittedFeedback] = useState(false);
+  const [hasSubmittedFeedback] = useState(false);
 
   useEffect(() => {
     useApiAxios
@@ -167,43 +165,6 @@ function CoursesDetails() {
       });
   };
 
-  const handleReportComment = (commentId) => {
-    if (!currentUser || !currentUser._id) {
-      alert("Utilisateur non connecté.");
-      return;
-    }
-
-    useApiAxios
-      .post(
-        `/courses/${id}/comments/${commentId}/report`,
-        {
-          userId: currentUser._id,
-        }
-      )
-      .then(() => {
-        alert("Commentaire signalé avec succès !");
-        socket.emit("commentReported", {
-          courseId: id,
-          commentId,
-          courseName: course.title,
-          commentText: comments.find((comment) => comment._id === commentId)
-            .text,
-        });
-      })
-      .catch((error) => {
-        if (
-          error.response &&
-          error.response.status === 400 &&
-          error.response.data.message ===
-            "Vous avez déjà signalé ce commentaire"
-        ) {
-          alert("Vous avez déjà signalé ce commentaire.");
-        } else {
-          console.error("Le commentaire n'a pas été signalé :", error);
-          alert("Le commentaire n'a pas été signalé .");
-        }
-      });
-  };
 
   if (loading) return <MainLayout>Loading...</MainLayout>;
   if (error) return <MainLayout>Error: {error}</MainLayout>;
@@ -216,7 +177,7 @@ function CoursesDetails() {
             <div className="container">
               <div className="text-center">
                 <h1 className="text-3xl md:text-size-40 2xl:text-size-55 font-bold text-blackColor dark:text-blackColor-dark mb-7 md:mb-6 pt-3">
-                Détails du cours
+                  Détails du cours
                 </h1>
                 <ul className="flex gap-1 justify-center">
                   <li>
@@ -229,7 +190,7 @@ function CoursesDetails() {
                   </li>
                   <li>
                     <span className="text-lg text-blackColor2 dark:text-blackColor2-dark">
-                    Détails du cours
+                      Détails du cours
                     </span>
                   </li>
                 </ul>
@@ -260,7 +221,7 @@ function CoursesDetails() {
                     >
                       <div>
                         <p className="text-sm text-contentColor dark:text-contentColor-dark font-medium">
-                        Dernière mise à jour :{" "}
+                          Dernière mise à jour :{" "}
                           <span className="text-blackColor dark:text-blackColor-dark">
                             {course.updatedAt}
                           </span>
@@ -311,20 +272,21 @@ function CoursesDetails() {
                       <div className="tab-content">
                         {activeTab === "description" && (
                           <div>
-                          <p>
-                          <div
-                            dangerouslySetInnerHTML={{
-                              __html: course.description,
-                            }}
-                          />
-                        </p></div>
+                            <p>
+                              <div
+                                dangerouslySetInnerHTML={{
+                                  __html: course.description,
+                                }}
+                              />
+                            </p>
+                          </div>
                         )}
                         {activeTab === "reviews" && (
                           <div>
                             {/* client reviews */}
                             <div className="mt-60px mb-10">
                               <h4 className="text-lg text-blackColor dark:text-blackColor-dark font-bold pl-2 before:w-0.5 relative before:h-[21px] before:bg-secondaryColor before:absolute before:bottom-[5px] before:left-0 leading-1.2 mb-25px">
-                              Avis des utilisateurs
+                                Avis des utilisateurs
                               </h4>
                               <ul>
                                 {comments.map((comment, index) => (
@@ -356,26 +318,21 @@ function CoursesDetails() {
                                       </div>
                                       <p className="text-sm text-contentColor dark:text-contentColor-dark leading-23px mb-15px">
                                         {comment.text}{" "}
-                                        {/* Display the text of the comment */}
+                                        {currentUser.roles.includes(
+                                          "admin"
+                                        ) && (
+                                          <div className="flex space-x-2 py-2">
+                                            <button
+                                              onClick={() =>
+                                                handleDeleteComment(comment._id)
+                                              }
+                                              className="bg-delete-comment text-white px-3 py-1 rounded transition duration-300 flex items-center space-x-2"
+                                            >
+                                              Delete
+                                            </button>
+                                          </div>
+                                        )}
                                       </p>
-                                      <div className="flex space-x-2 py-2">
-                                        <button
-                                          onClick={() =>
-                                            handleReportComment(comment._id)
-                                          }
-                                          className="bg-report-comment text-white px-4 py-2 rounded transition duration-300 flex items-center space-x-2"
-                                        >
-                                          Report
-                                        </button>
-                                        <button
-                                          onClick={() =>
-                                            handleDeleteComment(comment._id)
-                                          }
-                                          className="bg-delete-comment text-white px-4 py-2 rounded transition duration-300 flex items-center space-x-2"
-                                        >
-                                          Delete
-                                        </button>
-                                      </div>
                                     </div>
                                   </li>
                                 ))}
@@ -423,21 +380,21 @@ function CoursesDetails() {
                         )}
                         {activeTab === "upload" && (
                           <div>
-                            {currentUser.roles.includes('admin') &&
-                            <div
-                              {...getRootProps()}
-                              className="dropzone p-6 border-2 border-dashed border-gray-300 rounded-md text-center cursor-pointer hover:border-gray-500"
-                            >
-                              <input {...getInputProps()} />
-                              <p className="text-gray-700">
-                              Traînée & déposer des fichiers ici, ou
-                                cliquer pour sélectionner des fichiers
-                              </p>
-                            </div>
-}
+                            {currentUser.roles.includes("admin") && (
+                              <div
+                                {...getRootProps()}
+                                className="dropzone p-6 border-2 border-dashed border-gray-300 rounded-md text-center cursor-pointer hover:border-gray-500"
+                              >
+                                <input {...getInputProps()} />
+                                <p className="text-gray-700">
+                                  Traînée & déposer des fichiers ici, ou cliquer
+                                  pour sélectionner des fichiers
+                                </p>
+                              </div>
+                            )}
                             <div className="file-list mt-4">
                               <h4 className="file-list-title text-lg font-semibold mb-2">
-                              Fichiers :
+                                Fichiers :
                               </h4>
                               <ul>
                                 {files.map((file, index) => (
@@ -507,7 +464,7 @@ function CoursesDetails() {
                     <div className="mb-5" data-aos="fade-up">
                       <div className="py-2">
                         <p className="text-lg font-semibold py-1">
-                        Exprimez votre intérêt
+                          Exprimez votre intérêt
                         </p>
                         <button
                           type="submit"
@@ -517,36 +474,35 @@ function CoursesDetails() {
                           intéresser
                         </button>
                       </div>
-                      {course.assignedUsers.includes(currentUser._id)&&
-                        
-                      <div className="py-2">
-                        <p className="text-lg font-semibold py-1">
-                        Avez-vous terminé le cours ? Laissez votre feed-back
-                        </p>
-                        <button
-                          onClick={handleShowEvaluationModal}
-                          className="w-full text-size-15 text-whiteColor bg-secondaryColor px-25px py-10px mb-10px leading-1.8 border border-secondaryColor hover:text-secondaryColor hover:bg-whiteColor inline-block group dark:hover:text-secondaryColor dark:hover:bg-whiteColor-dark"
-                        >
-                          Retour d'information
-                        </button>
-                        <Dialog
-                          open={showEvaluationModal}
-                          onClose={() => setShowEvaluationModal(false)}
-                        >
-                          <DialogTitle>L'évaluation</DialogTitle>
-                          <DialogContent>
-                            <FeedbackModal courseId={id} userId={userId} />
-                          </DialogContent>
-                          <DialogActions>
-                            <Button
-                              onClick={() => setShowEvaluationModal(false)}
-                            >
-                              Close
-                            </Button>
-                          </DialogActions>
-                        </Dialog>
-                      </div>
-                      }
+                      {course.assignedUsers.includes(currentUser._id) && (
+                        <div className="py-2">
+                          <p className="text-lg font-semibold py-1">
+                            Avez-vous terminé le cours ? Laissez votre feed-back
+                          </p>
+                          <button
+                            onClick={handleShowEvaluationModal}
+                            className="w-full text-size-15 text-whiteColor bg-secondaryColor px-25px py-10px mb-10px leading-1.8 border border-secondaryColor hover:text-secondaryColor hover:bg-whiteColor inline-block group dark:hover:text-secondaryColor dark:hover:bg-whiteColor-dark"
+                          >
+                            Retour d&apos;information
+                          </button>
+                          <Dialog
+                            open={showEvaluationModal}
+                            onClose={() => setShowEvaluationModal(false)}
+                          >
+                            <DialogTitle>L&apos;évaluation</DialogTitle>
+                            <DialogContent>
+                              <FeedbackModal courseId={id} userId={userId} />
+                            </DialogContent>
+                            <DialogActions>
+                              <Button
+                                onClick={() => setShowEvaluationModal(false)}
+                              >
+                                Close
+                              </Button>
+                            </DialogActions>
+                          </Dialog>
+                        </div>
+                      )}
                     </div>
                   </div>
                 </div>

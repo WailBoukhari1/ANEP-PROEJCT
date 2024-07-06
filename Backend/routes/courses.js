@@ -22,7 +22,6 @@ const commentRoutes = [
     { method: 'post', path: '/:id/comments', handler: courseController.handleComments },
     { method: 'get', path: '/latest-comments', handler: courseController.getLastestComments },
     { method: 'delete', path: '/:id/comments/:commentId', handler: courseController.deleteComment },
-    { method: 'post', path: '/:id/comments/:commentId/report', handler: courseController.reportComment },
 ];
 
 const courseRoutes = [
@@ -55,26 +54,26 @@ const notificationRoutes = [
 // Route to fetch statistics
 router.get('/statistics', async (req, res) => {
     try {
-      const totalCourses = await Course.countDocuments();
-      const onlineCourses = await Course.countDocuments({ type: 'online' });
-      const offlineCourses = await Course.countDocuments({ type: 'offline' });
-      const hybridCourses = await Course.countDocuments({ type: 'hybrid' });
-  
-      // Example response structure
-      const statistics = {
-        totalCourses,
-        online: onlineCourses,
-        offline: offlineCourses,
-        hybrid: hybridCourses
-      };
-  
-      res.json(statistics);
+        const totalCourses = await Course.countDocuments();
+        const onlineCourses = await Course.countDocuments({ type: 'online' });
+        const offlineCourses = await Course.countDocuments({ type: 'offline' });
+        const hybridCourses = await Course.countDocuments({ type: 'hybrid' });
+
+        // Example response structure
+        const statistics = {
+            totalCourses,
+            online: onlineCourses,
+            offline: offlineCourses,
+            hybrid: hybridCourses
+        };
+
+        res.json(statistics);
     } catch (err) {
-      console.error('Failed to fetch statistics:', err);
-      res.status(500).json({ message: 'Failed to fetch statistics' });
+        console.error('Failed to fetch statistics:', err);
+        res.status(500).json({ message: 'Failed to fetch statistics' });
     }
-  });
-  
+});
+
 // Apply routes
 const applyRoutes = (routes) => {
     routes.forEach(({ method, path, middleware = [], handler }) => {

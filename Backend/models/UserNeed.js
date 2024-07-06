@@ -3,12 +3,12 @@ const mongoose = require('mongoose');
 const userNeedSchema = new mongoose.Schema({
   title: {
     type: String,
-    trim: true,
+    trim: false,
     maxlength: [100, 'Title cannot be more than 100 characters']
   },
   message: {
     type: String,
-    trim: true,
+    trim: false,
     maxlength: [500, 'Message cannot be more than 500 characters']
   },
   createdAt: {

@@ -38,16 +38,6 @@ const getCourseById = async (req, res) => {
     }
 };
 
-const getAllComments = async (req, res) => {
-    try {
-        const courses = await Course.find().select('comments');
-        const comments = courses.reduce((acc, course) => acc.concat(course.comments), []);
-        res.status(200).json(comments);
-    } catch (error) {
-        console.error('Error fetching comments:', error); // Log the error to the console
-        res.status(500).json({ message: 'Error fetching comments', error: error.message });
-    }
-}
 
 // Create a new course
 const createCourse = async (req, res) => {
@@ -112,6 +102,17 @@ const uploadImage = (req, res) => {
         });
     }
 };
+const getAllComments = async (req, res) => {
+    try {
+        const courses = await Course.find().select('comments');
+        const comments = courses.reduce((acc, course) => acc.concat(course.comments), []);
+        res.status(200).json(comments);
+    } catch (error) {
+        console.error('Error fetching comments:', error); // Log the error to the console
+        res.status(500).json({ message: 'Error fetching comments', error: error.message });
+    }
+}
+
 const getAssignedUsers = async (req, res) => {
     const { id } = req.params; // course ID
 
@@ -363,76 +364,47 @@ const deleteComment = async (req, res) => {
 // user assigned download 
 const userAssignedDownload = async (req, res) => {
     try {
-      const courseId = req.params.courseId;
-      const course = await Course.findById(courseId)
-        .populate('assignedUsers')
-        .select('assignedUsers presence'); // Ensure presence is populated
-  
-      if (!course) {
-        return res.status(404).send('Course not found');
-      }
-  
-      // Map assigned users and include presence
-      const usersData = course.assignedUsers.map(user => ({
-        Name: user.name,
-        GRADE_fonction: user.GRADE_fonction,
-        AFFECTATION: user.AFFECTATION,
-        DEPARTEMENT_DIVISION: user.DEPARTEMENT_DIVISION,
-        SERVICE: user.SERVICE,
-        Localite: user.Localite,
-        FONCTION: user.FONCTION,
-        // POST: user.name,
-        // DAT-FCT: user.name,
-        Presence: course.presence.find(p => p.userId.equals(user._id))?.status || 'absent',
-      }));
-  
-      const worksheet = XLSX.utils.json_to_sheet(usersData);
-      const workbook = XLSX.utils.book_new();
-      XLSX.utils.book_append_sheet(workbook, worksheet, 'Assigned Users');
-  
-      const buffer = XLSX.write(workbook, { type: 'buffer', bookType: 'xlsx' });
-  
-      res.setHeader(
-        'Content-Disposition',
-        'attachment; filename=assigned_users.xlsx'
-      );
-      res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
-      res.send(buffer);
-    } catch (error) {
-      console.error('Error downloading assigned users:', error);
-      res.status(500).send('Server error');
-    }
-  }
-  
-// Report a comment
-const reportComment = async (req, res) => {
-    const { id, commentId } = req.params;
-    const { userId } = req.body;
+        const courseId = req.params.courseId;
+        const course = await Course.findById(courseId)
+            .populate('assignedUsers')
+            .select('assignedUsers presence'); // Ensure presence is populated
 
-    try {
-        const course = await Course.findById(id);
         if (!course) {
             return res.status(404).send('Course not found');
         }
 
-        const comment = course.comments.id(commentId);
-        if (!comment) {
-            return res.status(404).send('Comment not found');
-        }
+        // Map assigned users and include presence
+        const usersData = course.assignedUsers.map(user => ({
+            Name: user.name,
+            GRADE_fonction: user.GRADE_fonction,
+            AFFECTATION: user.AFFECTATION,
+            DEPARTEMENT_DIVISION: user.DEPARTEMENT_DIVISION,
+            SERVICE: user.SERVICE,
+            Localite: user.Localite,
+            FONCTION: user.FONCTION,
+            // POST: user.name,
+            // DAT-FCT: user.name,
+            Presence: course.presence.find(p => p.userId.equals(user._id))?.status || 'absent',
+        }));
 
-        if (comment.reportedBy.includes(userId)) {
-            return res.status(400).json({ message: 'You have already reported this comment' });
-        }
+        const worksheet = XLSX.utils.json_to_sheet(usersData);
+        const workbook = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(workbook, worksheet, 'Assigned Users');
 
-        comment.reportedBy.push(userId);
-        comment.reported = true;
-        await course.save();
+        const buffer = XLSX.write(workbook, { type: 'buffer', bookType: 'xlsx' });
 
-        res.status(200).send('Comment reported successfully');
+        res.setHeader(
+            'Content-Disposition',
+            'attachment; filename=assigned_users.xlsx'
+        );
+        res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+        res.send(buffer);
     } catch (error) {
-        res.status(500).json({ message: error.message });
+        console.error('Error downloading assigned users:', error);
+        res.status(500).send('Server error');
     }
-};
+}
+
 // Create a new evaluation
 const createEvaluation = async (req, res) => {
     const { courseId } = req.params;
@@ -521,7 +493,6 @@ module.exports = {
     requestJoin,
     sendCourseNotification,
     deleteComment,
-    reportComment,
     createEvaluation,
     downloadEvaluations,
     getAllComments,
