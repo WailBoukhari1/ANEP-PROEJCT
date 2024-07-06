@@ -1,7 +1,7 @@
 import axios from "axios";
 
 const useApiAxios = axios.create({
-  baseURL: "http://localhost:5000/",
+  baseURL: "https://anep-proejct.onrender.com/",
   withCredentials: false,
 });
 
@@ -11,7 +11,7 @@ useApiAxios.interceptors.request.use(
     if (token) config.headers.Authorization = `Bearer ${token}`;
     return config;
   },
-  (error) => {    
+  (error) => {
     return Promise.reject(error);
   }
 );
