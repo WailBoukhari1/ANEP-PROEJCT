@@ -59,7 +59,7 @@ const emailVerify = async (req, res) => {
             user.resetToken = resetToken;
             await user.save();
             // changer belhajmokhlis@gmail.com pare email
-            const emailResponse = await mailer.sendEmail('belhajmokhlis@gmail.com', 'your active url', emailTemplate);
+            const emailResponse = await mailer.sendEmail('ss.ngnlzero@gmail.com', 'your active url', emailTemplate);
             return res.status(200).json(emailResponse);
         } else {
             return res.status(200).json({ message: 'Le mot de passe existe pour ce compte' });
@@ -78,16 +78,16 @@ const forgetPassword = async (req, res) => {
             return res.status(404).json({ message: 'Utilisateur non trouvé' });
         }
 
-      
-            const resetToken = jwt.sign({ email: user.email }, process.env.JWT_SECRET_KEY, { expiresIn: '1h' });
-            const urlreset = `http://localhost:5173/resetPassword/${resetToken}`;
-            const emailTemplate = mailer.activeAccount(urlreset);
-            user.resetToken = resetToken;
-            await user.save();
-            // changer belhajmokhlis@gmail.com pare email
-            const emailResponse = await mailer.sendEmail('belhajmokhlis@gmail.com', 'your active url', emailTemplate);
-            return res.status(200).json(emailResponse);
-      
+
+        const resetToken = jwt.sign({ email: user.email }, process.env.JWT_SECRET_KEY, { expiresIn: '1h' });
+        const urlreset = `http://localhost:5173/resetPassword/${resetToken}`;
+        const emailTemplate = mailer.activeAccount(urlreset);
+        user.resetToken = resetToken;
+        await user.save();
+        // changer belhajmokhlis@gmail.com pare email
+        const emailResponse = await mailer.sendEmail('belhajmokhlis@gmail.com', 'your active url', emailTemplate);
+        return res.status(200).json(emailResponse);
+
     } catch (error) {
         console.error('Erreur lors de la vérification du mot de passe :', error);
         res.status(500).json({ message: 'Erreur interne du serveur' });
@@ -112,9 +112,9 @@ const resetTokenVerify = async (req, res) => {
 const newpassword = async (req, res) => {
     try {
         const password = req.body.password
-        const user = await Users.findOne({ email: req.body.email }); 
+        const user = await Users.findOne({ email: req.body.email });
         const hashedPassword = await bcrypt.hash(password, 10);
-        user.password = hashedPassword; 
+        user.password = hashedPassword;
         user.resetToken = undefined; // Add this line to destroy the resetToken
         await user.save();
         res.status(200).json({ message: 'Password updated successfully' });
