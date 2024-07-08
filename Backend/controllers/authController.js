@@ -58,8 +58,8 @@ const emailVerify = async (req, res) => {
             const emailTemplate = mailer.activeAccount(urlreset);
             user.resetToken = resetToken;
             await user.save();
-            // changer belhajmokhlis@gmail.com pare email
-            const emailResponse = await mailer.sendEmail('ss.ngnlzero@gmail.com', 'your active url', emailTemplate);
+            // Send email to the email address from the input
+            const emailResponse = await mailer.sendEmail(email, 'your active url', emailTemplate);
             return res.status(200).json(emailResponse);
         } else {
             return res.status(200).json({ message: 'Le mot de passe existe pour ce compte' });
@@ -78,14 +78,13 @@ const forgetPassword = async (req, res) => {
             return res.status(404).json({ message: 'Utilisateur non trouvé' });
         }
 
-
         const resetToken = jwt.sign({ email: user.email }, process.env.JWT_SECRET_KEY, { expiresIn: '1h' });
         const urlreset = `http://localhost:5173/resetPassword/${resetToken}`;
         const emailTemplate = mailer.activeAccount(urlreset);
         user.resetToken = resetToken;
         await user.save();
-        // changer belhajmokhlis@gmail.com pare email
-        const emailResponse = await mailer.sendEmail('belhajmokhlis@gmail.com', 'your active url', emailTemplate);
+        // Send email to the email address from the input
+        const emailResponse = await mailer.sendEmail(email, 'your active url', emailTemplate);
         return res.status(200).json(emailResponse);
 
     } catch (error) {
