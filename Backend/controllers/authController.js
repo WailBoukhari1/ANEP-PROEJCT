@@ -54,7 +54,7 @@ const emailVerify = async (req, res) => {
 
         if (!user.password) {
             const resetToken = jwt.sign({ email: user.email }, process.env.JWT_SECRET_KEY, { expiresIn: '1h' });
-            const urlreset = `http://localhost:5173/resetPassword/${resetToken}`;
+            const urlreset = `https://main--anep-e-formation.netlify.app/resetPassword/${resetToken}`;
             const emailTemplate = mailer.activeAccount(urlreset);
             user.resetToken = resetToken;
             await user.save();
@@ -79,7 +79,7 @@ const forgetPassword = async (req, res) => {
         }
 
         const resetToken = jwt.sign({ email: user.email }, process.env.JWT_SECRET_KEY, { expiresIn: '1h' });
-        const urlreset = `http://localhost:5173/resetPassword/${resetToken}`;
+        const urlreset = `https://main--anep-e-formation.netlify.app/resetPassword/${resetToken}`;
         const emailTemplate = mailer.activeAccount(urlreset);
         user.resetToken = resetToken;
         await user.save();
