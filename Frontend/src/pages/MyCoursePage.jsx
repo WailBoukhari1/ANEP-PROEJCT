@@ -34,7 +34,7 @@ function MyCourses() {
             }
 
             // Check if course is scheduled for today
-            if (startDate.getDate() === currentDate.getDate() && startDate.getMonth() === currentDate.getMonth() && startDate.getFullYear() === currentDate.getFullYear()) {
+            if ((startDate.getDate() === currentDate.getDate() && startDate.getMonth() === currentDate.getMonth() && startDate.getFullYear() === currentDate.getFullYear())||(endDate.getDate() === currentDate.getDate() && endDate.getMonth() === currentDate.getMonth() && endDate.getFullYear() === currentDate.getFullYear())) {
               todayCourses.push(course);
             }
           }
