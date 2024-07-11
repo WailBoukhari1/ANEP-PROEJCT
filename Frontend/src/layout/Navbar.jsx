@@ -187,14 +187,14 @@ function Navbar() {
                  
                   <li className="nav-item">
                     <NavLink
-                      to="/Courses"
+                      to="/MotDuDirecteur"
                       className={({ isActive }) =>
                         isActive
                           ? "text-primaryColor font-extrabold border-b-4 border-primaryColor px-4 py-3"
                           : "nav-link text-gray-700 hover:text-blue-700 transition duration-300 px-4 py-3 rounded-lg font-semibold hover:bg-blue-100"
                       }
                     >
-                      mot
+                      Mot du DG
                     </NavLink>
                   </li>
                   {currentUser.roles.includes('admin') &&

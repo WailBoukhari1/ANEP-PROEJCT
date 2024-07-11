@@ -32,6 +32,7 @@ const ResetPassword = lazy(()=>import("./pages/resetPassword"))
 const ForgetPassword = lazy(()=>import("./pages/ForgetPassword"))
 const UserNeedAdmin = lazy(() => import("./pages/admin/UserNeedPage"));
 const MyCoursePage = lazy(()=>import("./pages/MyCoursePage"))
+const MotDuDirecteur = lazy(()=>import("./pages/MotDuDirecteur"))
 
 
 function App() {
@@ -83,6 +84,14 @@ function App() {
                   element={
                     <PrivateRoute>
                       <MyCoursePage />
+                    </PrivateRoute>
+                  }
+                />
+                 <Route
+                  path="/MotDuDirecteur"
+                  element={
+                    <PrivateRoute>
+                      <MotDuDirecteur />
                     </PrivateRoute>
                   }
                 />
