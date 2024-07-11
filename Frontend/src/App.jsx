@@ -31,6 +31,7 @@ const NotFoundPage = lazy(() => import("./pages/NotFoundPage")); // Add this lin
 const ResetPassword = lazy(()=>import("./pages/resetPassword"))
 const ForgetPassword = lazy(()=>import("./pages/ForgetPassword"))
 const UserNeedAdmin = lazy(() => import("./pages/admin/UserNeedPage"));
+const MyCoursePage = lazy(()=>import("./pages/MyCoursePage"))
 
 
 function App() {
@@ -74,6 +75,14 @@ function App() {
                   element={
                     <PrivateRoute>
                       <Course />
+                    </PrivateRoute>
+                  }
+                />
+                 <Route
+                  path="/MyCourses"
+                  element={
+                    <PrivateRoute>
+                      <MyCoursePage />
                     </PrivateRoute>
                   }
                 />

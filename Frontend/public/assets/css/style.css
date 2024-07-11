@@ -1546,6 +1546,9 @@ video {
 .col-span-12 {
   grid-column: span 12 / span 12;
 }
+.col-span-2 {
+  grid-column: span 2 / span 2;
+}
 
 .col-span-3 {
   grid-column: span 3 / span 3;
@@ -1554,6 +1557,10 @@ video {
 .col-span-6 {
   grid-column: span 6 / span 6;
 }
+.col-span-8 {
+  grid-column: span 8 / span 8;
+}
+
 
 .col-start-1 {
   grid-column-start: 1;
