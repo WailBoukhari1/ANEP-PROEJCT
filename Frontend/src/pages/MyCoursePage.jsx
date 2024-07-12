@@ -212,7 +212,7 @@ function MyCourses() {
                     <ul className="list-disc pl-5">
                       {courses.today.map((course) => (
                         <li key={course._id} className="text-blackColor dark:text-blackColor-dark mb-2">
-                          <Link to={`/courses/${course._id}`} className="underline text-primaryColor">
+                          <Link to={`/CoursesDetails/${course._id}`} className="underline text-primaryColor">
                             {course.title}
                           </Link>
                         </li>
