@@ -29,7 +29,11 @@ function Auth() {
     if (!password) {
       formErrors.password = "Mot de passe est requis";
     }
-
+    if (!password) {
+      formErrors.password = "Mot de passe est requis";
+    } else if (password.length < 8) {
+      formErrors.password = "Le mot de passe doit contenir au moins 8 caractères";
+    }
     if (Object.keys(formErrors).length > 0) {
       setErrors(formErrors);
       return;
