@@ -1,19 +1,25 @@
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
+const { validationResult } = require('express-validator');
 const Users = require('../models/User');
 const { generateToken } = require('../utils/auth');
 const mailer = require('../utils/emailSender');
 
 const loginUser = async (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+        return res.status(400).json({ errors: errors.array() });
+    }
+
     try {
         const { email, password } = req.body;
         const user = await Users.findOne({ email });
         if (!user) {
-            return res.status(404).json({ message: 'User not found' });
+            return res.status(401).json({ message: 'Email or password is incorrect' });
         }
         const isPasswordValid = await bcrypt.compare(password, user.password);
         if (!isPasswordValid) {
-            return res.status(401).json({ message: 'Invalid password' });
+            return res.status(401).json({ message: 'Email or password is incorrect' });
         }
         const token = generateToken(user._id, user.email, user.roles);
         user.tokenAccess = token;
@@ -43,7 +49,13 @@ const refreshUser = async (req, res) => {
         res.status(500).json({ error: error.message });
     }
 };
+
 const emailVerify = async (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+        return res.status(400).json({ errors: errors.array() });
+    }
+
     try {
         const { email } = req.body;
         const user = await Users.findOne({ email });
@@ -58,7 +70,6 @@ const emailVerify = async (req, res) => {
             const emailTemplate = mailer.activeAccount(urlreset);
             user.resetToken = resetToken;
             await user.save();
-            // Send email to the email address from the input
             const emailResponse = await mailer.sendEmail(email, 'your active url', emailTemplate);
             return res.status(200).json(emailResponse);
         } else {
@@ -69,7 +80,13 @@ const emailVerify = async (req, res) => {
         res.status(500).json({ message: 'Erreur interne du serveur' });
     }
 };
+
 const forgetPassword = async (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+        return res.status(400).json({ errors: errors.array() });
+    }
+
     try {
         const { email } = req.body;
         const user = await Users.findOne({ email });
@@ -83,7 +100,6 @@ const forgetPassword = async (req, res) => {
         const emailTemplate = mailer.activeAccount(urlreset);
         user.resetToken = resetToken;
         await user.save();
-        // Send email to the email address from the input
         const emailResponse = await mailer.sendEmail(email, 'your active url', emailTemplate);
         return res.status(200).json(emailResponse);
 
@@ -108,10 +124,19 @@ const resetTokenVerify = async (req, res) => {
         res.status(500).json({ message: 'Internal server error' });
     }
 }
+
 const newpassword = async (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+        return res.status(400).json({ errors: errors.array() });
+    }
+
     try {
-        const password = req.body.password
-        const user = await Users.findOne({ email: req.body.email });
+        const { password, email } = req.body;
+        const user = await Users.findOne({ email });
+        if (!user) {
+            return res.status(404).json({ message: 'Utilisateur non trouvé' });
+        }
         const hashedPassword = await bcrypt.hash(password, 10);
         user.password = hashedPassword;
         user.resetToken = undefined; // Add this line to destroy the resetToken

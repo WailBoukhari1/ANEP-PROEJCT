@@ -7,9 +7,33 @@ function Auth() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [activeEmail, setActiveEmail] = useState("");
-  
+  const [errors, setErrors] = useState({});
+
+  const validateEmail = (email) => {
+    const re = /\S+@\S+\.\S+/;
+    return re.test(email);
+  };
+
   const handleSubmit = async (event) => {
     event.preventDefault();
+    setErrors({}); // Clear previous errors
+
+    let formErrors = {};
+
+    if (!email) {
+      formErrors.email = "Email est requis";
+    } else if (!validateEmail(email)) {
+      formErrors.email = "Email n'est pas valide";
+    }
+
+    if (!password) {
+      formErrors.password = "Mot de passe est requis";
+    }
+
+    if (Object.keys(formErrors).length > 0) {
+      setErrors(formErrors);
+      return;
+    }
 
     useApiAxios
       .post("auth/login", { email, password })
@@ -24,32 +48,47 @@ function Auth() {
           : (window.location.href = "/");
       })
       .catch((error) => {
-        console.error(error);
+        if (error.response && error.response.data.errors) {
+          const backendErrors = error.response.data.errors.reduce((acc, curr) => {
+            acc[curr.param] = curr.msg;
+            return acc;
+          }, {});
+          setErrors(backendErrors);
+        } else {
+          console.error(error);
+        }
       });
   };
 
   const handleEmailVerification = (event) => {
     event.preventDefault();
-    const email = activeEmail
+    setErrors({}); // Clear previous errors
+
     useApiAxios
-      .post("auth/emailverify", { email })
+      .post("auth/emailverify", { email: activeEmail })
       .then((response) => {
-        console.log(response.data.message)
-        alert (response.data.message)
+        console.log(response.data.message);
+        alert(response.data.message);
       })
       .catch((error) => {
-        console.error(error);
+        if (error.response && error.response.data.errors) {
+          const backendErrors = error.response.data.errors.reduce((acc, curr) => {
+            acc[curr.param] = curr.msg;
+            return acc;
+          }, {});
+          setErrors(backendErrors);
+        } else {
+          console.error(error);
+        }
       });
   };
 
   return (
     <>
-    
       {/*form section */}
       <section className="relative">
         <div className="container py-100px flex">
-          <div className="hidden md:block w-1/3">
-          </div>
+          <div className="hidden md:block w-1/3"></div>
           <div className="tab md:w-2/3 mx-auto">
             {/* tab controller */}
             <div className="tab-links grid grid-cols-2 gap-11px text-blackColor text-lg lg:text-size-22 font-semibold font-hind mb-43px mt-30px md:mt-0">
@@ -62,8 +101,7 @@ function Auth() {
                 onClick={() => setActiveTab("login")}
               >
                 <span
-                  className={` // Added backticks for string interpolation
-                  ${
+                  className={`${
                     activeTab === "login"
                       ? "absolute w-full h-1 bg-primaryColor top-0 left-0"
                       : "absolute w-0 h-1 bg-primaryColor top-0 left-0 group-hover/btn:w-full"
@@ -80,8 +118,7 @@ function Auth() {
                 onClick={() => setActiveTab("signup")}
               >
                 <span
-                  className={` // Added backticks for string interpolation
-                  ${
+                  className={`${
                     activeTab === "signup"
                       ? "absolute w-full h-1 bg-primaryColor top-0 left-0"
                       : "absolute w-0 h-1 bg-primaryColor top-0 left-0 group-hover/btn:w-full"
@@ -90,24 +127,30 @@ function Auth() {
                 Activez Votre Compte
               </button>
             </div>
-            {/*  tab contents */}
-            <div className=" flex shadow-container bg-whiteColor dark:bg-whiteColor-dark pt-10px px-5 pb-10 md:p-50px md:pt-30px rounded-5px">
+            {/* tab contents */}
+            <div className="flex shadow-container bg-whiteColor dark:bg-whiteColor-dark pt-10px px-5 pb-10 md:p-50px md:pt-30px rounded-5px">
               <div>
-            <img src="assets/images/anep_login.png" alt="Login Image" className="w-full" />
+                <img
+                  src="assets/images/anep_login.png"
+                  alt="Login Image"
+                  className="w-full"
+                />
               </div>
 
               <div className="tab-contents">
                 {/* login form*/}
                 {activeTab === "login" && (
                   <div className="block opacity-100 transition-opacity duration-150 ease-linear">
-                    {/* heading   */}
+                    {/* heading */}
                     <div className="text-center">
-                      <img src="assets/images/logo/logo_2.jpg" alt="Logo" className="mx-auto mb-4" />
-                      <h3 className="text-size-32 font-bold text-blackColor dark:text-blackColor-dark mb-2 leading-normal">
-                        
-                      </h3>
+                      <img
+                        src="assets/images/logo/logo_2.jpg"
+                        alt="Logo"
+                        className="mx-auto mb-4"
+                      />
+                      <h3 className="text-size-32 font-bold text-blackColor dark:text-blackColor-dark mb-2 leading-normal"></h3>
                     </div>
-                    <form className="pt-25px" data-aos="fade-up">
+                    <form className="pt-25px" data-aos="fade-up" onSubmit={handleSubmit}>
                       <div className="mb-25px">
                         <label className="text-contentColor dark:text-contentColor-dark mb-10px block">
                           Email
@@ -118,6 +161,11 @@ function Auth() {
                           onChange={(e) => setEmail(e.target.value)}
                           className="w-full h-52px leading-52px pl-5 bg-transparent text-sm focus:outline-none text-contentColor dark:text-contentColor-dark border border-borderColor dark:border-borderColor-dark placeholder:text-placeholder placeholder:opacity-80 font-medium rounded"
                         />
+                        {errors.email && (
+                          <p className="text-red-500 text-xs italic mt-2">
+                            {errors.email}
+                          </p>
+                        )}
                       </div>
                       <div className="mb-25px">
                         <label className="text-contentColor dark:text-contentColor-dark mb-10px block">
@@ -129,6 +177,11 @@ function Auth() {
                           placeholder="Password"
                           className="w-full h-52px leading-52px pl-5 bg-transparent text-sm focus:outline-none text-contentColor dark:text-contentColor-dark border border-borderColor dark:border-borderColor-dark placeholder:text-placeholder placeholder:opacity-80 font-medium rounded"
                         />
+                        {errors.password && (
+                          <p className="text-red-500 text-xs italic mt-2">
+                            {errors.password}
+                          </p>
+                        )}
                       </div>
                       <div className="text-contentColor dark:text-contentColor-dark flex items-center justify-between">
                         <div className="flex items-center"></div>
@@ -143,7 +196,6 @@ function Auth() {
                       </div>
                       <div className="my-25px text-center">
                         <button
-                          onClick={handleSubmit}
                           type="submit"
                           className="text-size-15 text-whiteColor bg-primaryColor px-25px py-10px w-full border border-primaryColor hover:text-primaryColor hover:bg-whiteColor inline-block rounded group dark:hover:text-whiteColor dark:hover:bg-whiteColor-dark"
                         >
@@ -156,12 +208,19 @@ function Auth() {
                 {/* sign up form*/}
                 {activeTab === "signup" && (
                   <div className="block opacity-100 transition-opacity duration-150 ease-linear">
-                    {/* heading   */}
+                    {/* heading */}
                     <div className="text-center">
-                      <img src="assets/images/logo/logo_2.jpg" alt="Logo" className="mx-auto mb-4" />
-                      
+                      <img
+                        src="assets/images/logo/logo_2.jpg"
+                        alt="Logo"
+                        className="mx-auto mb-4"
+                      />
                     </div>
-                    <form className="pt-25px" data-aos="fade-up" onSubmit={handleEmailVerification}>
+                    <form
+                      className="pt-25px"
+                      data-aos="fade-up"
+                      onSubmit={handleEmailVerification}
+                    >
                       <div className="grid grid-cols-1 lg:grid-cols-1 lg:gap-x-30px gap-y-25px mb-25px">
                         <div>
                           <label className="text-contentColor dark:text-contentColor-dark mb-10px block">
@@ -173,6 +232,11 @@ function Auth() {
                             onChange={(e) => setActiveEmail(e.target.value)}
                             className="w-full h-52px leading-52px pl-5 bg-transparent text-sm focus:outline-none text-contentColor dark:text-contentColor-dark border border-borderColor dark:border-borderColor-dark placeholder:text-placeholder placeholder:opacity-80 font-medium rounded"
                           />
+                          {errors.activeEmail && (
+                            <p className="text-red-500 text-xs italic mt-2">
+                              {errors.activeEmail}
+                            </p>
+                          )}
                         </div>
                       </div>
                       <div className="mt-25px text-center">
