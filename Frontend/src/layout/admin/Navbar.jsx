@@ -1,13 +1,40 @@
+import React, { useState } from "react";
 import {
   AppBar,
   Toolbar,
   Typography,
   IconButton,
+  Menu,
+  MenuItem,
+  Button,
 } from "@mui/material";
 import MenuIcon from "@mui/icons-material/Menu";
+import AccountCircle from "@mui/icons-material/AccountCircle";
 import PropTypes from "prop-types";
-const Navbar = ({ handleDrawerOpen, open, drawerWidth, isMobile }) => {
+import { logoutQuery } from "../../auth/user-axios";
 
+const Navbar = ({ handleDrawerOpen, open, drawerWidth, isMobile }) => {
+  const [menuAnchor, setMenuAnchor] = useState(null);
+
+  const handleMenuOpen = (event) => {
+    setMenuAnchor(event.currentTarget);
+  };
+
+  const handleMenuClose = () => {
+    setMenuAnchor(null);
+  };
+
+  const gotoProfile = () => {
+    window.location.href = '/UserProfile';
+  };
+
+  const gotoUserSpace = () => {
+    window.location.href = '/';
+  };
+
+  const handleLogout = () => {
+    logoutQuery();
+  };
 
   return (
     <AppBar
@@ -43,9 +70,36 @@ const Navbar = ({ handleDrawerOpen, open, drawerWidth, isMobile }) => {
           <MenuIcon />
         </IconButton>
         <Typography variant="h6" noWrap component="div" sx={{ flexGrow: 1 }}>
-          Tableau de bord administrateur{" "}
+          Tableau de bord administrateur
         </Typography>
+        <Button color="inherit" onClick={gotoUserSpace}>
+          Mon espace utilisateur
+        </Button>
+        <IconButton
+          edge="end"
+          color="inherit"
+          aria-label="account"
+          onClick={handleMenuOpen}
+        >
+          <AccountCircle />
+        </IconButton>
       </Toolbar>
+      <Menu
+        anchorEl={menuAnchor}
+        open={Boolean(menuAnchor)}
+        onClose={handleMenuClose}
+        anchorOrigin={{
+          vertical: "bottom",
+          horizontal: "center",
+        }}
+        transformOrigin={{
+          vertical: "top",
+          horizontal: "center",
+        }}
+      >
+        <MenuItem onClick={gotoProfile}>Profile</MenuItem>
+        <MenuItem onClick={handleLogout}>Logout</MenuItem>
+      </Menu>
     </AppBar>
   );
 };

@@ -69,7 +69,7 @@ function MyCourses() {
                       }`}
                       onClick={() => setActiveTab("enCours")}
                     >
-                      Cours en cours ({courses.enCours.length})
+                      Formations en cours ({courses.enCours.length})
                     </button>
                     <button
                       className={`relative py-10px px-5 md:py-15px lg:px-10 font-bold uppercase text-sm lg:text-base text-blackColor shadow-overview-button dark:bg-whiteColor-dark dark:text-blackColor-dark before:w-0 before:h-0.5 before:absolute before:-bottom-0.5 lg:before:bottom-0 before:left-0 before:bg-primaryColor hover:before:w-full before:transition-all before:duration-300 whitespace-nowrap ${
@@ -77,7 +77,7 @@ function MyCourses() {
                       }`}
                       onClick={() => setActiveTab("terminés")}
                     >
-                      Cours terminés ({courses.terminés.length})
+                      Formations terminés ({courses.terminés.length})
                     </button>
                   </div>
                   <div className="tab-content">
@@ -133,7 +133,7 @@ function MyCourses() {
                             </>
                           
                         ) : (
-                          <p>Aucun cours en cours.</p>
+                          <p>Aucun Formation en cours.</p>
                         )}
                       </div>
                     )}
@@ -189,7 +189,7 @@ function MyCourses() {
                             </>
                           
                         ) : (
-                          <p>Aucun cours terminé.</p>
+                          <p>Aucun Formation terminé.</p>
                         )}
                       </div>
                     )}
@@ -204,7 +204,7 @@ function MyCourses() {
 -10 md:py-50px mb-30px bg-whiteColor dark:bg-whiteColor-dark shadow-accordion dark:shadow-accordion-dark rounded-5">
                 <div className="mb-6 pb-5 border-b-2 border-borderColor dark:border-borderColor-dark">
                   <h2 className="text-2xl font-bold text-blackColor dark:text-blackColor-dark">
-                    Cours d'aujourd'hui
+                  Formations d'aujourd'hui
                   </h2>
                 </div>
                 <div className="today-courses">
@@ -219,7 +219,7 @@ function MyCourses() {
                       ))}
                     </ul>
                   ) : (
-                    <p>Aucun cours prévu pour aujourd'hui.</p>
+                    <p>Aucun Formation prévu pour aujourd'hui.</p>
                   )}
                 </div>
               </div>
