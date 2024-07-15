@@ -54,6 +54,8 @@ function Auth() {
             return acc;
           }, {});
           setErrors(backendErrors);
+        } else if (error.response && error.response.data.message) {
+          setErrors({ general: error.response.data.message });
         } else {
           console.error(error);
         }
@@ -77,6 +79,8 @@ function Auth() {
             return acc;
           }, {});
           setErrors(backendErrors);
+        } else if (error.response && error.response.data.message) {
+          setErrors({ general: error.response.data.message });
         } else {
           console.error(error);
         }
@@ -183,6 +187,11 @@ function Auth() {
                           </p>
                         )}
                       </div>
+                      {errors.general && (
+                        <p className="text-red-500 text-xs italic mt-2">
+                          {errors.general}
+                        </p>
+                      )}
                       <div className="text-contentColor dark:text-contentColor-dark flex items-center justify-between">
                         <div className="flex items-center"></div>
                         <div>
@@ -239,6 +248,11 @@ function Auth() {
                           )}
                         </div>
                       </div>
+                      {errors.general && (
+                        <p className="text-red-500 text-xs italic mt-2">
+                          {errors.general}
+                        </p>
+                      )}
                       <div className="mt-25px text-center">
                         <button
                           type="submit"

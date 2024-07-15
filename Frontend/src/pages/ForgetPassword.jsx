@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-
+import { useState } from 'react';
+import useApiAxios from "../config/axios";
 function ForgetPassword() {
     const [email, setEmail] = useState('');
     const [errors, setErrors] = useState({});
