@@ -28,12 +28,10 @@ function Auth() {
 
     if (!password) {
       formErrors.password = "Mot de passe est requis";
-    }
-    if (!password) {
-      formErrors.password = "Mot de passe est requis";
     } else if (password.length < 8) {
       formErrors.password = "Le mot de passe doit contenir au moins 8 caractères";
     }
+
     if (Object.keys(formErrors).length > 0) {
       setErrors(formErrors);
       return;
@@ -66,29 +64,33 @@ function Auth() {
       });
   };
 
-  const handleEmailVerification = (event) => {
+  const handleEmailVerification = async (event) => {
     event.preventDefault();
     setErrors({}); // Clear previous errors
 
-    useApiAxios
-      .post("auth/emailverify", { email: activeEmail })
-      .then((response) => {
-        console.log(response.data.message);
+    if (!validateEmail(activeEmail)) {
+      setErrors({ activeEmail: "Email n'est pas valide" });
+      return;
+    }
+
+    try {
+      const response = await useApiAxios.post("auth/emailverify", { email: activeEmail });
+      if (response.data.message) {
         alert(response.data.message);
-      })
-      .catch((error) => {
-        if (error.response && error.response.data.errors) {
-          const backendErrors = error.response.data.errors.reduce((acc, curr) => {
-            acc[curr.param] = curr.msg;
-            return acc;
-          }, {});
-          setErrors(backendErrors);
-        } else if (error.response && error.response.data.message) {
-          setErrors({ general: error.response.data.message });
-        } else {
-          console.error(error);
-        }
-      });
+      }
+    } catch (error) {
+      if (error.response && error.response.data.errors) {
+        const backendErrors = error.response.data.errors.reduce((acc, curr) => {
+          acc[curr.param] = curr.msg;
+          return acc;
+        }, {});
+        setErrors(backendErrors);
+      } else if (error.response && error.response.data.message) {
+        setErrors({ general: error.response.data.message });
+      } else {
+        console.error(error);
+      }
+    }
   };
 
   return (
