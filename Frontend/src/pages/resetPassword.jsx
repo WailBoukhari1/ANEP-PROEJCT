@@ -29,8 +29,8 @@ function ResetPassword() {
     const handlePasswordChange = (e) => {
         setPassword(e.target.value);
         setPasswordError('');
-        if (e.target.value.length < 6) {
-            setPasswordError('Le mot de passe doit comporter au moins 6 caractères');
+        if (e.target.value.length < 8) {
+            setPasswordError('Le mot de passe doit comporter au moins 8 caractères');
         }
         if (e.target.value !== confirmPassword) {
             setConfirmPasswordError('Les mots de passe ne correspondent pas');
