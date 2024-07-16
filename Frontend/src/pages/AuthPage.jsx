@@ -172,9 +172,7 @@ function Auth() {
                           className="w-full h-52px leading-52px pl-5 bg-transparent text-sm focus:outline-none text-contentColor dark:text-contentColor-dark border border-borderColor dark:border-borderColor-dark placeholder:text-placeholder placeholder:opacity-80 font-medium rounded"
                         />
                         {errors.email && (
-                          <p className="text-red-500 text-xs italic mt-2">
-                            {errors.email}
-                          </p>
+                          <p className="error-message">{errors.email}</p>
                         )}
                       </div>
                       <div className="mb-25px">
@@ -188,15 +186,11 @@ function Auth() {
                           className="w-full h-52px leading-52px pl-5 bg-transparent text-sm focus:outline-none text-contentColor dark:text-contentColor-dark border border-borderColor dark:border-borderColor-dark placeholder:text-placeholder placeholder:opacity-80 font-medium rounded"
                         />
                         {errors.password && (
-                          <p className="text-red-500 text-xs italic mt-2">
-                            {errors.password}
-                          </p>
+                          <p className="error-message">{errors.password}</p>
                         )}
                       </div>
                       {errors.general && (
-                        <p className="text-red-500 text-xs italic mt-2">
-                          {errors.general}
-                        </p>
+                        <p className="error-message">{errors.general}</p>
                       )}
                       <div className="text-contentColor dark:text-contentColor-dark flex items-center justify-between">
                         <div className="flex items-center"></div>
@@ -248,16 +242,12 @@ function Auth() {
                             className="w-full h-52px leading-52px pl-5 bg-transparent text-sm focus:outline-none text-contentColor dark:text-contentColor-dark border border-borderColor dark:border-borderColor-dark placeholder:text-placeholder placeholder:opacity-80 font-medium rounded"
                           />
                           {errors.activeEmail && (
-                            <p className="text-red-500 text-xs italic mt-2">
-                              {errors.activeEmail}
-                            </p>
+                            <p className="error-message">{errors.activeEmail}</p>
                           )}
                         </div>
                       </div>
                       {errors.general && (
-                        <p className="text-red-500 text-xs italic mt-2">
-                          {errors.general}
-                        </p>
+                        <p className="error-message">{errors.general}</p>
                       )}
                       <div className="mt-25px text-center">
                         <button
