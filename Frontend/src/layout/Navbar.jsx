@@ -150,6 +150,18 @@ function Navbar() {
                   </li>
                   <li className="nav-item">
                     <NavLink
+                      to="/MotDuDirecteur"
+                      className={({ isActive }) =>
+                        isActive
+                          ? "text-primaryColor font-extrabold border-b-4 border-primaryColor px-4 py-3"
+                          : "nav-link text-gray-700 hover:text-blue-700 transition duration-300 px-4 py-3 rounded-lg font-semibold hover:bg-blue-100"
+                      }
+                    >
+                      Mot du DG
+                    </NavLink>
+                  </li>
+                  <li className="nav-item">
+                    <NavLink
                       to="/Courses"
                       className={({ isActive }) =>
                         isActive
@@ -157,7 +169,7 @@ function Navbar() {
                           : "nav-link text-gray-700 hover:text-blue-700 transition duration-300 px-4 py-3 rounded-lg font-semibold hover:bg-blue-100"
                       }
                     >
-                      Formation
+                      Formations
                     </NavLink>
                   </li>
                   <li className="nav-item">
@@ -169,7 +181,7 @@ function Navbar() {
                           : "nav-link text-gray-700 hover:text-blue-700 transition duration-300 px-4 py-3 rounded-lg font-semibold hover:bg-blue-100"
                       }
                     >
-                      Mes Formation
+                      Mes Formations
                     </NavLink>
                   </li>
                   <li className="nav-item">
@@ -185,18 +197,7 @@ function Navbar() {
                     </NavLink>
                   </li>
                  
-                  <li className="nav-item">
-                    <NavLink
-                      to="/MotDuDirecteur"
-                      className={({ isActive }) =>
-                        isActive
-                          ? "text-primaryColor font-extrabold border-b-4 border-primaryColor px-4 py-3"
-                          : "nav-link text-gray-700 hover:text-blue-700 transition duration-300 px-4 py-3 rounded-lg font-semibold hover:bg-blue-100"
-                      }
-                    >
-                      Mot du DG
-                    </NavLink>
-                  </li>
+                 
                   {currentUser.roles.includes('admin') &&
                   <li className="nav-item">
                     <NavLink
