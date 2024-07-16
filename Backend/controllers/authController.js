@@ -73,7 +73,7 @@ const emailVerify = async (req, res) => {
             const emailResponse = await mailer.sendEmail(email, 'your active url', emailTemplate);
             return res.status(200).json(emailResponse);
         } else {
-            return res.status(200).json({ message: 'Le Compte Deja Activé' });
+            return res.status(200).json({ message: 'Votre compte est déjà activé. Connectez-vous pour accéder à votre compte. ' });
         }
     } catch (error) {
         console.error('Erreur lors de la vérification du mot de passe :', error);
