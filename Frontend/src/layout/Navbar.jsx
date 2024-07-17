@@ -169,7 +169,7 @@ function Navbar() {
                           : "nav-link text-gray-700 hover:text-blue-700 transition duration-300 px-4 py-3 rounded-lg font-semibold hover:bg-blue-100"
                       }
                     >
-                      Formations
+                      Formations disponibles
                     </NavLink>
                   </li>
                   <li className="nav-item">

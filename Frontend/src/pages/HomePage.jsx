@@ -224,7 +224,7 @@ function HomePage() {
                 </CountUp>
               </div>
               <div className="bg-white p-6 md:p-8 shadow-md rounded-lg text-center">
-                <h3 className="text-xl md:text-2xl font-semibold text-primaryColor mb-2">Cours hors ligne</h3>
+                <h3 className="text-xl md:text-2xl font-semibold text-primaryColor mb-2">Cours Présentiel</h3>
                 <CountUp
                   start={0}
                   end={statistics.offline}

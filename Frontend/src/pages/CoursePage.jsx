@@ -241,12 +241,16 @@
                                         __html: course.description,
                                       }}
                                     />
-                                  <div className="text-xs text-gray-500">
-                                    Créé le:{" "}
-                                    <span className="font-semibold">
-                                      {course.createdAt}
-                                    </span>
-                                  </div>
+<div className="text-xs text-gray-500">
+  Créé le:{" "}
+  <span className="font-semibold">
+    {new Date(course.createdAt).toLocaleDateString("fr-FR", {
+      day: "2-digit",
+      month: "2-digit",
+      year: "numeric",
+    })}
+  </span>
+</div>
                                 </div>
                               </div>
                             </div>

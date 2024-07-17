@@ -434,7 +434,7 @@ function CreateCoursePage() {
           <Select
             name="offline"
             value={course.offline}
-            label="En ligne/Hors ligne/Hybrid"
+            label="En ligne/Présentiel/Hybrid"
             onChange={handleInputChange}
             required
           >

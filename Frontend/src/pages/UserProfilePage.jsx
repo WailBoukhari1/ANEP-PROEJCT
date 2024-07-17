@@ -242,7 +242,7 @@ function UserCourses() {
                 {/* Vacation Section */}
                 <div className="p-4 md:p-10 mb-8 bg-whiteColor dark:bg-whiteColor-dark shadow-lg rounded-md">
                   <h2 className="text-2xl font-bold text-blackColor dark:text-blackColor-dark mb-6">
-                    Demande d'indisponibilité
+                    Déclaration d indisponibilité
                   </h2>
                   <form onSubmit={handleSubmit} className="mb-5">
                     {user.vacations.map((vacation, index) => (
@@ -310,27 +310,29 @@ function UserCourses() {
                         </div>
                       </div>
                     ))}
-                    <button
-                      type="button"
-                      onClick={() =>
-                        setUser((prev) => ({
-                          ...prev,
-                          vacations: [
-                            ...prev.vacations,
-                            { start: "", end: "" },
-                          ],
-                        }))
-                      }
-                      className="relative mr-5 py-3 px-4 bg-primaryColor text-white font-bold uppercase text-sm shadow-md  hover:bg-primaryColor-dark transition-all duration-300"
-                    >
-                      Ajouter une indisponibilité
-                    </button>
-                    <button
-                      type="submit"
-                      className="relative py-3 px-4 bg-primaryColor text-white font-bold uppercase text-sm shadow-md  hover:bg-primaryColor-dark transition-all duration-300"
-                    >
-                      Soumettre les indisponibilités
-                    </button>
+                    <div className="flex justify-between space-x-4">
+                      <button
+                        type="submit"
+                        className="relative py-3 px-4 bg-primaryColor text-white font-bold uppercase text-sm shadow-md  hover:bg-primaryColor-dark transition-all duration-300"
+                      >
+                        Soumettre les indisponibilités
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() =>
+                          setUser((prev) => ({
+                            ...prev,
+                            vacations: [
+                              ...prev.vacations,
+                              { start: "", end: "" },
+                            ],
+                          }))
+                        }
+                        className="relative mr-5 py-3 px-4 bg-primaryColor text-white font-bold uppercase text-sm shadow-md  hover:bg-primaryColor-dark transition-all duration-300"
+                      >
+                        Ajouter une indisponibilité
+                      </button>
+                    </div>
                   </form>
                   <h3 className="text-xl font-bold">
                     Indisponibilités soumises
