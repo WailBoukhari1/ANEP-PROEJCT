@@ -1,4 +1,4 @@
-import  { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import useApiAxios from '../config/axios';
 
@@ -51,8 +51,8 @@ function ResetPassword() {
 
     const validateForm = () => {
         let valid = true;
-        if (password.length < 5) {
-            setPasswordError('Le mot de passe doit comporter au moins 6 caractères');
+        if (password.length < 8) {
+            setPasswordError('Le mot de passe doit comporter au moins 8 caractères');
             valid = false;
         }
         if (password !== confirmPassword) {
@@ -160,7 +160,7 @@ function ResetPassword() {
                                                 className="w-full h-52px leading-52px pl-5 bg-transparent text-sm focus:outline-none text-contentColor dark:text-contentColor-dark border border-borderColor dark:border-borderColor-dark placeholder:text-placeholder placeholder:opacity-80 font-medium rounded"
                                             />
                                             {passwordError && (
-                                                <p className="text-red-500 text-sm mt-2">{passwordError}</p>
+                                                <p className="error-message text-sm mt-2">{passwordError}</p>
                                             )}
                                         </div>
                                         <div>
@@ -175,7 +175,7 @@ function ResetPassword() {
                                                 className="w-full h-52px leading-52px pl-5 bg-transparent text-sm focus:outline-none text-contentColor dark:text-contentColor-dark border border-borderColor dark:border-borderColor-dark placeholder:text-placeholder placeholder:opacity-80 font-medium rounded"
                                             />
                                             {confirmPasswordError && (
-                                                <p className="text-red-500 text-sm mt-2 ">{confirmPasswordError}</p>
+                                                <p className="error-message text-sm mt-2">{confirmPasswordError}</p>
                                             )}
                                         </div>
                                     </div>

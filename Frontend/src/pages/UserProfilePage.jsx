@@ -1,14 +1,13 @@
-import MainLayout from "../layout/MainLayout";
 import { useState, useEffect, useContext } from "react";
 import useApiAxios from "../config/axios";
 import UserContext from "../auth/user-context";
-import { Link } from "react-router-dom";
+import UserProfileErrorModal from "../components/users/UserProfileErrorModal";
+import MainLayout from "../layout/MainLayout";
 import "bootstrap/dist/css/bootstrap.min.css";
 
 function UserCourses() {
-  const [activeTab, setActiveTab] = useState("enCours");
   const [currentUser] = useContext(UserContext);
-  const [courses, setCourses] = useState({
+  const [setCourses] = useState({
     enCours: [],
     terminés: [],
   });
@@ -16,6 +15,7 @@ function UserCourses() {
     vacations: [{ start: null, end: null }],
   });
   const [submittedVacations, setSubmittedVacations] = useState([]);
+  const [showModal, setShowModal] = useState(false);
 
   const handleVacationChange = (index, field, value) => {
     setUser((prev) => {
@@ -110,10 +110,13 @@ function UserCourses() {
     fetchCourses();
   }, [currentUser]);
 
+  const handleShowModal = () => setShowModal(true);
+  const handleCloseModal = () => setShowModal(false);
+
   return (
     <MainLayout>
       <>
-        {/* Section Banner */}
+        {showModal && <UserProfileErrorModal onClose={handleCloseModal} />}
         <section>
           <div className="container-fluid-2 py-5">
             <div className="p-5 md:p-10 rounded-5 grid grid-cols-1 md:grid-cols-2 gap-10">
@@ -122,6 +125,12 @@ function UserCourses() {
                 <h2 className="text-2xl leading-1.24 mb-5">
                   {currentUser.name}
                 </h2>
+                <button
+                            className="relative py-2 px-4 bg-primaryColor text-white font-bold uppercase text-sm shadow-md hover:bg-primaryColor-dark transition-all duration-300"
+                            onClick={handleShowModal}
+                >
+                  Déclarer une Erreur dans Son Profil
+                </button>
               </div>
               <div className="col-span-1 grid grid-cols-1 sm:grid-cols-2 gap-5">
                 <UserInfoRow label="Email" value={currentUser.email} />
@@ -231,18 +240,13 @@ function UserCourses() {
           </div>
         </section>
 
-        {/* Section Dashboard Menu */}
         <section>
           <div className="container-fluid-2">
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-30px pt-30px pb-100px">
-              {/* Dashboard Content */}
               <div className="lg:col-start-12 lg:col-span-9">
-              
-               
-                {/* Vacation Section */}
                 <div className="p-4 md:p-10 mb-8 bg-whiteColor dark:bg-whiteColor-dark shadow-lg rounded-md">
                   <h2 className="text-2xl font-bold text-blackColor dark:text-blackColor-dark mb-6">
-                    Déclaration d indisponibilité
+                    Déclaration d'indisponibilité
                   </h2>
                   <form onSubmit={handleSubmit} className="mb-5">
                     {user.vacations.map((vacation, index) => (
