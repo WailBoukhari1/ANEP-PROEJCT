@@ -64,6 +64,8 @@ const userSchema = new mongoose.Schema({
     resetToken: { type: String },
     vacations: [vacationSchema],
     phoneNumber: { type: String },
+    lastLogin: { type: Date },
+    loginCount: { type: Number, default: 0 },
 });
 
 const User = mongoose.model('User', userSchema);
