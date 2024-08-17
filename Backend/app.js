@@ -13,7 +13,7 @@ const setupSocket = require('./utils/socketManager');
 const evaluationsRoutes = require('./routes/evaluations');
 const userNeedRoutes = require('./routes/UserNeedRoutes');
 const categoryRoutes = require('./routes/category');
-
+const statsRoutes = require('./routes/statistics');
 const app = express();
 const server = http.createServer(app);
 const { io, broadcastMessage } = setupSocket(server);
@@ -32,6 +32,7 @@ app.use('/auth', authRoutes);
 app.use('/evaluations', evaluationsRoutes);
 app.use('/user-needs', userNeedRoutes);
 app.use('/category', categoryRoutes);
+app.use('/statistics', statsRoutes);
 
 // Message Schema and Model
 const messageSchema = new mongoose.Schema({

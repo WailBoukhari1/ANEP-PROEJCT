@@ -45,7 +45,7 @@ const userRoutes = [
     { method: 'get', path: '/:id/assignedUsers', handler: courseController.getAssignedUsers },
     { method: 'post', path: '/:id/updatePresence', handler: courseController.updateCoursePresence },
     { method: 'post', path: '/:id/request-join', handler: courseController.requestJoin },
-    { method: 'post', path: '/:id/assign-interseted-user', handler: courseController.assignIntersetedUser },
+    { method: 'post', path: '/:id/assign-interseted-user', handler: courseController.assignInterestedUser },
 ];
 
 const notificationRoutes = [

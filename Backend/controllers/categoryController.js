@@ -43,14 +43,23 @@ exports.updateCategory = async (req, res) => {
     }
 };
 exports.deleteCategory = async (req, res) => {
+    const { id } = req.params;
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+        return res.status(400).json({ message: 'Invalid category ID' });
+    }
+
     try {
-        await res.category.deleteOne();
+        const result = await Category.findByIdAndDelete(id);
+        if (!result) {
+            return res.status(404).json({ message: 'Category not found' });
+        }
         res.json({ message: 'Category deleted successfully' });
     } catch (error) {
         console.error('Error deleting category:', error);
         res.status(500).json({ message: 'Failed to delete category' });
     }
 };
+
 
 exports.getCategoryById = async (req, res, next) => {
     try {

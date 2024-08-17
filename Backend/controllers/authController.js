@@ -15,7 +15,7 @@ const loginUser = async (req, res) => {
         const { email, password } = req.body;
         const user = await Users.findOne({ email });
         if (!user) {
-            return res.status(401).json({ message: 'Email or password is incorrect' });
+            return res.status(401).json({ message: 'Email is incorrect' });
         }
         const isPasswordValid = await bcrypt.compare(password, user.password);
         if (!isPasswordValid) {
@@ -66,7 +66,7 @@ const emailVerify = async (req, res) => {
 
         if (!user.password) {
             const resetToken = jwt.sign({ email: user.email }, process.env.JWT_SECRET_KEY, { expiresIn: '1h' });
-            const urlreset = `https://anep-e-formation.netlify.app/resetPassword/${resetToken}`;
+            const urlreset = `http://localhost:5173/resetPassword/${resetToken}`;
             const emailTemplate = mailer.activeAccount(urlreset);
             user.resetToken = resetToken;
             await user.save();
@@ -96,7 +96,7 @@ const forgetPassword = async (req, res) => {
         }
 
         const resetToken = jwt.sign({ email: user.email }, process.env.JWT_SECRET_KEY, { expiresIn: '1h' });
-        const urlreset = `https://anep-e-formation.netlify.app/resetPassword/${resetToken}`;
+        const urlreset = `http://localhost:5173/resetPassword/${resetToken}`;
         const emailTemplate = mailer.activeAccount(urlreset);
         user.resetToken = resetToken;
         await user.save();

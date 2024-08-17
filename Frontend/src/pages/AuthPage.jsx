@@ -137,6 +137,14 @@ function Auth() {
                 Activez Votre Compte
               </button>
             </div>
+            <div className="tab-descriptions text-center mb-5">
+              {activeTab === "login" && (
+                <p>Connectez-vous pour accéder à votre compte.</p>
+              )}
+              {activeTab === "signup" && (
+                <p>Activez votre compte pour commencer à utiliser nos services.</p>
+              )}
+            </div>
             {/* tab contents */}
             <div className="flex shadow-container bg-whiteColor dark:bg-whiteColor-dark pt-10px px-5 pb-10 md:p-50px md:pt-30px rounded-5px">
               <div>
@@ -203,18 +211,18 @@ function Auth() {
                           </Link>
                         </div>
                       </div>
-                      <div className="my-25px text-center">
+                      <div className="my-25px">
                         <button
                           type="submit"
-                          className="text-size-15 text-whiteColor bg-primaryColor px-25px py-10px w-full border border-primaryColor hover:text-primaryColor hover:bg-whiteColor inline-block rounded group dark:hover:text-whiteColor dark:hover:bg-whiteColor-dark"
+                          className="w-full bg-primaryColor text-whiteColor text-sm font-medium h-52px leading-52px rounded-md hover:opacity-90 transition-all"
                         >
-                          Se Connecter
+                          Connexion
                         </button>
                       </div>
                     </form>
                   </div>
                 )}
-                {/* sign up form*/}
+                {/* signup form */}
                 {activeTab === "signup" && (
                   <div className="block opacity-100 transition-opacity duration-150 ease-linear">
                     {/* heading */}
@@ -224,34 +232,36 @@ function Auth() {
                         alt="Logo"
                         className="mx-auto mb-4"
                       />
+                      <h3 className="text-size-32 font-bold text-blackColor dark:text-blackColor-dark mb-2 leading-normal"></h3>
                     </div>
                     <form
                       className="pt-25px"
                       data-aos="fade-up"
                       onSubmit={handleEmailVerification}
                     >
-                      <div className="grid grid-cols-1 lg:grid-cols-1 lg:gap-x-30px gap-y-25px mb-25px">
-                        <div>
-                          <label className="text-contentColor dark:text-contentColor-dark mb-10px block">
-                            Email
-                          </label>
-                          <input
-                            type="email"
-                            placeholder="exemple : x.xxxxx@anep.ma"
-                            onChange={(e) => setActiveEmail(e.target.value)}
-                            className="w-full h-52px leading-52px pl-5 bg-transparent text-sm focus:outline-none text-contentColor dark:text-contentColor-dark border border-borderColor dark:border-borderColor-dark placeholder:text-placeholder placeholder:opacity-80 font-medium rounded"
-                          />
-                        </div>
+                      <div className="mb-25px">
+                        <label className="text-contentColor dark:text-contentColor-dark mb-10px block">
+                          Email
+                        </label>
+                        <input
+                          type="text"
+                          placeholder="exemple : x.xxxxx@anep.ma"
+                          onChange={(e) => setActiveEmail(e.target.value)}
+                          className="w-full h-52px leading-52px pl-5 bg-transparent text-sm focus:outline-none text-contentColor dark:text-contentColor-dark border border-borderColor dark:border-borderColor-dark placeholder:text-placeholder placeholder:opacity-80 font-medium rounded"
+                        />
+                        {errors.activeEmail && (
+                          <p className="error-message">{errors.activeEmail}</p>
+                        )}
                       </div>
                       {errors.general && (
                         <p className="error-message">{errors.general}</p>
                       )}
-                      <div className="mt-25px text-center">
+                      <div className="my-25px">
                         <button
                           type="submit"
-                          className="text-size-15 text-whiteColor bg-primaryColor px-25px py-10px w-full border border-primaryColor hover:text-primaryColor hover:bg-whiteColor inline-block rounded group dark:hover:text-whiteColor dark:hover:bg-whiteColor-dark"
+                          className="w-full bg-primaryColor text-whiteColor text-sm font-medium h-52px leading-52px rounded-md hover:opacity-90 transition-all"
                         >
-                          Activer
+                          Activez votre compte
                         </button>
                       </div>
                     </form>

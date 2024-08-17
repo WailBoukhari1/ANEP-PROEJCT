@@ -269,7 +269,7 @@ const fetchFiles = async (req, res) => {
         res.status(500).send(error.message);
     }
 };
-const assignIntersetedUser = async (req, res) => {
+const assignInterestedUser = async (req, res) => {
     const { userId } = req.body;
     const id = req.params.id;
 
@@ -339,6 +339,7 @@ const sendCourseNotification = async (req, res) => {
         res.status(500).send('Error sending notification');
     }
 };
+
 const deleteComment = async (req, res) => {
     const { id, commentId } = req.params;
 
@@ -489,7 +490,7 @@ module.exports = {
     handleComments,
     filesUpload,
     fetchFiles,
-    assignIntersetedUser,
+    assignInterestedUser,
     requestJoin,
     sendCourseNotification,
     deleteComment,
