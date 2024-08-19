@@ -34,6 +34,26 @@ function CoursesDetails() {
   const [loadingComments, setLoadingComments] = useState(true);
   const [commentError, setCommentError] = useState(null);
 
+  const fetchComments = useCallback(async () => {
+    setLoadingComments(true);
+    setCommentError(null);
+    try {
+      console.log("Fetching comments for course ID:", id);
+      const response = await useApiAxios.get(`/courses/${id}/comments`);
+      if (response.data && Array.isArray(response.data)) {
+        setComments(response.data);
+      } else {
+        throw new Error('Invalid response format');
+      }
+    } catch (error) {
+      console.error('Failed to fetch comments:', error);
+      setCommentError('Failed to load comments. Please try again later.');
+      toast.error('Failed to load comments. Please try again later.');
+    } finally {
+      setLoadingComments(false);
+    }
+  }, [id, useApiAxios]);
+
   useEffect(() => {
     const fetchCourseDetails = async () => {
       try {
@@ -53,31 +73,10 @@ function CoursesDetails() {
   }, [id, currentUser.token]);
 
   useEffect(() => {
-    const fetchComments = async () => {
-      setLoadingComments(true);
-      setCommentError(null);
-      try {
-        // Make sure 'id' is correctly defined and contains the course ID
-        console.log("Fetching comments for course ID:", id); // Add this line for debugging
-        const response = await useApiAxios.get(`/courses/${id}/comments`);
-        if (response.data && Array.isArray(response.data)) {
-          setComments(response.data);
-        } else {
-          throw new Error('Invalid response format');
-        }
-      } catch (error) {
-        console.error('Failed to fetch comments:', error);
-        setCommentError('Failed to load comments. Please try again later.');
-        showNotification('Failed to load comments. Please try again later.', 'error');
-      } finally {
-        setLoadingComments(false);
-      }
-    };
-  
-    if (id) { // Only fetch comments if id is available
+    if (id) {
       fetchComments();
     }
-  }, [id]);
+  }, [id, fetchComments]);
 
   useEffect(() => {
     const fetchResources = async () => {
@@ -143,9 +142,9 @@ function CoursesDetails() {
           text: newComment,
         });
         if (response.data) {
-          setComments(prevComments => [...prevComments, response.data]);
           setNewComment("");
           toast.success("Commentaire ajouté avec succès !");
+          fetchComments();
         } else {
           throw new Error('Invalid response format');
         }
@@ -161,8 +160,8 @@ function CoursesDetails() {
   const handleDeleteComment = async (commentId) => {
     try {
       await useApiAxios.delete(`/courses/${id}/comments/${commentId}`);
-      setComments(prevComments => prevComments.filter(comment => comment._id !== commentId));
       toast.success("Commentaire supprimé avec succès !");
+      fetchComments();
     } catch (error) {
       console.error("Échec de la suppression du commentaire :", error);
       toast.error("Échec de la suppression du commentaire.");

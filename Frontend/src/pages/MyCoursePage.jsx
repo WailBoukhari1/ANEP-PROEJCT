@@ -133,7 +133,7 @@ function MyCourses() {
                             </>
                           
                         ) : (
-                          <p>Aucun Formation en cours.</p>
+                          <p>Aucune formation prévue pour aujourd'hui</p>
                         )}
                       </div>
                     )}
