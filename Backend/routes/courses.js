@@ -18,7 +18,7 @@ const upload = multer({ storage });
 
 // Route groups
 const commentRoutes = [
-    { method: 'get', path: '/comments', handler: courseController.getAllComments },
+    { method: 'get', path: '/:id/comments', handler: courseController.getAllComments },
     { method: 'post', path: '/:id/comments', handler: courseController.handleComments },
     { method: 'get', path: '/latest-comments', handler: courseController.getLastestComments },
     { method: 'delete', path: '/:id/comments/:commentId', handler: courseController.deleteComment },

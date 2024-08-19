@@ -1,5 +1,7 @@
 import MainLayout from "../layout/MainLayout";
-import { useEffect, useState, useContext } from "react";
+import { Link } from 'react-router-dom';
+
+import { useEffect, useState, useContext, useCallback } from "react";
 import { useDropzone } from "react-dropzone";
 import { useParams } from "react-router-dom";
 import useApiAxios from "../config/axios";
@@ -12,6 +14,7 @@ import {
   DialogActions,
   Button,
 } from "@mui/material";
+import { toast } from 'react-toastify';
 
 function CoursesDetails() {
   const { id } = useParams();
@@ -28,50 +31,66 @@ function CoursesDetails() {
   const userId = currentUser._id;
   const baseURL = "https://anep-proejct.onrender.com";
   const [hasSubmittedFeedback] = useState(false);
+  const [loadingComments, setLoadingComments] = useState(true);
+  const [commentError, setCommentError] = useState(null);
 
   useEffect(() => {
-    useApiAxios
-      .get(`/courses/${id}`)
-      .then((response) => {
-        if (response.status !== 200) {
-          throw new Error(
-            `Échec de l'extraction des détails du cours. Code d'état : ${response.status}`
-          );
-        }
-        return response.data;
-      })
-      .then((data) => {
-        setCourse(data);
+    const fetchCourseDetails = async () => {
+      try {
+        const response = await useApiAxios.get(`/courses/${id}`, {
+          headers: { Authorization: `Bearer ${currentUser.token}` }
+        });
+        setCourse(response.data);
         setLoading(false);
-      })
-      .catch((error) => {
+      } catch (error) {
         console.error("Erreur dans l'extraction des détails du cours :", error);
         setError(error.message);
         setLoading(false);
-      });
-  }, [id]);
-   useEffect(() => {
+      }
+    };
+
+    fetchCourseDetails();
+  }, [id, currentUser.token]);
+
+  useEffect(() => {
     const fetchComments = async () => {
+      setLoadingComments(true);
+      setCommentError(null);
       try {
-        const response = await useApiAxios.get('/courses/6685c968a7b7e26929c41c2b/comments');
-        console.log(response.data);
+        // Make sure 'id' is correctly defined and contains the course ID
+        console.log("Fetching comments for course ID:", id); // Add this line for debugging
+        const response = await useApiAxios.get(`/courses/${id}/comments`);
+        if (response.data && Array.isArray(response.data)) {
+          setComments(response.data);
+        } else {
+          throw new Error('Invalid response format');
+        }
       } catch (error) {
         console.error('Failed to fetch comments:', error);
+        setCommentError('Failed to load comments. Please try again later.');
+        showNotification('Failed to load comments. Please try again later.', 'error');
+      } finally {
+        setLoadingComments(false);
       }
     };
+  
+    if (id) { // Only fetch comments if id is available
+      fetchComments();
+    }
+  }, [id]);
 
-    const fetchFeedback = async () => {
+  useEffect(() => {
+    const fetchResources = async () => {
       try {
-        const response = await useApiAxios.get('/courses/6685c968a7b7e26929c41c2b/feedback/665f4161e7284ed300e62ce7');
-        console.log(response.data);
+        const response = await useApiAxios.get(`/courses/${id}/resources`);
+        setFiles(response.data);
       } catch (error) {
-        console.error('Error during feedback submission:', error);
+        console.error("Échec du chargement des fichiers :", error);
       }
     };
 
-    fetchComments();
-    fetchFeedback();
-  }, []);
+    fetchResources();
+  }, [id]);
 
   const handleTabClick = (tab) => {
     setActiveTab(tab);
@@ -82,24 +101,23 @@ function CoursesDetails() {
       setShowEvaluationModal(true);
     }
   };
-  const handleJoinRequest = () => {
+
+  const handleJoinRequest = async () => {
     if (!currentUser || !currentUser._id) {
       alert("L'utilisateur n'est pas connecté.");
       return;
     }
 
-    useApiAxios
-      .post(`/courses/${id}/request-join`, {
+    try {
+      const response = await useApiAxios.post(`/courses/${id}/request-join`, {
         userId: currentUser._id,
-      })
-      .then((response) => {
-        alert("Demande d'adhésion envoyée avec succès !");
-        console.log(response.data);
-      })
-      .catch((error) => {
-        console.error("Erreur dans l'envoi de la demande d'adhésion :", error);
-        alert("Échec de l'envoi de la demande d'adhésion.");
       });
+      alert("Demande d'adhésion envoyée avec succès !");
+      console.log(response.data);
+    } catch (error) {
+      console.error("Erreur dans l'envoi de la demande d'adhésion :", error);
+      alert("Échec de l'envoi de la demande d'adhésion.");
+    }
   };
 
   const { getRootProps, getInputProps } = useDropzone({
@@ -116,55 +134,40 @@ function CoursesDetails() {
     },
   });
 
-  useEffect(() => {
-    useApiAxios
-      .get(`/courses/${id}/resources`)
-      .then((response) => {
-        setFiles(response.data);
-      })
-      .catch((error) => console.error("Échec du chargement des fichiers :", error));
-  }, [id]);
-
-  const handleCommentSubmit = (event) => {
+  const handleCommentSubmit = async (event) => {
     event.preventDefault();
     if (newComment.trim()) {
-      useApiAxios
-        .post(`/courses/${id}/comments`, {
-          userName: currentUser.name, // Use the name of the logged-in user
+      try {
+        const response = await useApiAxios.post(`/courses/${id}/comments`, {
+          userName: currentUser.name,
           text: newComment,
-        })
-        .then((response) => {
-          setComments(response.data);
-          setNewComment("");
-          setFeedbackMessage("Commentaire ajouté avec succès !");
-          setTimeout(() => setFeedbackMessage(""), 3000);
-        })
-        .catch((error) => {
-          console.error("Le commentaire n'a pas été soumis :", error);
-          setFeedbackMessage("Le commentaire n'a pas été soumis.");
-          setTimeout(() => setFeedbackMessage(""), 3000);
         });
+        if (response.data) {
+          setComments(prevComments => [...prevComments, response.data]);
+          setNewComment("");
+          toast.success("Commentaire ajouté avec succès !");
+        } else {
+          throw new Error('Invalid response format');
+        }
+      } catch (error) {
+        console.error("Le commentaire n'a pas été soumis :", error);
+        toast.error("Le commentaire n'a pas été soumis.");
+      }
     } else {
-      setFeedbackMessage("Veuillez saisir un commentaire valide.");
-      setTimeout(() => setFeedbackMessage(""), 3000);
+      toast.warn("Veuillez saisir un commentaire valide.");
     }
   };
 
-  const handleDeleteComment = (commentId) => {
-    useApiAxios
-      .delete(`/courses/${id}/comments/${commentId}`)
-      .then((response) => {
-        setComments(response.data); // Assuming the backend returns the updated list of comments
-        setFeedbackMessage("Commentaire supprimé avec succès !");
-        setTimeout(() => setFeedbackMessage(""), 3000);
-      })
-      .catch((error) => {
-        console.error("Échec de la suppression du commentaire :", error);
-        setFeedbackMessage("Échec de la suppression du commentaire.");
-        setTimeout(() => setFeedbackMessage(""), 3000);
-      });
+  const handleDeleteComment = async (commentId) => {
+    try {
+      await useApiAxios.delete(`/courses/${id}/comments/${commentId}`);
+      setComments(prevComments => prevComments.filter(comment => comment._id !== commentId));
+      toast.success("Commentaire supprimé avec succès !");
+    } catch (error) {
+      console.error("Échec de la suppression du commentaire :", error);
+      toast.error("Échec de la suppression du commentaire.");
+    }
   };
-
 
   if (loading) return <MainLayout>Loading...</MainLayout>;
   if (error) return <MainLayout>Error: {error}</MainLayout>;
@@ -181,12 +184,12 @@ function CoursesDetails() {
                 </h1>
                 <ul className="flex gap-1 justify-center">
                   <li>
-                    <a
-                      href="index.html"
-                      className="text-lg text-blackColor2 dark:text-blackColor2-dark"
-                    >
-                      Accueil <i className="icofont-simple-right" />
-                    </a>
+                   <Link
+  to="/"
+  className="text-lg text-blackColor2 dark:text-blackColor2-dark"
+>
+  Accueil <i className="icofont-simple-right" />
+</Link>
                   </li>
                   <li>
                     <span className="text-lg text-blackColor2 dark:text-blackColor2-dark">
@@ -273,11 +276,11 @@ function CoursesDetails() {
                         {activeTab === "description" && (
                           <div>
                             <p>
-                              <div
-                                dangerouslySetInnerHTML={{
-                                  __html: course.description,
-                                }}
-                              />
+                            <div
+      dangerouslySetInnerHTML={{
+        __html: course.description
+      }}
+    />
                             </p>
                           </div>
                         )}
@@ -288,55 +291,52 @@ function CoursesDetails() {
                               <h4 className="text-lg text-blackColor dark:text-blackColor-dark font-bold pl-2 before:w-0.5 relative before:h-[21px] before:bg-secondaryColor before:absolute before:bottom-[5px] before:left-0 leading-1.2 mb-25px">
                                 Avis des utilisateurs
                               </h4>
-                              <ul>
-                                {comments.map((comment, index) => (
-                                  <li
-                                    key={index}
-                                    className="flex gap-30px pt-35px border-t border-borderColor2 dark:border-borderColor2-dark"
-                                  >
-                                    <div className="flex-grow">
-                                      <div className="flex justify-between">
-                                        <div>
-                                          <h4>
-                                            <a
-                                              href="#"
-                                              className="text-lg font-semibold text-blackColor hover:text-secondaryColor dark:text-blackColor-dark dark:hover:text-secondaryColor leading-1.2"
-                                            >
-                                              {comment.userName}{" "}
-                                              {/* Display the userName from the comment */}
-                                            </a>
-                                          </h4>
-                                        </div>
-                                        <div className="author__icon">
-                                          <p className="text-sm font-bold text-blackColor dark:text-blackColor-dark leading-9 px-25px mb-5px border-2 border-borderColor2 dark:border-borderColor2-dark hover:border-secondaryColor dark:hover:border-secondaryColor rounded-full transition-all duration-300">
-                                            {new Date(
-                                              comment.createdAt
-                                            ).toLocaleDateString()}{" "}
-                                            {/* Format the createdAt date */}
-                                          </p>
-                                        </div>
-                                      </div>
-                                      <p className="text-sm text-contentColor dark:text-contentColor-dark leading-23px mb-15px">
-                                        {comment.text}{" "}
-                                        {currentUser.roles.includes(
-                                          "admin"
-                                        ) && (
-                                          <div className="flex space-x-2 py-2">
-                                            <button
-                                              onClick={() =>
-                                                handleDeleteComment(comment._id)
-                                              }
-                                              className="bg-delete-comment text-white px-3 py-1 rounded transition duration-300 flex items-center space-x-2"
-                                            >
-                                              Delete
-                                            </button>
+                              {loadingComments ? (
+                                <p>Chargement des commentaires...</p>
+                              ) : commentError ? (
+                                <p className="text-red-500">{commentError}</p>
+                              ) : comments.length > 0 ? (
+                                <ul>
+                                  {comments.map((comment) => (
+                                    <li
+                                      key={comment._id}
+                                      className="flex gap-30px pt-35px border-t border-borderColor2 dark:border-borderColor2-dark"
+                                    >
+                                      <div className="flex-grow">
+                                        <div className="flex justify-between">
+                                          <div>
+                                            <h4>
+                                              <a href="#" className="text-lg font-semibold text-blackColor hover:text-secondaryColor dark:text-blackColor-dark dark:hover:text-secondaryColor leading-1.2">
+                                                {comment.userName}
+                                              </a>
+                                            </h4>
                                           </div>
-                                        )}
-                                      </p>
-                                    </div>
-                                  </li>
-                                ))}
-                              </ul>
+                                          <div className="author__icon">
+                                            <p className="text-sm font-bold text-blackColor dark:text-blackColor-dark leading-9 px-25px mb-5px border-2 border-borderColor2 dark:border-borderColor2-dark hover:border-secondaryColor dark:hover:border-secondaryColor rounded-full transition-all duration-300">
+                                              {new Date(comment.createdAt).toLocaleDateString()}
+                                            </p>
+                                          </div>
+                                        </div>
+                                        <p className="text-sm text-contentColor dark:text-contentColor-dark leading-23px mb-15px">
+                                          {comment.text}
+                                          {currentUser.roles.includes("admin") && (
+                                            <div className="flex space-x-2 py-2">
+                                              <button
+                                                onClick={() => handleDeleteComment(comment._id)}
+                                                className="bg-delete-comment text-white px-3 py-1 rounded transition duration-300 flex items-center space-x-2"
+                                              >
+                                                Delete
+                                              </button>
+                                            </div>
+                                          )}
+                                        </p>
+                                      </div>
+                                    </li>
+                                  ))}
+                                </ul>
+                              ) : (
+                                <p>Aucun commentaire pour le moment.</p>
+                              )}
                             </div>
                             {/* add reviews */}
                             <div className="p-5 md:p-50px mb-50px bg-lightGrey12 dark:bg-transparent dark:shadow-brand-dark">
@@ -471,7 +471,7 @@ function CoursesDetails() {
                           onClick={handleJoinRequest}
                           className="w-full text-size-15 text-whiteColor bg-primaryColor px-25px py-10px border mb-10px leading-1.8 border-primaryColor hover:text-primaryColor hover:bg-whiteColor inline-block  group dark:hover:text-whiteColor dark:hover:bg-whiteColor-dark"
                         >
-                          intéresser
+                          Intéressé(e)
                         </button>
                       </div>
                       {course.assignedUsers.includes(currentUser._id) && (

@@ -32,7 +32,7 @@ const MotDuDirecteur = () => {
                         }}
                     />
                     <div>
-                        <h1 style={{ margin: 0, fontSize: '2em', color: '#333' }}>Mot du Directeur Général</h1>
+                        <h1 style={{ margin: 0, fontSize: '2em', color: '#333' }}>Mot de la Directrice Générale</h1>
                         <p style={{ fontSize: '1.2em', color: '#666' }}>
                             L'Agence Nationale des Equipements Publics « ANEP » constitue le prolongement de la Direction des Equipements Publics et le couronnement des efforts louables déployés, pendant plus de 40 ans, par ses femmes et ses hommes pour le développement du métier de la Maîtrise d’Ouvrage Déléguée (MOD).                        </p>
                         <p style={{ fontSize: '1.2em', color: '#666', marginBottom: '10px', lineHeight: '1.6' }}>
