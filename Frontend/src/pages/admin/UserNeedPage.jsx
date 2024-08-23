@@ -1,35 +1,28 @@
 import React, { useState, useEffect } from 'react';
-import { Container, Typography, Card, CardContent, CardActions, Button, Grid, CircularProgress, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle } from '@mui/material';
+import { Container, Typography, List, ListItem, ListItemText, CircularProgress, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Button, Pagination } from '@mui/material';
 import { styled } from '@mui/material/styles';
 import useApiAxios from "../../config/axios";
 import AdminLayout from "../../layout/admin/AdminLayout";
 
 const RootContainer = styled(Container)(({ theme }) => ({
   marginTop: theme.spacing(4),
+  padding: theme.spacing(2),
+  backgroundColor: '#f5f5f5',
+  borderRadius: '8px',
 }));
 
-const CustomCard = styled(Card)(({ theme }) => ({
-  display: 'flex',
-  flexDirection: 'column',
-  justifyContent: 'space-between',
-  height: '100%',
-  boxShadow: theme.shadows[3],
-  transition: 'box-shadow 0.3s ease',
+const CustomListItem = styled(ListItem)(({ theme }) => ({
+  marginBottom: theme.spacing(1),
+  borderRadius: '4px',
+  backgroundColor: '#fff',
+  boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)',
+  transition: 'background-color 0.2s ease',
   '&:hover': {
-    boxShadow: theme.shadows[6],
+    backgroundColor: '#f0f0f0',
   },
 }));
 
-const CustomCardContent = styled(CardContent)(({ theme }) => ({
-  paddingBottom: theme.spacing(2),
-  flexGrow: 1,
-}));
-
-const CustomCardActions = styled(CardActions)(({ theme }) => ({
-  justifyContent: 'flex-end',
-}));
-
-const DeleteButton = styled(Button)(({ theme }) => ({
+const CustomButton = styled(Button)(({ theme }) => ({
   color: theme.palette.error.main,
 }));
 
@@ -38,13 +31,15 @@ function AdminUserNeeds() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [openDialog, setOpenDialog] = useState(false);
-  const [selectedNeedId, setSelectedNeedId] = useState(null);
+  const [selectedNeed, setSelectedNeed] = useState(null);
+  const [page, setPage] = useState(1);
+  const itemsPerPage = 5;
 
   useEffect(() => {
     async function fetchUserNeeds() {
       try {
         const response = await useApiAxios.get('/user-needs');
-        setUserNeeds(response.data);
+        setUserNeeds(response.data || []);
       } catch (error) {
         console.error('Erreur lors de la récupération des besoins des utilisateurs:', error);
         setError('Erreur lors de la récupération des besoins des utilisateurs.');
@@ -56,25 +51,28 @@ function AdminUserNeeds() {
     fetchUserNeeds();
   }, []);
 
-  const handleDelete = async () => {
-    try {
-      await useApiAxios.delete(`/user-needs/${selectedNeedId}`);
-      setUserNeeds((prevNeeds) => prevNeeds.filter((need) => need._id !== selectedNeedId));
-      handleCloseDialog();
-    } catch (error) {
-      console.error('Erreur lors de la suppression du besoin utilisateur:', error);
-      // Display error to user (e.g., using a snackbar or another UI element)
-    }
+  const handlePageChange = (event, value) => {
+    setPage(value);
   };
 
-  const handleOpenDialog = (id) => {
-    setSelectedNeedId(id);
+  const handleOpenDialog = (need) => {
+    setSelectedNeed(need);
     setOpenDialog(true);
   };
 
   const handleCloseDialog = () => {
     setOpenDialog(false);
-    setSelectedNeedId(null);
+    setSelectedNeed(null);
+  };
+
+  const handleDelete = async () => {
+    try {
+      await useApiAxios.delete(`/user-needs/${selectedNeed._id}`);
+      setUserNeeds((prevNeeds) => prevNeeds.filter((need) => need._id !== selectedNeed._id));
+      handleCloseDialog();
+    } catch (error) {
+      console.error('Erreur lors de la suppression du besoin utilisateur:', error);
+    }
   };
 
   if (loading) {
@@ -102,54 +100,74 @@ function AdminUserNeeds() {
     );
   }
 
+  const totalPages = Math.ceil(userNeeds.length / itemsPerPage);
+  const paginatedNeeds = userNeeds.slice((page - 1) * itemsPerPage, page * itemsPerPage);
+
   return (
     <AdminLayout>
       <RootContainer>
         <Typography variant="h4" gutterBottom>
           Besoins des Utilisateurs
         </Typography>
-        {userNeeds.length === 0 ? (
-          <Typography variant="body1">
-            Aucun besoin utilisateur trouvé.
-          </Typography>
-        ) : (
-          <Grid container spacing={3}>
-            {userNeeds.map((need) => (
-              <Grid item key={need._id} xs={12} sm={6} md={4}>
-                <CustomCard>
-                  <CustomCardContent>
-                  <Typography className='font-extrabold' gutterBottom>
-                      {need.title}
-                    </Typography>
-                    <Typography variant="body2" gutterBottom>
-                      {need.message}
-                    </Typography>
-                    <Typography variant="body3" color="textSecondary">
-                      {new Date(need.createdAt).toLocaleString()}
-                    </Typography>
-                  </CustomCardContent>
-                  <CustomCardActions>
-                    <DeleteButton size="small" onClick={() => handleOpenDialog(need._id)}>
-                      Supprimer
-                    </DeleteButton>
-                  </CustomCardActions>
-                </CustomCard>
-              </Grid>
+        {paginatedNeeds.length > 0 ? (
+          <List>
+            {paginatedNeeds.map((need) => (
+              <CustomListItem button key={need._id} onClick={() => handleOpenDialog(need)}>
+                <ListItemText
+                  primary={need.title}
+                  secondary={
+                    <>
+                      <Typography variant="body2" color="textSecondary">
+                        Émetteur: {need.senderName}
+                      </Typography>
+                      <Typography variant="body2" color="textSecondary">
+                        Date: {new Date(need.createdAt).toLocaleString()}
+                      </Typography>
+                      <Typography variant="body2" color="textSecondary">
+                        {need.message.substring(0, 100)}...
+                      </Typography>
+                    </>
+                  }
+                  primaryTypographyProps={{ fontWeight: 'bold' }}
+                  secondaryTypographyProps={{ color: 'textSecondary' }}
+                />
+              </CustomListItem>
             ))}
-          </Grid>
+          </List>
+        ) : (
+          <Typography variant="body1">Aucun besoin utilisateur trouvé.</Typography>
+        )}
+        {userNeeds.length > itemsPerPage && (
+          <Pagination 
+            count={totalPages} 
+            page={page} 
+            onChange={handlePageChange} 
+            color="primary" 
+            sx={{ mt: 2, display: 'flex', justifyContent: 'center' }}
+          />
         )}
         <Dialog open={openDialog} onClose={handleCloseDialog}>
-          <DialogTitle>Confirmer la suppression</DialogTitle>
+          <DialogTitle>{selectedNeed?.title}</DialogTitle>
           <DialogContent>
-            <DialogContentText>Êtes-vous sûr de vouloir supprimer ce besoin utilisateur ?</DialogContentText>
+            <DialogContentText>
+              <Typography variant="body1" gutterBottom>
+                Émetteur: {selectedNeed?.senderName}
+              </Typography>
+              <Typography variant="body1" gutterBottom>
+                Date: {new Date(selectedNeed?.createdAt).toLocaleString()}
+              </Typography>
+              <Typography variant="body1" gutterBottom>
+                Message: {selectedNeed?.message}
+              </Typography>
+            </DialogContentText>
           </DialogContent>
           <DialogActions>
             <Button onClick={handleCloseDialog} color="primary">
-              Annuler
+              Fermer
             </Button>
-            <Button onClick={handleDelete} color="secondary">
+            <CustomButton onClick={handleDelete}>
               Supprimer
-            </Button>
+            </CustomButton>
           </DialogActions>
         </Dialog>
       </RootContainer>

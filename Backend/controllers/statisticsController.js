@@ -102,15 +102,19 @@ const getDemographicDistribution = async (req, res) => {
         const users = await User.find();
 
         const ageDistribution = users.reduce((acc, user) => {
-            const age = new Date().getFullYear() - new Date(user.DATE_NAISSANCE).getFullYear();
-            if (!acc[age]) acc[age] = 0;
-            acc[age]++;
+            if (user.DATE_NAISSANCE) {
+                const age = new Date().getFullYear() - new Date(user.DATE_NAISSANCE).getFullYear();
+                if (!acc[age]) acc[age] = 0;
+                acc[age]++;
+            }
             return acc;
         }, {});
 
         const genderDistribution = users.reduce((acc, user) => {
-            if (!acc[user.SEXE]) acc[user.SEXE] = 0;
-            acc[user.SEXE]++;
+            if (user.SEXE) {
+                if (!acc[user.SEXE]) acc[user.SEXE] = 0;
+                acc[user.SEXE]++;
+            }
             return acc;
         }, {});
 
@@ -234,25 +238,23 @@ const getGroupComparisons = async (req, res) => {
 const getDistributionData = async (req, res) => {
     try {
         const departments = await User.aggregate([
-            { $group: { _id: '$DEPARTEMENT_DIVISION', count: { $sum: 1 } } }
+            { $group: { _id: '$DEPARTEMENT_DIVISION', count: { $sum: 1 } } },
+            { $match: { _id: { $ne: null, $ne: "" } } }
         ]);
 
         const profiles = await User.aggregate([
-            { $group: { _id: '$FONCTION', count: { $sum: 1 } } }
-        ]);
-
-        const years = await User.aggregate([
-            { $group: { _id: '$recruitmentYear', count: { $sum: 1 } } }
+            { $group: { _id: '$FONCTION', count: { $sum: 1 } } },
+            { $match: { _id: { $ne: null, $ne: "" } } }
         ]);
 
         const genders = await User.aggregate([
-            { $group: { _id: '$SEX', count: { $sum: 1 } } }
+            { $group: { _id: '$SEXE', count: { $sum: 1 } } },
+            { $match: { _id: { $ne: null, $ne: "" } } }
         ]);
 
         res.json({
             departments,
             profiles,
-            years,
             genders
         });
     } catch (error) {

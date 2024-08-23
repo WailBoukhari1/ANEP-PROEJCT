@@ -1,6 +1,12 @@
 const mongoose = require('mongoose');
 
 const userNeedSchema = new mongoose.Schema({
+  senderName: {
+    type: String,
+    required: [true, 'Sender name is required'],
+    trim: true,
+    maxlength: [50, 'Sender name cannot be more than 50 characters']
+  },
   title: {
     type: String,
     trim: false,

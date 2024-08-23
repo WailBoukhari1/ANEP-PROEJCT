@@ -210,7 +210,7 @@ function HomePage() {
                 </CountUp>
               </div>
               <div className="bg-white p-6 md:p-8 shadow-md rounded-lg text-center">
-                <h3 className="text-xl md:text-2xl font-semibold text-primaryColor mb-2">Cours en ligne</h3>
+                <h3 className="text-xl md:text-2xl font-semibold text-primaryColor mb-2">Formation en ligne</h3>
                 <CountUp
                   start={0}
                   end={statistics.online}
@@ -224,7 +224,7 @@ function HomePage() {
                 </CountUp>
               </div>
               <div className="bg-white p-6 md:p-8 shadow-md rounded-lg text-center">
-                <h3 className="text-xl md:text-2xl font-semibold text-primaryColor mb-2">Cours Présentiel</h3>
+                <h3 className="text-xl md:text-2xl font-semibold text-primaryColor mb-2">Formation Présentiel</h3>
                 <CountUp
                   start={0}
                   end={statistics.offline}
@@ -238,7 +238,7 @@ function HomePage() {
                 </CountUp>
               </div>
               <div className="bg-white p-6 md:p-8 shadow-md rounded-lg text-center">
-                <h3 className="text-xl md:text-2xl font-semibold text-primaryColor mb-2">Cours hybrides</h3>
+                <h3 className="text-xl md:text-2xl font-semibold text-primaryColor mb-2">Formation hybrides</h3>
                 <CountUp
                   start={0}
                   end={statistics.hybrid}

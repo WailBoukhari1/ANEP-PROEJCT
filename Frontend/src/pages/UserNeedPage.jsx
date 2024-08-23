@@ -1,99 +1,138 @@
-  import React, { useState, useContext } from "react";
-  import useApiAxios from "../config/axios";
-  import UserContext from "../auth/user-context";
-  import MainLayout from "../layout/MainLayout";
+import React, { useState, useContext } from "react";
+import useApiAxios from "../config/axios";
+import UserContext from "../auth/user-context";
+import MainLayout from "../layout/MainLayout";
+import { Container, TextField, Button, Typography, Alert, Box } from '@mui/material';
+import { styled } from '@mui/material/styles';
 
-  const UserNeedsPage = () => {
-    const [currentUser] = useContext(UserContext);
-    const [title, setTitle] = useState("");
-    const [message, setMessage] = useState("");
-    const [submitStatus, setSubmitStatus] = useState(null); // State for submit status message
+const FormContainer = styled(Box)(({ theme }) => ({
+  backgroundColor: '#f9f9f9',
+  padding: theme.spacing(4),
+  borderRadius: '8px',
+  boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
+  maxWidth: '500px',
+  margin: '0 auto',
+}));
 
-    const handleFormSubmit = async (event) => {
-      event.preventDefault();
+const StyledTextField = styled(TextField)({
+  marginBottom: '16px',
+  '& .MuiInputBase-root': {
+    backgroundColor: '#fff',
+  },
+});
 
-      try {
-        const response = await useApiAxios.post(
-          "/user-needs",
-          {
-            user: currentUser,
-            title: title,
-            message: message,
+const SubmitButton = styled(Button)(({ theme }) => ({
+  backgroundColor: '#1976d2',
+  color: '#fff',
+  '&:hover': {
+    backgroundColor: '#1565c0',
+  },
+}));
+
+const CancelButton = styled(Button)(({ theme }) => ({
+  backgroundColor: '#d32f2f',
+  color: '#fff',
+  marginLeft: theme.spacing(2),
+  '&:hover': {
+    backgroundColor: '#c62828',
+  },
+}));
+
+const UserNeedsPage = () => {
+  const [currentUser] = useContext(UserContext);
+  const [title, setTitle] = useState("");
+  const [message, setMessage] = useState("");
+  const [senderName, setSenderName] = useState(currentUser?.name || currentUser?.username || "");
+  const [submitStatus, setSubmitStatus] = useState(null);
+
+  const handleFormSubmit = async (event) => {
+    event.preventDefault();
+
+    try {
+      const response = await useApiAxios.post(
+        "/user-needs",
+        {
+          emetteur: senderName || "Utilisateur",
+          title,
+          message,
+        },
+        {
+          headers: {
+            "Content-Type": "application/json",
           },
-          {
-            headers: {
-              "Content-Type": "application/json",
-            },
-          }
-        );
+        }
+      );
 
-        console.log("Success:", response.data);
-        setSubmitStatus("success"); // Set success message
-        setTitle("");
-        setMessage("");
-      } catch (error) {
-        console.error("Error:", error);
-        setSubmitStatus("error"); // Set error message
-      }
-    };
-
-    return (
-      <MainLayout>
-        {/* Banner section */}
-        <section className="banner-section">
-          <div className="container">
-            <div className="text-center">
-              <h1 className="banner-title">
-                Exprimer Un Besoin
-              </h1>
-              <ul className="breadcrumb">
-                <li>
-                  <a href="/" className="breadcrumb-link">Accueil <i className="icofont-simple-right" /></a>
-                </li>
-                <li>
-                  <span className="breadcrumb-text">Exprimer Un Besoin</span>
-                </li>
-              </ul>
-            </div>
-          </div>
-        </section>
-
-        {/* User needs form section */}
-        <section className="form-section">
-          <div className="container">
-            <div className="form-container">
-              {submitStatus === "success" && (
-                <div className="flash-message success">Votre besoin a été envoyé avec succès.</div>
-              )}
-              {submitStatus === "error" && (
-                <div className="flash-message error">Une erreur s'est produite lors de l'envoi du besoin.</div>
-              )}
-              <form onSubmit={handleFormSubmit} className="needs-form">
-                <input
-                  type="text"
-                  value={title}
-                  onChange={(e) => setTitle(e.target.value)}
-                  placeholder="Titre de votre besoin"
-                  required
-                  className="form-input title-input"
-                />
-                <textarea
-                  value={message}
-                  onChange={(e) => setMessage(e.target.value)}
-                  placeholder="Décrivez votre besoin"
-                  required
-                  className="form-input message-textarea"
-                />
-                <div className="form-buttons">
-                  <button type="submit" className="submit-button">Envoyer</button>
-                  <button type="button" className="cancel-button" onClick={() => { setTitle(""); setMessage(""); }}>Annuler</button>
-                </div>
-              </form>
-            </div>
-          </div>
-        </section>
-      </MainLayout>
-    );
+      console.log("Success:", response.data);
+      setSubmitStatus("success");
+      setTitle("");
+      setMessage("");
+      setSenderName("");
+    } catch (error) {
+      console.error("Error:", error);
+      setSubmitStatus("error");
+    }
   };
 
-  export default UserNeedsPage;
+  return (
+    <MainLayout>
+      {/* Banner section */}
+      <Container maxWidth="lg" sx={{ textAlign: 'center', my: 4 }}>
+        <Typography variant="h3" gutterBottom>Exprimer Un Besoin</Typography>
+        <Typography variant="body1" color="textSecondary">
+          Accueil &gt; Exprimer Un Besoin
+        </Typography>
+      </Container>
+
+      {/* User needs form section */}
+      <Container maxWidth="sm">
+        <FormContainer>
+          {submitStatus === "success" && (
+            <Alert severity="success" sx={{ mb: 2 }}>Votre besoin a été envoyé avec succès.</Alert>
+          )}
+          {submitStatus === "error" && (
+            <Alert severity="error" sx={{ mb: 2 }}>Une erreur s'est produite lors de l'envoi du besoin.</Alert>
+          )}
+          <form onSubmit={handleFormSubmit} noValidate>
+            <StyledTextField
+              label="Votre nom"
+              variant="outlined"
+              fullWidth
+              value={senderName}
+              onChange={(e) => setSenderName(e.target.value)}
+              required
+              sx={{ display: 'none' }}
+              disabled
+            />
+            <StyledTextField
+              label="Titre de votre besoin"
+              variant="outlined"
+              fullWidth
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+              required
+            />
+            <StyledTextField
+              label="Décrivez votre besoin"
+              variant="outlined"
+              multiline
+              rows={4}
+              fullWidth
+              value={message}
+              onChange={(e) => setMessage(e.target.value)}
+              required
+            />
+            <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 2 }}>
+              <SubmitButton type="submit" variant="contained">Envoyer</SubmitButton>
+              <CancelButton type="button" variant="contained" onClick={() => { setTitle(""); setMessage(""); }}>
+                Annuler
+              </CancelButton>
+            </Box>
+          </form>
+        </FormContainer>
+      </Container>
+    </MainLayout>
+  );
+};
+
+export default UserNeedsPage;
