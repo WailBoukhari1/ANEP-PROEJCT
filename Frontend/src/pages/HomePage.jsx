@@ -202,7 +202,6 @@ function HomePage() {
                   end={statistics.totalCourses}
                   duration={2.5}
                   separator=","
-                  suffix="+"
                 >
                   {({ countUpRef }) => (
                     <div className="text-2xl md:text-3xl font-bold text-blackColor" ref={countUpRef} />
@@ -216,7 +215,6 @@ function HomePage() {
                   end={statistics.online}
                   duration={2.5}
                   separator=","
-                  suffix="+"
                 >
                   {({ countUpRef }) => (
                     <div className="text-2xl md:text-3xl font-bold text-blackColor" ref={countUpRef} />
@@ -230,7 +228,6 @@ function HomePage() {
                   end={statistics.offline}
                   duration={2.5}
                   separator=","
-                  suffix="+"
                 >
                   {({ countUpRef }) => (
                     <div className="text-2xl md:text-3xl font-bold text-blackColor" ref={countUpRef} />
@@ -244,7 +241,6 @@ function HomePage() {
                   end={statistics.hybrid}
                   duration={2.5}
                   separator=","
-                  suffix="+"
                 >
                   {({ countUpRef }) => (
                     <div className="text-2xl md:text-3xl font-bold text-blackColor" ref={countUpRef} />

@@ -100,23 +100,6 @@ const DashboardPage = () => {
 
     const ageData = prepareAgeData(demographicData.ageDistribution);
 
-    const prepareGenderData = (genderDistribution) => {
-        const genderCategories = {
-            'Homme': 0,
-            'Femme': 0
-        };
-        
-        Object.entries(genderDistribution || {}).forEach(([gender, count]) => {
-            if (gender in genderCategories) {
-                genderCategories[gender] = count;
-            }
-        });
-        
-        return Object.entries(genderCategories).map(([gender, count]) => ({ gender, count }));
-    };
-
-    const genderData = prepareGenderData(demographicData.genderDistribution);
-
     const locationData = Object.entries(demographicData.locationDistribution || {}).map(([location, count]) => ({ location, count }));
     const educationData = Object.entries(demographicData.educationLevelDistribution || {}).map(([education, count]) => ({ education, count }));
     const experienceData = Object.entries(demographicData.workExperienceDistribution || {}).map(([experience, count]) => ({ experience, count }));
@@ -287,25 +270,7 @@ const DashboardPage = () => {
                     </Paper>
                 </Grid>
 
-                <Grid item xs={12} md={6}>
-                    <Paper elevation={3} style={{ padding: '16px' }}>
-                        <Typography variant="h6">Distribution par Genre</Typography>
-                        <ResponsiveContainer width="100%" height={400}>
-                            <BarChart data={genderData}>
-                                <CartesianGrid strokeDasharray="3 3" />
-                                <XAxis dataKey="gender" />
-                                <YAxis />
-                                <Tooltip />
-                                <Legend />
-                                <Bar dataKey="count" fill="#82ca9d">
-                                    {genderData.map((entry, index) => (
-                                        <Cell key={`cell-${index}`} fill={index === 0 ? "#8884d8" : "#82ca9d"} />
-                                    ))}
-                                </Bar>
-                            </BarChart>
-                        </ResponsiveContainer>
-                    </Paper>
-                </Grid>
+
 
                 <Grid item xs={12} md={6}>
                     <Paper elevation={3} style={{ padding: '16px' }}>
