@@ -84,14 +84,6 @@ const MotDuDirecteur = () => {
                         </p>
                     </div>
                 </div>
-                <div>
-
-                    <div style={{ textAlign: 'right', marginTop: '20px' }}>
-                        <p style={{ fontWeight: 'bold', color: '#333' }}>
-                            Zineb BENMOUSSA<br />DG de l'ANEP
-                        </p>
-                    </div>
-                </div>
             </div>
         </MainLayout>
     );
