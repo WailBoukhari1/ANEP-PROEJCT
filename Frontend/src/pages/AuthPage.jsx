@@ -1,6 +1,8 @@
 import { useState } from "react";
-import useApiAxios from "../config/axios";
 import { Link } from "react-router-dom";
+import useApiAxios from "../config/axios";
+import { FaEye, FaEyeSlash } from "react-icons/fa"; // Import eye icons
+import { Button, Input } from "@mui/material"; // Add this import for Material-UI components
 
 function Auth() {
   const [activeTab, setActiveTab] = useState("login"); // Default active tab
@@ -96,7 +98,7 @@ function Auth() {
 
   return (
     <>
-      {/*form section */}
+      {/* form section */}
       <section className="relative">
         <div className="container py-100px flex">
           <div className="hidden md:block w-1/3"></div>
@@ -157,7 +159,7 @@ function Auth() {
               </div>
 
               <div className="tab-contents">
-                {/* login form*/}
+                {/* login form */}
                 {activeTab === "login" && (
                   <div className="block opacity-100 transition-opacity duration-150 ease-linear">
                     {/* heading */}
@@ -185,39 +187,45 @@ function Auth() {
                         )}
                       </div>
                       <div className="mb-25px">
-                        <label className="text-contentColor dark:text-contentColor-dark mb-10px block">
-                          Mot de passe
-                        </label>
-                        <div className="relative">
-                          <input
-                            onChange={(e) => setPassword(e.target.value)}
-                            type={showPassword ? "text" : "password"}
-                            placeholder="Password"
-                            className="w-full h-52px leading-52px pl-5 bg-transparent text-sm focus:outline-none text-contentColor dark:text-contentColor-dark border border-borderColor dark:border-borderColor-dark placeholder:text-placeholder placeholder:opacity-80 font-medium rounded"
-                          />
-                          <button
-                            type="button"
-                            className="absolute inset-y-0 right-0 pr-3 flex items-center text-sm leading-52px"
-                            onClick={() => setShowPassword(!showPassword)}
-                          >
-                            {showPassword ? "Hide" : "Show"}
-                          </button>
-                        </div>
-                        {errors.password && (
-                          <p className="error-message">{errors.password}</p>
-                        )}
-                      </div>
+  <label className="text-contentColor dark:text-contentColor-dark mb-10px block">
+    Mot de passe
+  </label>
+  <div className="relative">
+    <Input
+      id="password"
+      type={showPassword ? "text" : "password"}
+      placeholder="Enter your password"
+      value={password}
+      onChange={(e) => setPassword(e.target.value)}
+      className="w-full h-52px leading-52px pl-5 pr-50px bg-transparent text-sm focus:outline-none text-contentColor dark:text-contentColor-dark border border-borderColor dark:border-borderColor-dark placeholder:text-placeholder placeholder:opacity-80 font-medium rounded"
+    />
+    <button
+      type="button"
+      className="absolute right-0 top-0 h-full px-3 py-2 text-contentColor dark:text-contentColor-dark"
+      onClick={() => setShowPassword(!showPassword)}
+    >
+      {showPassword ? <FaEyeSlash className="h-5 w-5" /> : <FaEye className="h-5 w-5" />}
+    </button>
+  </div>
+  {errors.password && <p className="error-message">{errors.password}</p>}
+</div>
+
                       {errors.general && (
                         <p className="error-message">{errors.general}</p>
                       )}
                       <div className="text-contentColor dark:text-contentColor-dark flex items-center justify-between">
-                        <div className="flex items-center"></div>
-                        <div>
+                        <div className="block">
+                          <label className="text-contentColor dark:text-contentColor-dark cursor-pointer">
+                            <input type="checkbox" className="mr-5px" />
+                            Garder ma session ouverte
+                          </label>
+                        </div>
+                        <div className="text-right">
                           <Link
-                            to="ForgetPassword"
-                            className="hover:text-primaryColor relative after:absolute after:left-0 after:bottom-0.5 after:w-0 after:h-0.5 after:bg-primaryColor after:transition-all after:duration-300 hover:after:w-full"
+                            to="/forgot-password"
+                            className="text-primaryColor dark:text-primaryColor hover:underline"
                           >
-                            Vous avez oublié votre mot de passe ?
+                            Mot de passe oublié ?
                           </Link>
                         </div>
                       </div>
