@@ -6,6 +6,7 @@ function Auth() {
   const [activeTab, setActiveTab] = useState("login"); // Default active tab
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false); // State to toggle password visibility
   const [activeEmail, setActiveEmail] = useState("");
   const [errors, setErrors] = useState({});
 
@@ -187,12 +188,21 @@ function Auth() {
                         <label className="text-contentColor dark:text-contentColor-dark mb-10px block">
                           Mot de passe
                         </label>
-                        <input
-                          onChange={(e) => setPassword(e.target.value)}
-                          type="password"
-                          placeholder="Password"
-                          className="w-full h-52px leading-52px pl-5 bg-transparent text-sm focus:outline-none text-contentColor dark:text-contentColor-dark border border-borderColor dark:border-borderColor-dark placeholder:text-placeholder placeholder:opacity-80 font-medium rounded"
-                        />
+                        <div className="relative">
+                          <input
+                            onChange={(e) => setPassword(e.target.value)}
+                            type={showPassword ? "text" : "password"}
+                            placeholder="Password"
+                            className="w-full h-52px leading-52px pl-5 bg-transparent text-sm focus:outline-none text-contentColor dark:text-contentColor-dark border border-borderColor dark:border-borderColor-dark placeholder:text-placeholder placeholder:opacity-80 font-medium rounded"
+                          />
+                          <button
+                            type="button"
+                            className="absolute inset-y-0 right-0 pr-3 flex items-center text-sm leading-52px"
+                            onClick={() => setShowPassword(!showPassword)}
+                          >
+                            {showPassword ? "Hide" : "Show"}
+                          </button>
+                        </div>
                         {errors.password && (
                           <p className="error-message">{errors.password}</p>
                         )}
