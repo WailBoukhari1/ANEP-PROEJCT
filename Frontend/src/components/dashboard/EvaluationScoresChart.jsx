@@ -41,7 +41,7 @@ const EvaluationScoresChart = ({ data, courses, fetchEvaluationScores, fetchCour
                 <Select value={selectedCourse} onChange={handleCourseChange}>
                     <MenuItem value="">All Courses</MenuItem>
                     {courses && courses.map((course) => (
-                        <MenuItem key={course._id} value={course._id}>{course.name}</MenuItem>
+                        <MenuItem key={course._id} value={course._id}>{course.title}</MenuItem>
                     ))}
                 </Select>
             </FormControl>
