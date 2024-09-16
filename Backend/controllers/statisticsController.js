@@ -1,275 +1,196 @@
-const Course = require('../models/Course'); // Adjust the path based on your project structure
-const User = require('../models/User'); // Adjust the path based on your project structure
+const Course = require('../models/Course');
+const User = require('../models/User');
 
-// Controller to get designations and interested participants per training
-const getDesignationsAndInterest = async (req, res) => {
+// Enrollment Rate
+const getEnrollmentRate = async (req, res) => {
     try {
-        const courses = await Course.find().select('title assignedUsers interestedUsers');
-        const data = courses.map(course => ({
-            title: course.title,
-            assignedCount: course.assignedUsers.length,
-            interestedCount: course.interestedUsers.length
-        }));
-        res.status(200).json(data);
+        const totalUsers = await User.countDocuments();
+        const unregisteredUsers = await User.countDocuments({ password: { $exists: false } });
+        const enrolledUsers = totalUsers - unregisteredUsers;
+        const enrollmentRate = (enrolledUsers / totalUsers) * 100;
+
+        res.status(200).json({ total: totalUsers, enrolled: enrolledUsers, rate: enrollmentRate });
     } catch (error) {
         res.status(500).json({ message: error.message });
     }
 };
 
-// Controller to get the distribution of presences
-const getPresenceDistribution = async (req, res) => {
+// Beneficiary Rate
+const getBeneficiaryRate = async (req, res) => {
     try {
-        const courses = await Course.find().select('presence');
-        let designatedPresences = 0;
-        let nonDesignatedPresences = 0;
-        let absences = 0;
+        const totalUsersWithPassword = await User.countDocuments({ password: { $exists: true, $ne: null } });
+        const beneficiaries = await Course.distinct('assignedUsers').count();
+        const beneficiaryRate = (beneficiaries / totalUsersWithPassword) * 100;
 
-        courses.forEach(course => {
-            course.presence.forEach(presence => {
-                switch (presence.status) {
-                    case 'present':
-                        designatedPresences++;
-                        break;
-                    case 'absent':
-                        absences++;
-                        break;
-                    default:
-                        nonDesignatedPresences++;
-                        break;
-                }
-            });
-        });
-
-        const data = [
-            { name: 'Designated Presences', value: designatedPresences },
-            { name: 'Non-Designated Presences', value: nonDesignatedPresences },
-            { name: 'Absences', value: absences },
-        ];
-
-        res.status(200).json(data);
+        res.status(200).json({ total: totalUsersWithPassword, beneficiaries: beneficiaries, rate: beneficiaryRate });
     } catch (error) {
         res.status(500).json({ message: error.message });
     }
 };
 
-// Controller to get scores and evaluation results for radar charts
-const getEvaluationDataForRadarCharts = async (req, res) => {
+
+// Attendance Rate
+const getAttendanceRate = async (req, res) => {
     try {
-        const courses = await Course.find().select('title evaluations');
-        const radarChartData = {};
+        const { userId } = req.params;
+        const currentYear = new Date().getFullYear();
+        const courses = await Course.find({
+            'times.startTime': { $gte: new Date(currentYear, 0, 1).toISOString(), $lte: new Date(currentYear, 11, 31).toISOString() }
+        }).populate('assignedUsers');
+
+        const monthlyData = Array(12).fill().map(() => ({ attendedCourses: 0, totalAssignedCourses: 0 }));
 
         courses.forEach(course => {
-            radarChartData[course.title] = {
-                labels: [],
-                datasets: [
-                    {
-                        label: course.title,
-                        data: []
-                    }
-                ]
-            };
+            course.times.forEach(time => {
+                const month = new Date(time.startTime).getMonth();
+                const assignedUsers = course.assignedUsers.length;
+                monthlyData[month].totalAssignedCourses += assignedUsers;
 
-            course.evaluations.forEach(evaluation => {
-                evaluation.evaluationData.forEach(data => {
-                    if (!radarChartData[course.title].labels.includes(data.name)) {
-                        radarChartData[course.title].labels.push(data.name);
+                course.presence.forEach(p => {
+                    if (p.status === 'present') {
+                        if (userId && p.userId.toString() === userId) {
+                            monthlyData[month].attendedCourses++;
+                        } else if (!userId) {
+                            monthlyData[month].attendedCourses++;
+                        }
                     }
                 });
             });
+        });
 
-            radarChartData[course.title].labels.forEach(label => {
-                const value = course.evaluations
-                    .flatMap(evaluation => evaluation.evaluationData)
-                    .find(data => data.name === label);
-                radarChartData[course.title].datasets[0].data.push(value ? value.value : 0);
+        const chartData = monthlyData.map((data, index) => ({
+            month: new Date(currentYear, index, 1).toLocaleString('default', { month: 'long' }),
+            attendedCourses: data.attendedCourses,
+            totalAssignedCourses: data.totalAssignedCourses,
+            attendanceRate: data.totalAssignedCourses > 0 ? (data.attendedCourses / data.totalAssignedCourses) * 100 : 0
+        }));
+
+        res.status(200).json(chartData);
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
+// Evaluation Scores
+const getEvaluationScores = async (req, res) => {
+    try {
+        const { courseId } = req.params;
+        const courses = courseId 
+            ? await Course.find({ _id: courseId }).select('evaluations')
+            : await Course.find().select('evaluations');
+
+        const evaluationLabels = [
+            "Apports d'informations",
+            "Conception de la démarche",
+            "Qualité de l'animation",
+            "Conditions matérielles",
+            "Adaptation aux tâches professionnelles",
+            "Motivation à me perfectionner dans le domaine",
+            "Réponse aux attentes",
+            "Implication des participants"
+        ];
+
+        let totalScores = evaluationLabels.map(() => 0);
+        let totalEvaluations = 0;
+
+        courses.forEach(course => {
+            course.evaluations.forEach(evaluation => {
+                totalEvaluations++;
+                evaluation.evaluationData.forEach((data, index) => {
+                    totalScores[index] += data.value;
+                });
             });
         });
 
-        const data = Object.keys(radarChartData).map(title => ({
-            title,
-            data: radarChartData[title]
+        const averageScores = totalScores.map(score => totalEvaluations > 0 ? score / totalEvaluations : 0);
+
+        const result = evaluationLabels.map((label, index) => ({
+            axis: label,
+            score: averageScores[index]
         }));
 
-        res.status(200).json(data);
+        res.status(200).json(result);
     } catch (error) {
         res.status(500).json({ message: error.message });
     }
 };
 
-// Controller to get demographic distribution
-const getDemographicDistribution = async (req, res) => {
+// Completion Rate
+const getCompletionRate = async (req, res) => {
     try {
-        const users = await User.find();
-
-        const ageDistribution = users.reduce((acc, user) => {
-            if (user.DATE_NAISSANCE) {
-                const age = new Date().getFullYear() - new Date(user.DATE_NAISSANCE).getFullYear();
-                if (!acc[age]) acc[age] = 0;
-                acc[age]++;
+        const currentYear = new Date().getFullYear();
+        const courses = await Course.find({
+            'times.endTime': { 
+                $gte: new Date(currentYear, 0, 1).toISOString(), 
+                $lte: new Date(currentYear, 11, 31).toISOString() 
             }
-            return acc;
-        }, {});
+        });
 
-        const genderDistribution = users.reduce((acc, user) => {
-            if (user.SEXE) {
-                if (!acc[user.SEXE]) acc[user.SEXE] = 0;
-                acc[user.SEXE]++;
+        const monthlyData = Array(12).fill().map(() => ({ completed: 0, total: 0 }));
+
+        courses.forEach(course => {
+            const courseEndMonth = new Date(course.times[course.times.length - 1].endTime).getMonth();
+            const totalParticipants = course.assignedUsers.length;
+            const completedParticipants = course.assignedUsers.filter(userId => {
+                const userPresences = course.presence.filter(p => p.userId.equals(userId) && p.status === 'present');
+                const hasFeedback = course.evaluations.some(evaluation => evaluation.userId.equals(userId));
+                return userPresences.length >= 0.8 * course.times.length && hasFeedback;
+            }).length;
+
+            monthlyData[courseEndMonth].total += totalParticipants;
+            monthlyData[courseEndMonth].completed += completedParticipants;
+        });
+
+        const chartData = monthlyData.map((data, index) => ({
+            month: new Date(currentYear, index, 1).toLocaleString('default', { month: 'long' }),
+            completionRate: data.total > 0 ? (data.completed / data.total) * 100 : 0
+        }));
+
+        res.status(200).json(chartData);
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
+
+// Dropout Rate
+const getDropoutRate = async (req, res) => {
+    try {
+        const currentYear = new Date().getFullYear();
+        const courses = await Course.find({
+            'createdAt': { 
+                $gte: new Date(currentYear, 0, 1).toISOString(), 
+                $lte: new Date(currentYear, 11, 31).toISOString() 
             }
-            return acc;
-        }, {});
+        }).populate('assignedUsers');
 
-        const locationDistribution = users.reduce((acc, user) => {
-            if (!acc[user.Localite]) acc[user.Localite] = 0;
-            acc[user.Localite]++;
-            return acc;
-        }, {});
+        const monthlyData = Array(12).fill().map(() => ({ dropped: 0, total: 0 }));
 
-        const educationLevelDistribution = users.reduce((acc, user) => {
-            if (!acc[user.FONCTION]) acc[user.FONCTION] = 0;
-            acc[user.FONCTION]++;
-            return acc;
-        }, {});
+        courses.forEach(course => {
+            const courseCreationMonth = new Date(course.createdAt).getMonth();
+            const totalParticipants = course.assignedUsers.length;
+            const droppedParticipants = course.assignedUsers.filter(user => 
+                !course.presence.some(p => p.userId.equals(user._id) && p.status === 'present')
+            ).length;
 
-        const workExperienceDistribution = users.reduce((acc, user) => {
-            if (!acc[user.AFFECTATION]) acc[user.AFFECTATION] = 0;
-            acc[user.AFFECTATION]++;
-            return acc;
-        }, {});
-
-        res.json({
-            ageDistribution,
-            genderDistribution,
-            locationDistribution,
-            educationLevelDistribution,
-            workExperienceDistribution,
+            monthlyData[courseCreationMonth].total += totalParticipants;
+            monthlyData[courseCreationMonth].dropped += droppedParticipants;
         });
+
+        const chartData = monthlyData.map((data, index) => ({
+            month: new Date(currentYear, index, 1).toLocaleString('default', { month: 'long' }),
+            dropoutRate: data.total > 0 ? (data.dropped / data.total) * 100 : 0
+        }));
+
+        res.status(200).json(chartData);
     } catch (error) {
-        console.error('Error fetching demographic distribution:', error);
-        res.status(500).json({ message: 'Internal server error' });
-    }
-};
-
-// Updated function to start a session
-const startSession = async (req, res) => {
-  try {
-    const userId = req.user.id; // Assuming you have user info in the request
-    const user = await User.findById(userId);
-    if (!user) {
-      return res.status(404).json({ message: 'User not found' });
-    }
-    await user.startSession();
-    res.status(200).json({ message: 'Session started' });
-  } catch (error) {
-    res.status(500).json({ message: 'Error starting session', error: error.message });
-  }
-};
-
-// Updated function to update session activity
-const updateSessionActivity = async (req, res) => {
-  try {
-    const userId = req.user.id;
-    const user = await User.findById(userId);
-    if (!user) {
-      return res.status(404).json({ message: 'User not found' });
-    }
-    await user.updateSessionActivity();
-    res.status(200).json({ message: 'Session activity updated' });
-  } catch (error) {
-    res.status(500).json({ message: 'Error updating session activity', error: error.message });
-  }
-};
-
-// Updated function to end a session
-const endSession = async (req, res) => {
-  try {
-    const userId = req.user.id;
-    const user = await User.findById(userId);
-    if (!user) {
-      return res.status(404).json({ message: 'User not found' });
-    }
-    await user.endSession();
-    res.status(200).json({ message: 'Session ended' });
-  } catch (error) {
-    res.status(500).json({ message: 'Error ending session', error: error.message });
-  }
-};
-
-// Function to get group comparison data
-const getGroupComparisons = async (req, res) => {
-    try {
-        // Define fields for different comparisons
-        const comparisonFields = [
-            { field: 'DEPARTEMENT_DIVISION', label: 'Department' },
-            { field: 'GRADE_fonction', label: 'Seniority' },
-            { field: 'FONCTION', label: 'Function' },
-            { field: 'Localite', label: 'Location' },
-            { field: 'AGE', label: 'Age' },
-            { field: 'SEX', label: 'Gender' },
-            { field: 'EDUCATION', label: 'Education Level' },
-            { field: 'EXPERIENCE', label: 'Experience' },
-        ];
-
-        const results = {};
-
-        // Process each comparison field dynamically
-        for (const { field, label } of comparisonFields) {
-            const aggregationPipeline = [
-                {
-                    $group: {
-                        _id: `$${field}`,
-                        totalUsers: { $sum: 1 },
-                        averageExperience: { $avg: { $ifNull: ["$ECHEL", 0] } }
-                    }
-                }
-            ];
-
-            const comparisonData = await User.aggregate(aggregationPipeline);
-            results[`${label}Comparison`] = comparisonData;
-        }
-
-        res.json(results);
-    } catch (error) {
-        console.error('Error fetching group comparison data:', error);
-        res.status(500).json({ message: 'Error fetching group comparison data' });
-    }
-};
-
-// Function to get distribution by department/profile/year/gender
-const getDistributionData = async (req, res) => {
-    try {
-        const departments = await User.aggregate([
-            { $group: { _id: '$DEPARTEMENT_DIVISION', count: { $sum: 1 } } },
-            { $match: { _id: { $ne: null, $ne: "" } } }
-        ]);
-
-        const profiles = await User.aggregate([
-            { $group: { _id: '$FONCTION', count: { $sum: 1 } } },
-            { $match: { _id: { $ne: null, $ne: "" } } }
-        ]);
-
-        const genders = await User.aggregate([
-            { $group: { _id: '$SEXE', count: { $sum: 1 } } },
-            { $match: { _id: { $ne: null, $ne: "" } } }
-        ]);
-
-        res.json({
-            departments,
-            profiles,
-            genders
-        });
-    } catch (error) {
-        res.status(500).json({ message: 'Error fetching distribution data', error });
+        res.status(500).json({ message: error.message });
     }
 };
 
 module.exports = {
-    getDesignationsAndInterest,
-    getPresenceDistribution,
-    getEvaluationDataForRadarCharts,
-    getDemographicDistribution,
-    startSession,
-    updateSessionActivity,
-    endSession,
-    getGroupComparisons,
-    getDistributionData
+    getEnrollmentRate,
+    getBeneficiaryRate,
+    getAttendanceRate,
+    getEvaluationScores,
+    getCompletionRate,
+    getDropoutRate
 };

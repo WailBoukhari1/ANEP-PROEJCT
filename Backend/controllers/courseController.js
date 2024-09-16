@@ -19,6 +19,21 @@ const getAllCourses = async (req, res) => {
         res.status(500).json({ message: error.message });
     }
 };
+// // Get a single course by ID
+// const getCourseNameById = async (req, res) => {
+//     const { courseId } = req.params;
+
+//     try {
+//         const course = await Course.findById(courseId);
+//         if (!course) {
+//             return res.status(404).json({ message: 'Course not found' });
+//         }
+
+//         res.status(200).json(course);
+//     } catch (error) {
+//         res.status(500).json({ message: 'Server error', error: error.message });
+//     }
+// };
 
 // Get a single course by ID
 const getCourseById = async (req, res) => {
@@ -497,6 +512,6 @@ module.exports = {
     createEvaluation,
     downloadEvaluations,
     getAllComments,
-    userAssignedDownload
-
+    userAssignedDownload,
+    // getCourseNameById,
 };
