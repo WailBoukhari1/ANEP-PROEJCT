@@ -72,21 +72,36 @@ const createCourse = async (req, res) => {
 
 // Update an existing course
 const updateCourse = async (req, res) => {
-    const { assignedUsers } = req.body;
-    // Remove users from other courses where they have conflicts
-    assignedUsers.forEach(async userId => {
-        await Course.updateMany(
-            { assignedUsers: userId, _id: { $ne: req.params.id } },
-            { $pull: { assignedUsers: userId } }
-        );
-    });
+    const { assignedUsers, ...updateData } = req.body;
+    try {
+        const courseToUpdate = await Course.findById(req.params.id);
+        if (!courseToUpdate) {
+            return res.status(404).json({ message: 'Course not found' });
+        }
 
-    // Update the current course
-    const course = await Course.findByIdAndUpdate(req.params.id, req.body, { new: true });
-    if (!course) {
-        return res.status(404).json({ message: 'Course not found' });
+        // Handle assigned users
+        if (assignedUsers) {
+            const newlyAssignedUsers = assignedUsers.filter(userId => !courseToUpdate.assignedUsers.includes(userId));
+
+            for (const userId of newlyAssignedUsers) {
+                const userCourses = await Course.find({ assignedUsers: userId });
+                for (const course of userCourses) {
+                    if (hasTimeConflict(courseToUpdate, course)) {
+                        await Course.findByIdAndUpdate(course._id, {
+                            $pull: { assignedUsers: userId }
+                        });
+                    }
+                }
+            }
+
+            updateData.assignedUsers = assignedUsers;
+        }
+
+        const updatedCourse = await Course.findByIdAndUpdate(req.params.id, updateData, { new: true });
+        res.status(200).json(updatedCourse);
+    } catch (error) {
+        res.status(400).json({ message: error.message });
     }
-    res.status(200).json(course);
 };
 
 // Delete a course
@@ -101,7 +116,23 @@ const deleteCourse = async (req, res) => {
         res.status(500).json({ message: error.message });
     }
 };
+const hasTimeConflict = (course1, course2) => {
+    for (let time1 of course1.times) {
+        for (let time2 of course2.times) {
+            if (time1.day === time2.day) {
+                const start1 = new Date(`1970-01-01T${time1.startTime}`);
+                const end1 = new Date(`1970-01-01T${time1.endTime}`);
+                const start2 = new Date(`1970-01-01T${time2.startTime}`);
+                const end2 = new Date(`1970-01-01T${time2.endTime}`);
 
+                if ((start1 < end2 && end1 > start2) || (start2 < end1 && end2 > start1)) {
+                    return true;
+                }
+            }
+        }
+    }
+    return false;
+};
 // Controller method for uploading an image
 const uploadImage = (req, res) => {
     if (req.file) {
@@ -146,7 +177,8 @@ const getAssignedUsers = async (req, res) => {
             return {
                 _id: user._id,
                 name: user.name,
-                status: presence ? presence.status : 'absent'  // Default to 'absent' if no presence data found
+                status: presence ? presence.status : 'absent',  // Default to 'absent' if no presence data found
+                daysPresent: presence ? presence.daysPresent : 0 // Default to 0 if no presence data found
             };
         });
 
@@ -184,7 +216,21 @@ const updateCoursePresence = async (req, res) => {
             return res.status(404).send('Course not found');
         }
 
-        course.presence = presence; // Assuming the presence array is directly replaceable
+        // Update presence data
+        presence.forEach(p => {
+            const existingPresence = course.presence.find(ep => ep.userId.toString() === p.userId);
+            if (existingPresence) {
+                existingPresence.status = p.daysPresent > 0 ? 'present' : 'absent';
+                existingPresence.daysPresent = p.daysPresent;
+            } else {
+                course.presence.push({
+                    userId: p.userId,
+                    status: p.daysPresent > 0 ? 'present' : 'absent',
+                    daysPresent: p.daysPresent
+                });
+            }
+        });
+
         await course.save();
 
         res.status(200).send('Presence updated successfully');
@@ -398,9 +444,8 @@ const userAssignedDownload = async (req, res) => {
             SERVICE: user.SERVICE,
             Localite: user.Localite,
             FONCTION: user.FONCTION,
-            // POST: user.name,
-            // DAT-FCT: user.name,
             Presence: course.presence.find(p => p.userId.equals(user._id))?.status || 'absent',
+            DaysPresent: course.presence.find(p => p.userId.equals(user._id))?.daysPresent || 0
         }));
 
         const worksheet = XLSX.utils.json_to_sheet(usersData);
@@ -417,9 +462,9 @@ const userAssignedDownload = async (req, res) => {
         res.send(buffer);
     } catch (error) {
         console.error('Error downloading assigned users:', error);
-        res.status(500).send('Server error');
+        res.status(500).send('Failed to download assigned users: ' + error.message);
     }
-}
+};
 
 // Create a new evaluation
 const createEvaluation = async (req, res) => {

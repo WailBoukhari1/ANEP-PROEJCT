@@ -81,6 +81,11 @@
                 enum: ['present', 'absent'],
                 default: 'absent',
                 required: false
+            },
+            daysPresent: {
+                type: Number,
+                default: 0,
+                required: false
             }
         }],
         category: { type: mongoose.Schema.Types.ObjectId, ref: 'Category', required: false },  // Link to Category model

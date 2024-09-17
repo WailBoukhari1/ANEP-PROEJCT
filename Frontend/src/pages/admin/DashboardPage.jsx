@@ -6,7 +6,6 @@ import EnrollmentRateChart from '../../components/dashboard/EnrollmentRateChart'
 import BeneficiaryRateChart from '../../components/dashboard/BeneficiaryRateChart';
 import AttendanceRateChart from '../../components/dashboard/AttendanceRateChart';
 import CompletionRateChart from '../../components/dashboard/CompletionRateChart';
-import DropoutRateChart from '../../components/dashboard/DropoutRateChart';
 import EvaluationScoresChart from '../../components/dashboard/EvaluationScoresChart';
 import ChartSection from '../../components/dashboard/ChartSection';
 
@@ -16,12 +15,11 @@ const DashboardPage = () => {
         enrollmentRate: {},
         beneficiaryRate: {},
         completionRate: [],
-        dropoutRate: {},
         evaluationScores: [],
         courses: []
     });
     const [users, setUsers] = useState([]);
-
+    const [selectedUser, setSelectedUser] = useState('');
     useEffect(() => {
         const fetchData = async () => {
             try {
@@ -29,7 +27,6 @@ const DashboardPage = () => {
                     enrollmentResponse,
                     beneficiaryResponse,
                     completionResponse,
-                    dropoutResponse,
                     evaluationResponse,
                     usersResponse,
                     coursesResponse
@@ -37,7 +34,6 @@ const DashboardPage = () => {
                     useApiAxios.get('/statistics/enrollment-rate'),
                     useApiAxios.get('/statistics/beneficiary-rate'),
                     useApiAxios.get('/statistics/completion-rate'),
-                    useApiAxios.get('/statistics/dropout-rate'),
                     useApiAxios.get('/statistics/evaluation-scores'),
                     useApiAxios.get('/users'),
                     useApiAxios.get('/courses')
@@ -47,7 +43,6 @@ const DashboardPage = () => {
                     enrollmentRate: enrollmentResponse.data,
                     beneficiaryRate: beneficiaryResponse.data,
                     completionRate: completionResponse.data,
-                    dropoutRate: dropoutResponse.data,
                     evaluationScores: evaluationResponse.data,
                     courses: coursesResponse.data
                 });
@@ -137,13 +132,14 @@ const DashboardPage = () => {
                     <ChartSection
                         title="Taux de complétion"
                         Chart={CompletionRateChart}
-                        data={dashboardData.completionRate}
+                        data={{
+                            completionRate: dashboardData.completionRate || [],
+                            users,
+                            selectedUser,
+                            onUserChange: setSelectedUser
+                        }}
                     />
-                    <ChartSection
-                        title="Taux des Participants ayant abandonné"
-                        Chart={DropoutRateChart}
-                        data={dashboardData.dropoutRate}
-                    />
+
                     <ChartSection
                         title="Moyenne de Scores des évaluations"
                         Chart={EvaluationScoresChart}
@@ -151,6 +147,7 @@ const DashboardPage = () => {
                         courses={dashboardData.courses}
                         fetchEvaluationScores={fetchEvaluationScores}
                         fetchCourseDetails={fetchCourseDetails}
+                        fullWidth={true}
                     />
                 </Grid>
             </Box>

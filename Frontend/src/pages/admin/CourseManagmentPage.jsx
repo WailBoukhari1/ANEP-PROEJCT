@@ -9,8 +9,7 @@ import {
   Tooltip,
   Menu,
   MenuItem,
-  Checkbox,
-  FormControlLabel,
+  TextField,
   useTheme,
 } from "@mui/material";
 import { DataGrid } from "@mui/x-data-grid";
@@ -32,7 +31,7 @@ const PresenceMenu = ({
   anchorEl,
   userPresence,
   handleMenuClose,
-  handlePresenceChange,
+  handleDaysChange,
   handleSavePresence,
 }) => {
   const theme = useTheme();
@@ -56,26 +55,13 @@ const PresenceMenu = ({
             {user.name}
           </Typography>
           <Box>
-            <FormControlLabel
-              control={
-                <Checkbox
-                  checked={user.status === "present"}
-                  onChange={() => handlePresenceChange(user._id, "present")}
-                />
-              }
-              label="Présent"
-              labelPlacement="end"
-              style={{ marginRight: 8 }}
-            />
-            <FormControlLabel
-              control={
-                <Checkbox
-                  checked={user.status === "absent"}
-                  onChange={() => handlePresenceChange(user._id, "absent")}
-                />
-              }
-              label="Absent"
-              labelPlacement="end"
+            <TextField
+              type="number"
+              value={user.daysPresent}
+              onChange={(e) => handleDaysChange(user._id, e.target.value)}
+              label="Days Present"
+              inputProps={{ min: 0 }}
+              style={{ width: 100 }}
             />
           </Box>
         </MenuItem>
@@ -99,7 +85,7 @@ PresenceMenu.propTypes = {
   anchorEl: PropTypes.any,
   userPresence: PropTypes.array.isRequired,
   handleMenuClose: PropTypes.func.isRequired,
-  handlePresenceChange: PropTypes.func.isRequired,
+  handleDaysChange: PropTypes.func.isRequired,
   handleSavePresence: PropTypes.func.isRequired,
 };
 
@@ -128,16 +114,29 @@ function CourseManagement() {
       const response = await useApiAxios.get(
         `/courses/${course._id}/assignedUsers`
       );
-      setUserPresence(response.data);
+      const usersWithPresence = response.data.map(user => ({
+        ...user,
+        daysPresent: user.daysPresent || 0 // Ensure daysPresent is set
+      }));
+      setUserPresence(usersWithPresence);
     } catch (error) {
       console.error("Échec de la récupération des utilisateurs assignés:", error);
     }
   };
 
+  const handleDaysChange = (userId, days) => {
+    const daysPresent = parseInt(days, 10);
+    setUserPresence(prevState =>
+      prevState.map(user =>
+        user._id === userId ? { ...user, daysPresent, status: daysPresent > 0 ? 'present' : 'absent' } : user
+      )
+    );
+  };
+
   const handleSavePresence = async () => {
     const presenceData = userPresence.map((user) => ({
       userId: user._id,
-      status: user.status,
+      daysPresent: user.daysPresent,
     }));
 
     try {
@@ -157,14 +156,6 @@ function CourseManagement() {
   const handleMenuClose = () => {
     setAnchorEl(null);
     setSelectedCourse(null);
-  };
-
-  const handlePresenceChange = (userId, status) => {
-    setUserPresence(
-      userPresence.map((user) =>
-        user._id === userId ? { ...user, status } : user
-      )
-    );
   };
 
   const fetchCourses = async () => {
@@ -391,14 +382,14 @@ return (
         checkboxSelection
         disableSelectionOnClick
         autoHeight
-        getRowId={(row) => row._id} // This line tells DataGrid to use `_id` as the unique row identifier
+        getRowId={(row) => row._id} 
       />
       {selectedCourse && (
         <PresenceMenu
           anchorEl={anchorEl}
           userPresence={userPresence}
           handleMenuClose={handleMenuClose}
-          handlePresenceChange={handlePresenceChange}
+          handleDaysChange={handleDaysChange}
           handleSavePresence={handleSavePresence}
         />
       )}

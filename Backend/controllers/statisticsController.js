@@ -33,37 +33,55 @@ const getBeneficiaryRate = async (req, res) => {
 const getAttendanceRate = async (req, res) => {
     try {
         const { userId } = req.params;
-        const currentYear = new Date().getFullYear();
-        const courses = await Course.find({
-            'times.startTime': { $gte: new Date(currentYear, 0, 1).toISOString(), $lte: new Date(currentYear, 11, 31).toISOString() }
-        }).populate('assignedUsers');
+        const endDate = new Date();
+        const startDate = new Date(endDate.getFullYear() - 1, endDate.getMonth() + 1, 1); // Start from 12 months ago
+        let courses;
 
-        const monthlyData = Array(12).fill().map(() => ({ attendedCourses: 0, totalAssignedCourses: 0 }));
+        if (userId) {
+            courses = await Course.find({
+                'times.startTime': { $gte: startDate.toISOString(), $lte: endDate.toISOString() },
+                assignedUsers: userId
+            }).populate('assignedUsers');
+        } else {
+            courses = await Course.find({
+                'times.startTime': { $gte: startDate.toISOString(), $lte: endDate.toISOString() }
+            }).populate('assignedUsers');
+        }
+
+        const monthlyData = Array(12).fill().map(() => ({ attendedDays: 0, totalAssignedDays: 0 }));
 
         courses.forEach(course => {
             course.times.forEach(time => {
-                const month = new Date(time.startTime).getMonth();
-                const assignedUsers = course.assignedUsers.length;
-                monthlyData[month].totalAssignedCourses += assignedUsers;
+                const courseStartDate = new Date(time.startTime);
+                const courseEndDate = new Date(time.endTime);
+                const monthIndex = (courseStartDate.getMonth() - startDate.getMonth() + 12) % 12;
+                const totalCourseDays = Math.ceil((courseEndDate - courseStartDate) / (1000 * 60 * 60 * 24));
 
-                course.presence.forEach(p => {
-                    if (p.status === 'present') {
-                        if (userId && p.userId.toString() === userId) {
-                            monthlyData[month].attendedCourses++;
-                        } else if (!userId) {
-                            monthlyData[month].attendedCourses++;
-                        }
+                if (userId) {
+                    const userPresence = course.presence.find(p => p.userId.toString() === userId);
+                    if (userPresence) {
+                        monthlyData[monthIndex].attendedDays += userPresence.daysPresent;
+                        monthlyData[monthIndex].totalAssignedDays += totalCourseDays;
                     }
-                });
+                } else {
+                    const assignedUsers = course.assignedUsers.length;
+                    monthlyData[monthIndex].totalAssignedDays += assignedUsers * totalCourseDays;
+                    course.presence.forEach(p => {
+                        monthlyData[monthIndex].attendedDays += p.daysPresent;
+                    });
+                }
             });
         });
 
-        const chartData = monthlyData.map((data, index) => ({
-            month: new Date(currentYear, index, 1).toLocaleString('default', { month: 'long' }),
-            attendedCourses: data.attendedCourses,
-            totalAssignedCourses: data.totalAssignedCourses,
-            attendanceRate: data.totalAssignedCourses > 0 ? (data.attendedCourses / data.totalAssignedCourses) * 100 : 0
-        }));
+        const chartData = monthlyData.map((data, index) => {
+            const currentMonth = new Date(startDate.getFullYear(), startDate.getMonth() + index, 1);
+            return {
+                month: currentMonth.toLocaleString('default', { month: 'long', year: 'numeric' }),
+                attendedDays: data.attendedDays,
+                totalAssignedDays: data.totalAssignedDays,
+                attendanceRate: data.totalAssignedDays > 0 ? (data.attendedDays / data.totalAssignedDays) * 100 : 0
+            };
+        });
 
         res.status(200).json(chartData);
     } catch (error) {
@@ -117,31 +135,41 @@ const getEvaluationScores = async (req, res) => {
 // Completion Rate
 const getCompletionRate = async (req, res) => {
     try {
-        const currentYear = new Date().getFullYear();
+        const { userId } = req.params;
+        const currentDate = new Date();
         const courses = await Course.find({
-            'times.endTime': { 
-                $gte: new Date(currentYear, 0, 1).toISOString(), 
-                $lte: new Date(currentYear, 11, 31).toISOString() 
-            }
-        });
+            'times.endTime': { $lte: currentDate.toISOString() }
+        }).populate('assignedUsers');
 
         const monthlyData = Array(12).fill().map(() => ({ completed: 0, total: 0 }));
 
         courses.forEach(course => {
-            const courseEndMonth = new Date(course.times[course.times.length - 1].endTime).getMonth();
-            const totalParticipants = course.assignedUsers.length;
-            const completedParticipants = course.assignedUsers.filter(userId => {
-                const userPresences = course.presence.filter(p => p.userId.equals(userId) && p.status === 'present');
-                const hasFeedback = course.evaluations.some(evaluation => evaluation.userId.equals(userId));
-                return userPresences.length >= 0.8 * course.times.length && hasFeedback;
-            }).length;
+            const courseEndDate = new Date(course.times[course.times.length - 1].endTime);
+            const courseEndMonth = courseEndDate.getMonth();
+            const totalCourseDays = course.times.reduce((total, time) => {
+                const start = new Date(time.startTime);
+                const end = new Date(time.endTime);
+                return total + Math.ceil((end - start) / (1000 * 60 * 60 * 24));
+            }, 0);
 
-            monthlyData[courseEndMonth].total += totalParticipants;
-            monthlyData[courseEndMonth].completed += completedParticipants;
+            if (userId) {
+                const userPresence = course.presence.find(p => p.userId.toString() === userId);
+                if (userPresence) {
+                    monthlyData[courseEndMonth].total++;
+                    if (userPresence.daysPresent === totalCourseDays) {
+                        monthlyData[courseEndMonth].completed++;
+                    }
+                }
+            } else {
+                const totalParticipants = course.assignedUsers.length;
+                const completedParticipants = course.presence.filter(p => p.daysPresent === totalCourseDays).length;
+                monthlyData[courseEndMonth].total += totalParticipants;
+                monthlyData[courseEndMonth].completed += completedParticipants;
+            }
         });
 
         const chartData = monthlyData.map((data, index) => ({
-            month: new Date(currentYear, index, 1).toLocaleString('default', { month: 'long' }),
+            month: new Date(currentDate.getFullYear(), index, 1).toLocaleString('default', { month: 'long' }),
             completionRate: data.total > 0 ? (data.completed / data.total) * 100 : 0
         }));
 
@@ -151,40 +179,6 @@ const getCompletionRate = async (req, res) => {
     }
 };
 
-// Dropout Rate
-const getDropoutRate = async (req, res) => {
-    try {
-        const currentYear = new Date().getFullYear();
-        const courses = await Course.find({
-            'createdAt': { 
-                $gte: new Date(currentYear, 0, 1).toISOString(), 
-                $lte: new Date(currentYear, 11, 31).toISOString() 
-            }
-        }).populate('assignedUsers');
-
-        const monthlyData = Array(12).fill().map(() => ({ dropped: 0, total: 0 }));
-
-        courses.forEach(course => {
-            const courseCreationMonth = new Date(course.createdAt).getMonth();
-            const totalParticipants = course.assignedUsers.length;
-            const droppedParticipants = course.assignedUsers.filter(user => 
-                !course.presence.some(p => p.userId.equals(user._id) && p.status === 'present')
-            ).length;
-
-            monthlyData[courseCreationMonth].total += totalParticipants;
-            monthlyData[courseCreationMonth].dropped += droppedParticipants;
-        });
-
-        const chartData = monthlyData.map((data, index) => ({
-            month: new Date(currentYear, index, 1).toLocaleString('default', { month: 'long' }),
-            dropoutRate: data.total > 0 ? (data.dropped / data.total) * 100 : 0
-        }));
-
-        res.status(200).json(chartData);
-    } catch (error) {
-        res.status(500).json({ message: error.message });
-    }
-};
 
 module.exports = {
     getEnrollmentRate,
@@ -192,5 +186,5 @@ module.exports = {
     getAttendanceRate,
     getEvaluationScores,
     getCompletionRate,
-    getDropoutRate
+   
 };
